@@ -9,3 +9,4 @@ publish.workspace = true
 [dependencies]
 intersect-model.workspace = true
 intersect-xtext.workspace = true
+serde.workspace = true

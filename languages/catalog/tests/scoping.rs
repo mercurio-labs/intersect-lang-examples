@@ -19,7 +19,20 @@ fn qualified(object: Obj<'_>) -> String {
 
 #[test]
 fn resolves_all_nine_references_and_validates() -> Result<(), String> {
-    let loaded = examples_catalog::load_sample()?;
+    assert_reference_targets(examples_catalog::load_sample()?);
+    Ok(())
+}
+
+#[test]
+fn pack_restores_all_nine_reference_targets() -> Result<(), String> {
+    let language = &examples_catalog::LANGUAGE;
+    let pack = examples_support::build_pack(language)?;
+    let loaded = examples_support::load_pack(language, pack, &examples_catalog::sample_sources())?;
+    assert_reference_targets(loaded);
+    Ok(())
+}
+
+fn assert_reference_targets(loaded: examples_support::Loaded) {
     assert!(loaded.diagnostics.is_empty());
     let mut actual = BTreeSet::new();
     for object in loaded.model.objects() {
@@ -44,5 +57,4 @@ fn resolves_all_nine_references_and_validates() -> Result<(), String> {
     ]
     .map(|(owner, feature, target)| (owner.to_owned(), feature, target.to_owned()));
     assert_eq!(actual, BTreeSet::from(expected));
-    Ok(())
 }

@@ -8,7 +8,7 @@ pub use semantics::{
 
 use examples_support::{Language, Loaded, Source, Structure, Text};
 
-const LANGUAGE: Language<'static> = Language {
+pub const LANGUAGE: Language<'static> = Language {
     namespace: "urn:intersect:example:petri:1",
     structure: Structure::Rcore(Text {
         uri: "petri.rcore",

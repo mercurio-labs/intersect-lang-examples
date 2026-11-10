@@ -8,10 +8,11 @@ use intersect_model::{
         bundle::{DefinitionBundle, DefinitionSource, SourceKind},
         ecore::ParseLimits,
         grammar::Profile,
+        preparation::PreparedLanguageDefinition,
         rcore_behavior::ir_v2::Limits,
         rcore_scope::{
-            BindingKind, compile_binding_kinds_with_source_limits, source_scope_bindings,
-            source_validate_bindings,
+            BindingKind, VerifiedScope, compile_binding_kinds_with_source_limits,
+            source_scope_bindings, source_validate_bindings,
         },
         schema::{BundleCompilation, CompilationSourcePolicy},
     },
@@ -24,13 +25,21 @@ use intersect_xtext::{
 };
 use std::sync::Arc;
 
+mod pack;
 mod rcore_text;
 
 pub use intersect_xtext::Source;
+pub use pack::{MAX_EXAMPLE_PACK_BYTES, build_pack, load_pack};
 pub use rcore_text::load_rcore_text;
 
 const TERMINALS_URI: &str = "org/eclipse/xtext/common/Terminals.xtext";
 const TERMINALS: &str = include_str!("../language/Terminals.xtext");
+const PROFILE: Profile = Profile::NativeV80;
+const SOURCE_POLICY: CompilationSourcePolicy = CompilationSourcePolicy {
+    structure_bytes: 256_000,
+    xtext_bytes: 256_000,
+    xtext_declarations: 128,
+};
 const LIMITS: ParseLimits = ParseLimits {
     source_bytes: 1_000_000,
 };
@@ -44,6 +53,15 @@ pub struct Text<'a> {
 pub enum Structure<'a> {
     Ecore(Text<'a>),
     Rcore(Text<'a>),
+}
+
+impl Structure<'_> {
+    fn definition(&self) -> DefinitionSource {
+        match self {
+            Self::Ecore(text) => text.definition(SourceKind::Ecore),
+            Self::Rcore(text) => text.definition(SourceKind::Rcore),
+        }
+    }
 }
 
 pub struct Language<'a> {
@@ -103,10 +121,21 @@ fn locate_issue(model: &Model, found: ObjectIssue) -> LocatedIssue {
 /// Prepare a metamodel and Xtext, construct a frozen model, link it through the
 /// declared Rcore scopes, validate its structure, and locate Rcore rule issues.
 pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Loaded, String> {
-    let (structure, migrate) = match language.structure {
-        Structure::Ecore(text) => (text.definition(SourceKind::Ecore), true),
-        Structure::Rcore(text) => (text.definition(SourceKind::Rcore), false),
-    };
+    compile_language(language, |definition, bundle, scopes| {
+        load_prepared(definition, bundle, scopes, sources)
+    })
+}
+
+fn compile_language<T>(
+    language: &Language<'_>,
+    consume: impl FnOnce(
+        &PreparedLanguageDefinition<'_>,
+        &DefinitionBundle,
+        &[VerifiedScope],
+    ) -> Result<T, String>,
+) -> Result<T, String> {
+    let structure = language.structure.definition();
+    let migrate = structure.kind == SourceKind::Ecore;
     let mut terminals = DefinitionSource::new(TERMINALS_URI, SourceKind::Xtext, TERMINALS);
     terminals.dependencies.push(structure.id.clone());
     let mut grammar = language.grammar.definition(SourceKind::Xtext);
@@ -143,53 +172,19 @@ pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Loaded, Strin
         intersect_model::migration::migrate_ecore_bundle(input.bundle.clone(), &targets)
             .map_err(|error| format!("Prepare structure origin: {error}"))?;
     let input = migration.remap_compilation(&input)?;
-    let policy = CompilationSourcePolicy::default();
     let definition = intersect_xtext::compiler::prepare_bundle_with_borrowed_authored_validation(
         &input,
         &migration,
-        Profile::NativeV80,
+        PROFILE,
         &[],
         None,
-        policy,
-        policy,
+        SOURCE_POLICY,
+        SOURCE_POLICY,
         &|_, _, _| Ok(()),
     )
     .map_err(|error| format!("Prepare language: {error:?}"))?;
 
-    let inner = GrammarPolicy::new(&definition);
-    let capability = OpenDraftCapability::new(&definition, &inner)?;
-    let draft = DraftLanguage::bind(&definition, &capability, AnalysisLimits::workbench())?;
-    let metamodel = Arc::new(
-        Metamodel::freeze(definition.schema())
-            .map_err(|error| format!("Freeze metamodel: {error}"))?,
-    );
-    let mut store = FrozenStore::new(metamodel.clone());
-    for source in sources {
-        let (evaluation, _, _) = draft.parse_runtime_into(
-            source,
-            EvaluationLimits::native(),
-            &mut store,
-            &mut QueryBudget::new(usize::MAX),
-        )?;
-        if !evaluation.diagnostics.is_empty() {
-            return Err(format!("{}: {:?}", source.uri, evaluation.diagnostics));
-        }
-    }
-
-    let structure = definition
-        .sources()
-        .sources
-        .iter()
-        .find(|source| source.kind == SourceKind::Rcore)
-        .ok_or("Prepared language has no Rcore structure")?
-        .clone();
-    let mut bindings = language.bindings.definition(SourceKind::RcoreBehavior);
-    bindings.dependencies.push(structure.id.clone());
-    let bundle = DefinitionBundle {
-        version: 1,
-        sources: vec![structure, bindings.clone()],
-        namespaces: vec![],
-    };
+    let (bundle, bindings) = binding_input(language, &definition)?;
     let mut declarations: Vec<_> = source_scope_bindings(&bindings, LIMITS)
         .map_err(|error| format!("Read bindings: {error:?}"))?
         .iter()
@@ -210,7 +205,59 @@ pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Loaded, Strin
         LIMITS,
     )
     .map_err(|error| format!("Compile bindings: {error:?}"))?;
-    let resolvers = RcoreScopes::new(&metamodel, &bundle, &scopes)
+    consume(&definition, &bundle, &scopes)
+}
+
+fn binding_input(
+    language: &Language<'_>,
+    definition: &PreparedLanguageDefinition<'_>,
+) -> Result<(DefinitionBundle, DefinitionSource), String> {
+    let structure = definition
+        .sources()
+        .sources
+        .iter()
+        .find(|source| {
+            source.id == definition.selection().ecore && source.kind == SourceKind::Rcore
+        })
+        .ok_or("Prepared language has no Rcore structure")?
+        .clone();
+    let mut bindings = language.bindings.definition(SourceKind::RcoreBehavior);
+    bindings.dependencies.push(structure.id.clone());
+    let bundle = DefinitionBundle {
+        version: 1,
+        sources: vec![structure, bindings.clone()],
+        namespaces: vec![],
+    };
+    Ok((bundle, bindings))
+}
+
+fn load_prepared(
+    definition: &PreparedLanguageDefinition<'_>,
+    bundle: &DefinitionBundle,
+    scopes: &[VerifiedScope],
+    sources: &[Source],
+) -> Result<Loaded, String> {
+    let inner = GrammarPolicy::new(definition);
+    let capability = OpenDraftCapability::new(definition, &inner)?;
+    let draft = DraftLanguage::bind(definition, &capability, AnalysisLimits::workbench())?;
+    let metamodel = Arc::new(
+        Metamodel::freeze(definition.schema())
+            .map_err(|error| format!("Freeze metamodel: {error}"))?,
+    );
+    let mut store = FrozenStore::new(metamodel.clone());
+    for source in sources {
+        let (evaluation, _, _) = draft.parse_runtime_into(
+            source,
+            EvaluationLimits::native(),
+            &mut store,
+            &mut QueryBudget::new(usize::MAX),
+        )?;
+        if !evaluation.diagnostics.is_empty() {
+            return Err(format!("{}: {:?}", source.uri, evaluation.diagnostics));
+        }
+    }
+
+    let resolvers = RcoreScopes::new(&metamodel, bundle, scopes)
         .map_err(|error| format!("Bind language: {error}"))?;
     let model = store
         .into_builder()

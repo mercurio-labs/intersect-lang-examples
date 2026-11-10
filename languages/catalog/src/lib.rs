@@ -17,18 +17,19 @@ pub const LANGUAGE: Language<'static> = Language {
     },
 };
 
+pub fn sample_sources() -> [Source; 2] {
+    [
+        Source {
+            uri: "types.catalog".into(),
+            text: include_str!("../models/types.catalog").into(),
+        },
+        Source {
+            uri: "shop.catalog".into(),
+            text: include_str!("../models/shop.catalog").into(),
+        },
+    ]
+}
+
 pub fn load_sample() -> Result<Loaded, String> {
-    examples_support::load(
-        &LANGUAGE,
-        &[
-            Source {
-                uri: "types.catalog".into(),
-                text: include_str!("../models/types.catalog").into(),
-            },
-            Source {
-                uri: "shop.catalog".into(),
-                text: include_str!("../models/shop.catalog").into(),
-            },
-        ],
-    )
+    examples_support::load(&LANGUAGE, &sample_sources())
 }

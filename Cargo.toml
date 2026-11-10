@@ -11,9 +11,9 @@ publish = false
 
 [workspace.dependencies]
 # All core crates use the same revision. See "Working with a local core" in README.md.
-intersect-model = { git = "https://github.com/mercurio-labs/intersect", rev = "ee380404832746031e326062646e2b6ef1baeaea" }
-intersect-xtext = { git = "https://github.com/mercurio-labs/intersect", rev = "ee380404832746031e326062646e2b6ef1baeaea" }
-intersect-run = { git = "https://github.com/mercurio-labs/intersect", rev = "ee380404832746031e326062646e2b6ef1baeaea" }
+intersect-model = { git = "https://github.com/mercurio-labs/intersect", rev = "5bc94b58e5a0c27fc80520f58c9f10a00b3be798" }
+intersect-xtext = { git = "https://github.com/mercurio-labs/intersect", rev = "5bc94b58e5a0c27fc80520f58c9f10a00b3be798" }
+intersect-run = { git = "https://github.com/mercurio-labs/intersect", rev = "5bc94b58e5a0c27fc80520f58c9f10a00b3be798" }
 examples-support = { path = "support" }
 examples-catalog = { path = "languages/catalog" }
 examples-petri = { path = "languages/petri" }

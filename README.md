@@ -30,6 +30,26 @@ Use `examples-run catalog check` to check the bundled catalog or pass model
 paths after `check`. Use `examples-run library check` for the bundled Library
 sample, or pass model paths after `check`.
 
+## Compiled language packs
+
+Build trusted host-local packs for Catalog and Petri, then load them from a
+new runner invocation:
+
+~~~sh
+cargo run -p examples-run -- pack catalog target/packs/catalog.pack
+cargo run -p examples-run -- pack petri target/packs/petri.pack
+cargo run -p examples-run -- catalog check --pack target/packs/catalog.pack
+cargo run -p examples-run -- petri languages/petri/models/coffee.petri --pack target/packs/petri.pack --scenario languages/petri/scenarios/two-coins.scenario.json --until 20s --out target/runs/coffee-packed.trace.json
+~~~
+
+Each pack retains the compiled grammar and schema, source provenance, and
+verified Rcore bindings. The runner checks the pack's integrity and exact
+compiler and source identities, then restores the compiled data and links and
+validates the model. `--pack` fails on an invalid or incompatible pack. Rebuild
+the pack after a definition or compiler change. Use packs built by your own
+runner; integrity digests do not authenticate other publishers. Petri firing
+and scheduling use the Rust host and the separately supplied model and scenario.
+
 ## Checks
 
 Run quick tests from the repository root with the test reporter.
