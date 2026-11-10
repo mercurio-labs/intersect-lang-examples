@@ -1,0 +1,19 @@
+[package]
+name = "examples-library"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+autotests = false
+
+[dependencies]
+examples-support.workspace = true
+intersect-model.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[[test]]
+name = "all"
+path = "tests/all.rs"

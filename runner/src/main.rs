@@ -1,11 +1,11 @@
 //! Handwritten CLI for checking examples and recording model runs.
 use examples_petri::{DEFAULT_END_TIME, Scenario, TimedPetri, profile};
-use examples_support::{Loaded, Source, Text, load_rcore_text};
+use examples_support::{Loaded, Source};
 use intersect_run::Policy;
 use sha2::{Digest, Sha256};
 use std::{env, fs, path::Path, process::ExitCode};
 
-const USAGE: &str = "examples-run petri MODEL [--scenario JSON] [--until 20s] [--policy first|seeded] [--seed N] --out TRACE\nexamples-run catalog check [MODEL...]\nexamples-run library check DEFINITION.rcore GRAMMAR.xtext MODEL.library...";
+const USAGE: &str = "examples-run petri MODEL [--scenario JSON] [--until 20s] [--policy first|seeded] [--seed N] --out TRACE\nexamples-run catalog check [MODEL...]\nexamples-run library check [MODEL...]";
 
 fn read(path: &str) -> Result<String, String> {
     fs::read_to_string(path).map_err(|error| format!("{path}: {error}"))
@@ -140,23 +140,16 @@ fn run(args: &[String]) -> Result<(), String> {
             println!("Catalog checked {} objects.", loaded.model.objects().len());
             Ok(())
         }
-        ("library", "check", [definition, grammar, models @ ..]) if !models.is_empty() => {
-            let sources = models
-                .iter()
-                .map(|path| source(path))
-                .collect::<Result<Vec<_>, _>>()?;
-            load_rcore_text(
-                "urn:intersect:example:library:1",
-                Text {
-                    uri: "library.rcore",
-                    content: &read(definition)?,
-                },
-                Text {
-                    uri: "library.xtext",
-                    content: &read(grammar)?,
-                },
-                &sources,
-            )?;
+        ("library", "check", models) => {
+            let sources = if models.is_empty() {
+                vec![examples_library::sample()]
+            } else {
+                models
+                    .iter()
+                    .map(|path| source(path))
+                    .collect::<Result<Vec<_>, _>>()?
+            };
+            examples_library::load(&sources)?;
             println!("Library checked {} resource(s).", sources.len());
             Ok(())
         }

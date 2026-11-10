@@ -61,6 +61,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "examples-library"
+version = "0.1.0"
+dependencies = [
+ "examples-support",
+ "intersect-model",
+ "serde_json",
+]
+
+[[package]]
 name = "examples-petri"
 version = "0.1.0"
 dependencies = [
@@ -77,6 +86,7 @@ name = "examples-run"
 version = "0.1.0"
 dependencies = [
  "examples-catalog",
+ "examples-library",
  "examples-petri",
  "examples-support",
  "intersect-run",

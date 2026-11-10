@@ -5,6 +5,8 @@ Small language packages that use [Intersect](https://github.com/mercurio-labs/in
 across two resources. The support crate prepares the definitions and loads
 the model through the shared frozen engine. [Petri](languages/petri/README.md)
 adds net-local scoping and Rcore validation with source locations.
+[Library](languages/library/README.md) runs a derived feature and an operation
+written in Rcore.
 
 ## Run and replay
 
@@ -25,8 +27,8 @@ relative `layout` URL.
 ![CoffeeMachine trace replay at 4450 ms](viewer/coffee-replay.png)
 
 Use `examples-run catalog check` to check the bundled catalog or pass model
-paths after `check`. The Library checker accepts an Rcore definition, Xtext
-grammar, and one or more model paths.
+paths after `check`. Use `examples-run library check` for the bundled Library
+sample, or pass model paths after `check`.
 
 ## Checks
 
@@ -34,8 +36,8 @@ Run quick tests from the repository root with the test reporter.
 
 ```sh
 cargo fmt --all --check
-cargo clippy --all-targets -p examples-support -p examples-catalog -p examples-petri -p examples-run -- -D warnings
-python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-run --lib --bins --tests
+cargo clippy --all-targets -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run -- -D warnings
+python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run --lib --bins --tests
 ```
 
 CI needs an `INTERSECT_CORE_TOKEN` with read access to the private core repository.
@@ -48,7 +50,7 @@ Until the revision is available upstream, supply Cargo's path patches on the
 command line. Use the same patches for Clippy.
 
 ```sh
-python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-run --lib --bins --tests \
+python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run --lib --bins --tests \
   --config 'patch."https://github.com/mercurio-labs/intersect".intersect-model.path="../intersect/crates/intersect-model"' \
   --config 'patch."https://github.com/mercurio-labs/intersect".intersect-xtext.path="../intersect/crates/intersect-xtext"' \
   --config 'patch."https://github.com/mercurio-labs/intersect".intersect-run.path="../intersect/crates/intersect-run"'
