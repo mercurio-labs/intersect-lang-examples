@@ -1,7 +1,7 @@
 //! Handwritten host for the shared frozen text path.
 use intersect_model::{
     core::{
-        frozen::{FrozenStore, Metamodel, Model},
+        frozen::{FrozenStore, Issue, Metamodel, Model, ObjectIssue},
         query::QueryBudget,
     },
     definitions::{
@@ -9,7 +9,10 @@ use intersect_model::{
         ecore::ParseLimits,
         grammar::Profile,
         rcore_behavior::ir_v2::Limits,
-        rcore_scope::{compile_bindings_with_source_limits, source_scope_bindings},
+        rcore_scope::{
+            BindingKind, compile_binding_kinds_with_source_limits, source_scope_bindings,
+            source_validate_bindings,
+        },
         schema::{BundleCompilation, CompilationSourcePolicy},
     },
     frozen_scopes::RcoreScopes,
@@ -48,9 +51,42 @@ impl Text<'_> {
     }
 }
 
+pub struct Loaded {
+    pub model: Model,
+    pub diagnostics: Vec<LocatedIssue>,
+}
+
+#[derive(Debug)]
+pub struct LocatedIssue {
+    pub issue: Issue,
+    pub location: Option<ObjectLocation>,
+}
+
+#[derive(Debug)]
+pub struct ObjectLocation {
+    pub resource: String,
+    pub identity: String,
+    pub span: Option<(usize, usize)>,
+}
+
+fn locate_issue(model: &Model, found: ObjectIssue) -> LocatedIssue {
+    let location = model.obj(found.object).map(|object| {
+        let (start, end) = object.span();
+        ObjectLocation {
+            resource: object.resource().to_owned(),
+            identity: object.identity().to_owned(),
+            span: (start < end).then_some((start, end)),
+        }
+    });
+    LocatedIssue {
+        issue: found.issue,
+        location,
+    }
+}
+
 /// Prepare Ecore and Xtext, construct a frozen model, link it through the
-/// declared Rcore scopes, and validate its structure.
-pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Model, String> {
+/// declared Rcore scopes, validate its structure, and locate Rcore rule issues.
+pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Loaded, String> {
     let ecore = language.ecore.definition(SourceKind::Ecore);
     let mut terminals = DefinitionSource::new(TERMINALS_URI, SourceKind::Xtext, TERMINALS);
     terminals.dependencies.push(ecore.id.clone());
@@ -130,12 +166,19 @@ pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Model, String
         sources: vec![structure, bindings.clone()],
         namespaces: vec![],
     };
-    let declarations: Vec<_> = source_scope_bindings(&bindings, LIMITS)
+    let mut declarations: Vec<_> = source_scope_bindings(&bindings, LIMITS)
         .map_err(|error| format!("Read bindings: {error:?}"))?
         .iter()
-        .map(|binding| (binding.declaration, false))
+        .map(|binding| (binding.declaration, BindingKind::Scope))
         .collect();
-    let scopes = compile_bindings_with_source_limits(
+    let validations = source_validate_bindings(&bindings, LIMITS)
+        .map_err(|error| format!("Read validation bindings: {error:?}"))?;
+    declarations.extend(
+        validations
+            .into_iter()
+            .map(|binding| (binding.declaration, BindingKind::Validate)),
+    );
+    let scopes = compile_binding_kinds_with_source_limits(
         &bundle,
         &bindings.id,
         &declarations,
@@ -145,11 +188,17 @@ pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Model, String
     .map_err(|error| format!("Compile bindings: {error:?}"))?;
     let resolvers = RcoreScopes::new(&metamodel, &bundle, &scopes)
         .map_err(|error| format!("Bind language: {error}"))?;
-    store
+    let model = store
         .into_builder()
         .map_err(|error| format!("Build model: {error}"))?
         .link(&resolvers)
         .map_err(|error| format!("Link model: {error:?}"))?
         .validate()
-        .map_err(|error| format!("Validate model structure: {error:?}"))
+        .map_err(|error| format!("Validate model structure: {error:?}"))?;
+    let diagnostics = model
+        .check(&resolvers)
+        .into_iter()
+        .map(|found| locate_issue(&model, found))
+        .collect();
+    Ok(Loaded { model, diagnostics })
 }

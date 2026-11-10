@@ -1,0 +1,4 @@
+net InvalidDuplicatePlace {
+  place duplicate
+  place duplicate
+}

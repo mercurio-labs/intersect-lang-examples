@@ -1,0 +1,4 @@
+net InvalidWeight {
+  place a
+  transition bad : 0*a -> a
+}

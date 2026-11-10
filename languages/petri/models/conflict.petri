@@ -1,0 +1,7 @@
+net Conflict {
+  place idle = 1
+  place left
+  place right
+  transition chooseLeft : idle -> left
+  transition chooseRight : idle -> right
+}

@@ -1,0 +1,4 @@
+net InvalidNoInput {
+  place a
+  transition bad : -> a
+}

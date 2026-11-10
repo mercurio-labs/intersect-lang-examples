@@ -19,9 +19,10 @@ fn qualified(object: Obj<'_>) -> String {
 
 #[test]
 fn resolves_all_nine_references_and_validates() -> Result<(), String> {
-    let model = examples_catalog::load_sample()?;
+    let loaded = examples_catalog::load_sample()?;
+    assert!(loaded.diagnostics.is_empty());
     let mut actual = BTreeSet::new();
-    for object in model.objects() {
+    for object in loaded.model.objects() {
         for feature in ["type", "superType"] {
             if let Some(id) = object.feature(feature) {
                 for target in object.refs(id) {

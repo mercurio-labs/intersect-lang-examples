@@ -1,0 +1,6 @@
+net Zeno {
+  place a = 1
+  place b
+  transition forward : a -> b
+  transition backward : b -> a
+}

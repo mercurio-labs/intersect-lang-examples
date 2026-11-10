@@ -1,6 +1,5 @@
 //! Handwritten catalog definition registration. Text loading is shared.
-use examples_support::{Language, Source, Text};
-use intersect_model::core::frozen::Model;
+use examples_support::{Language, Loaded, Source, Text};
 
 pub const LANGUAGE: Language<'static> = Language {
     namespace: "urn:intersect:example:catalog:1",
@@ -18,7 +17,7 @@ pub const LANGUAGE: Language<'static> = Language {
     },
 };
 
-pub fn load_sample() -> Result<Model, String> {
+pub fn load_sample() -> Result<Loaded, String> {
     examples_support::load(
         &LANGUAGE,
         &[

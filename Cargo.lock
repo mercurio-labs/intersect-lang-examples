@@ -61,6 +61,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "examples-petri"
+version = "0.1.0"
+dependencies = [
+ "examples-support",
+ "intersect-model",
+]
+
+[[package]]
 name = "examples-support"
 version = "0.1.0"
 dependencies = [
