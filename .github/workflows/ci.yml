@@ -1,0 +1,36 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  quick:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: true
+      GIT_TERMINAL_PROMPT: 0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Rust checks
+        run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+      - name: Check formatting
+        run: cargo fmt --all --check
+      - name: Verify examples with the pinned core
+        env:
+          LC_ALL: C
+          INTERSECT_CORE_TOKEN: ${{ secrets.INTERSECT_CORE_TOKEN }}
+        run: |
+          export GIT_ASKPASS="$RUNNER_TEMP/intersect-askpass"
+          cat > "$GIT_ASKPASS" <<'ASKPASS'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' x-access-token ;;
+            *Password*) printf '%s\n' "$INTERSECT_CORE_TOKEN" ;;
+          esac
+          ASKPASS
+          chmod 700 "$GIT_ASKPASS"
+          cargo clippy --locked --all-targets -p examples-support -p examples-catalog -- -D warnings
+          python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog --lib --bins --tests --locked
