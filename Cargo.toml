@@ -1,5 +1,5 @@
 [workspace]
-members = ["support", "languages/catalog", "languages/petri"]
+members = ["support", "languages/catalog", "languages/petri", "runner"]
 resolver = "3"
 
 [workspace.package]

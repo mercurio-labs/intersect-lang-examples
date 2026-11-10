@@ -73,6 +73,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "examples-run"
+version = "0.1.0"
+dependencies = [
+ "examples-catalog",
+ "examples-petri",
+ "examples-support",
+ "intersect-run",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "examples-support"
 version = "0.1.0"
 dependencies = [

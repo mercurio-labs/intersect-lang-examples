@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Intersect Run Replay</title>
+  <link rel="stylesheet" href="viewer.css">
+  <script src="viewer.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <div><p class="eyebrow">INTERSECT RUN</p><h1>Trace replay</h1></div>
+    <div class="file-controls">
+      <label>Trace JSON <input id="file" type="file" accept=".json,application/json"></label>
+      <label>Layout JSON <input id="layout" type="file" accept=".json,application/json" disabled></label>
+    </div>
+  </header>
+  <p id="status" role="status">Choose a recorded trace to begin.</p>
+  <section id="replay" hidden>
+    <div class="transport">
+      <button id="play" type="button">Play</button>
+      <button id="step" type="button">Step</button>
+      <label>Speed <select id="speed"><option value="0.5">½×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+      <label class="timeline">Time <input id="time" type="range" min="0" value="0" step="1"></label>
+      <output id="clock" for="time"></output>
+    </div>
+    <div class="panels">
+      <section id="net-panel" class="card">
+        <h2 id="net-title">Net</h2>
+        <svg id="net" role="img" aria-label="Petri net and current marking"></svg>
+        <h2>Tokens over time</h2>
+        <svg id="chart" role="img" aria-label="Token count chart"></svg>
+        <div id="legend" class="legend"></div>
+      </section>
+      <section class="card log">
+        <h2>Event log</h2>
+        <ol id="events"></ol>
+      </section>
+    </div>
+  </section>
+</main>
+</body>
+</html>

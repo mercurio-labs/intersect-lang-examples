@@ -1,7 +1,7 @@
 //! Handwritten host for the shared frozen text path.
 use intersect_model::{
     core::{
-        frozen::{FrozenStore, Issue, Metamodel, Model, ObjectIssue},
+        frozen::{FrozenStore, Issue, Metamodel, Model, ObjectIssue, Severity},
         query::QueryBudget,
     },
     definitions::{
@@ -24,7 +24,10 @@ use intersect_xtext::{
 };
 use std::sync::Arc;
 
+mod rcore_text;
+
 pub use intersect_xtext::Source;
+pub use rcore_text::load_rcore_text;
 
 const TERMINALS_URI: &str = "org/eclipse/xtext/common/Terminals.xtext";
 const TERMINALS: &str = include_str!("../language/Terminals.xtext");
@@ -59,6 +62,14 @@ impl Text<'_> {
 pub struct Loaded {
     pub model: Model,
     pub diagnostics: Vec<LocatedIssue>,
+}
+
+impl Loaded {
+    pub fn has_errors(&self) -> bool {
+        self.diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.issue.severity == Severity::Error)
+    }
 }
 
 #[derive(Debug)]
