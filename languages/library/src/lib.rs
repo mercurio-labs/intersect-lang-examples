@@ -1,7 +1,7 @@
 //! Handwritten registration of the authored Library definitions.
 use examples_support::{Source, Text, load_rcore_text};
 use intersect_model::{
-    api::BasicModel, compile_rcore_at, core::storage::MemoryStore, rcore::RcorePackage,
+    api::BasicModel, compile_rcore_at, core::frozen::FrozenStore, rcore::RcorePackage,
 };
 
 const STRUCTURE: Text<'static> = Text {
@@ -49,7 +49,8 @@ pub fn load(sources: &[Source]) -> Result<(RcorePackage, BasicModel), String> {
         element.type_identity = runtime.identity(key);
     }
     parsed.schema_revision.clone_from(&runtime.revision);
-    let model = BasicModel::from_store(runtime.clone(), MemoryStore::from_model(&parsed)?)?;
+    let store = FrozenStore::from_materialized(runtime, &parsed)?;
+    let model = BasicModel::from_store(runtime.clone(), store)?;
     model.validate()?;
     package
         .bind_operation("Library", "inventoryLabel", "inventory_label")

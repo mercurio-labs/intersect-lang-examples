@@ -7,6 +7,8 @@
   `fixtures/library/catalog.library`. This example adds the authored
   `inventoryLabel` operation and its Rcore function.
 - **Consumed.** The ordinary Xtext path loads the sample and checks it.
+  The runtime imports the checked model into a frozen store using the exact
+  authored class declarations and retains the original identities and spans.
   The Rcore package binds the operation to the Rcore function and exposes
   the same model to its derived-feature and operation APIs.
 - **Semantically verified.** The quick test verifies the loaded sample,

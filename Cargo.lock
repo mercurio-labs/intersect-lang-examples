@@ -116,7 +116,7 @@ dependencies = [
 [[package]]
 name = "intersect-model"
 version = "0.1.0"
-source = "git+https://github.com/mercurio-labs/intersect?rev=5bc94b58e5a0c27fc80520f58c9f10a00b3be798#5bc94b58e5a0c27fc80520f58c9f10a00b3be798"
+source = "git+https://github.com/mercurio-labs/intersect?rev=084220f6012478ab35a54bb5397166a5f9150b0d#084220f6012478ab35a54bb5397166a5f9150b0d"
 dependencies = [
  "iri-string",
  "num-bigint",
@@ -133,7 +133,7 @@ dependencies = [
 [[package]]
 name = "intersect-run"
 version = "0.1.0"
-source = "git+https://github.com/mercurio-labs/intersect?rev=5bc94b58e5a0c27fc80520f58c9f10a00b3be798#5bc94b58e5a0c27fc80520f58c9f10a00b3be798"
+source = "git+https://github.com/mercurio-labs/intersect?rev=084220f6012478ab35a54bb5397166a5f9150b0d#084220f6012478ab35a54bb5397166a5f9150b0d"
 dependencies = [
  "serde",
  "serde_json",
@@ -142,7 +142,7 @@ dependencies = [
 [[package]]
 name = "intersect-xtext"
 version = "0.1.0"
-source = "git+https://github.com/mercurio-labs/intersect?rev=5bc94b58e5a0c27fc80520f58c9f10a00b3be798#5bc94b58e5a0c27fc80520f58c9f10a00b3be798"
+source = "git+https://github.com/mercurio-labs/intersect?rev=084220f6012478ab35a54bb5397166a5f9150b0d#084220f6012478ab35a54bb5397166a5f9150b0d"
 dependencies = [
  "intersect-model",
  "serde",
