@@ -1,0 +1,315 @@
+{
+  "header": {
+    "format": "intersect.run.trace.v1",
+    "profile": {
+      "name": "timed-firing",
+      "language_profile": "petri.timed-firing.v1",
+      "nanos_per_tick": 1000000,
+      "policy": "first",
+      "seed": 0,
+      "budgets": {
+        "steps_per_instant": 1000,
+        "total_steps": 100000,
+        "events": 100000,
+        "end_time": 20000
+      }
+    },
+    "model_digest": "246663bbf01d0e2e10463320ac51dd503daa1e54598216570fa59db8720e53a3",
+    "language_data": {
+      "name": "CoffeeMachine",
+      "places": [
+        {
+          "id": "coffee.petri#1",
+          "name": "idle",
+          "tokens": 1
+        },
+        {
+          "id": "coffee.petri#2",
+          "name": "coins",
+          "tokens": 0
+        },
+        {
+          "id": "coffee.petri#3",
+          "name": "brewing",
+          "tokens": 0
+        },
+        {
+          "id": "coffee.petri#4",
+          "name": "cups",
+          "tokens": 0
+        }
+      ],
+      "transitions": [
+        {
+          "delay_ms": 0,
+          "external": true,
+          "id": "coffee.petri#5",
+          "inputs": [],
+          "name": "insert",
+          "outputs": [
+            {
+              "place": "coffee.petri#2",
+              "weight": 1
+            }
+          ]
+        },
+        {
+          "delay_ms": 0,
+          "external": false,
+          "id": "coffee.petri#7",
+          "inputs": [
+            {
+              "place": "coffee.petri#1",
+              "weight": 1
+            },
+            {
+              "place": "coffee.petri#2",
+              "weight": 1
+            }
+          ],
+          "name": "start",
+          "outputs": [
+            {
+              "place": "coffee.petri#3",
+              "weight": 1
+            }
+          ]
+        },
+        {
+          "delay_ms": 3000,
+          "external": false,
+          "id": "coffee.petri#11",
+          "inputs": [
+            {
+              "place": "coffee.petri#3",
+              "weight": 1
+            }
+          ],
+          "name": "brew",
+          "outputs": [
+            {
+              "place": "coffee.petri#1",
+              "weight": 1
+            },
+            {
+              "place": "coffee.petri#4",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "entries": [
+    {
+      "seq": 0,
+      "time": 0,
+      "kind": "run_start",
+      "label": "timed-firing",
+      "observation": {
+        "action": null,
+        "marking": {
+          "coffee.petri#1": 1,
+          "coffee.petri#2": 0,
+          "coffee.petri#3": 0,
+          "coffee.petri#4": 0
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 1,
+      "time": 0,
+      "kind": "event_delivered",
+      "label": "input insert",
+      "observation": {
+        "action": {
+          "phase": "fired",
+          "transition": "coffee.petri#5"
+        },
+        "marking": {
+          "coffee.petri#1": 1,
+          "coffee.petri#2": 1,
+          "coffee.petri#3": 0,
+          "coffee.petri#4": 0
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 2,
+      "time": 0,
+      "kind": "step_fired",
+      "label": "start",
+      "observation": {
+        "action": {
+          "phase": "fired",
+          "transition": "coffee.petri#7"
+        },
+        "marking": {
+          "coffee.petri#1": 0,
+          "coffee.petri#2": 0,
+          "coffee.petri#3": 1,
+          "coffee.petri#4": 0
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 3,
+      "time": 0,
+      "kind": "step_fired",
+      "label": "brew",
+      "observation": {
+        "action": {
+          "phase": "started",
+          "transition": "coffee.petri#11"
+        },
+        "marking": {
+          "coffee.petri#1": 0,
+          "coffee.petri#2": 0,
+          "coffee.petri#3": 0,
+          "coffee.petri#4": 0
+        },
+        "pending": {
+          "0": {
+            "due": 3000,
+            "started": 0,
+            "transition": "coffee.petri#11"
+          }
+        }
+      }
+    },
+    {
+      "seq": 4,
+      "time": 1000,
+      "kind": "time_advanced",
+      "label": ""
+    },
+    {
+      "seq": 5,
+      "time": 1000,
+      "kind": "event_delivered",
+      "label": "input insert",
+      "observation": {
+        "action": {
+          "phase": "fired",
+          "transition": "coffee.petri#5"
+        },
+        "marking": {
+          "coffee.petri#1": 0,
+          "coffee.petri#2": 1,
+          "coffee.petri#3": 0,
+          "coffee.petri#4": 0
+        },
+        "pending": {
+          "0": {
+            "due": 3000,
+            "started": 0,
+            "transition": "coffee.petri#11"
+          }
+        }
+      }
+    },
+    {
+      "seq": 6,
+      "time": 3000,
+      "kind": "time_advanced",
+      "label": ""
+    },
+    {
+      "seq": 7,
+      "time": 3000,
+      "kind": "event_delivered",
+      "label": "complete brew",
+      "observation": {
+        "action": {
+          "phase": "completed",
+          "transition": "coffee.petri#11"
+        },
+        "marking": {
+          "coffee.petri#1": 1,
+          "coffee.petri#2": 1,
+          "coffee.petri#3": 0,
+          "coffee.petri#4": 1
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 8,
+      "time": 3000,
+      "kind": "step_fired",
+      "label": "start",
+      "observation": {
+        "action": {
+          "phase": "fired",
+          "transition": "coffee.petri#7"
+        },
+        "marking": {
+          "coffee.petri#1": 0,
+          "coffee.petri#2": 0,
+          "coffee.petri#3": 1,
+          "coffee.petri#4": 1
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 9,
+      "time": 3000,
+      "kind": "step_fired",
+      "label": "brew",
+      "observation": {
+        "action": {
+          "phase": "started",
+          "transition": "coffee.petri#11"
+        },
+        "marking": {
+          "coffee.petri#1": 0,
+          "coffee.petri#2": 0,
+          "coffee.petri#3": 0,
+          "coffee.petri#4": 1
+        },
+        "pending": {
+          "1": {
+            "due": 6000,
+            "started": 3000,
+            "transition": "coffee.petri#11"
+          }
+        }
+      }
+    },
+    {
+      "seq": 10,
+      "time": 6000,
+      "kind": "time_advanced",
+      "label": ""
+    },
+    {
+      "seq": 11,
+      "time": 6000,
+      "kind": "event_delivered",
+      "label": "complete brew",
+      "observation": {
+        "action": {
+          "phase": "completed",
+          "transition": "coffee.petri#11"
+        },
+        "marking": {
+          "coffee.petri#1": 1,
+          "coffee.petri#2": 0,
+          "coffee.petri#3": 0,
+          "coffee.petri#4": 2
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 12,
+      "time": 6000,
+      "kind": "run_end",
+      "label": "Quiescence"
+    }
+  ]
+}

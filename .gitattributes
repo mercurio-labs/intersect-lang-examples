@@ -1,0 +1,4 @@
+# Golden replay comparisons include byte offsets and the model digest.
+*.petri text eol=lf
+*.scenario.json text eol=lf
+*.trace.json text eol=lf

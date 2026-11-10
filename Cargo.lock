@@ -66,6 +66,10 @@ version = "0.1.0"
 dependencies = [
  "examples-support",
  "intersect-model",
+ "intersect-run",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -101,6 +105,15 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "intersect-run"
+version = "0.1.0"
+source = "git+https://github.com/mercurio-labs/intersect?rev=ee380404832746031e326062646e2b6ef1baeaea#ee380404832746031e326062646e2b6ef1baeaea"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

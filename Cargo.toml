@@ -16,6 +16,10 @@ intersect-xtext = { git = "https://github.com/mercurio-labs/intersect", rev = "e
 intersect-run = { git = "https://github.com/mercurio-labs/intersect", rev = "ee380404832746031e326062646e2b6ef1baeaea" }
 examples-support = { path = "support" }
 examples-catalog = { path = "languages/catalog" }
+examples-petri = { path = "languages/petri" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+sha2 = "0.10.9"
 
 [profile.test-fast]
 inherits = "dev"

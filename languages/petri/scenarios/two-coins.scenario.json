@@ -1,0 +1,6 @@
+{
+  "inputs": [
+    { "at_ms": 0, "transition": "insert" },
+    { "at_ms": 1000, "transition": "insert" }
+  ]
+}

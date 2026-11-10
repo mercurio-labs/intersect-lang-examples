@@ -1,0 +1,118 @@
+{
+  "header": {
+    "format": "intersect.run.trace.v1",
+    "profile": {
+      "name": "timed-firing",
+      "language_profile": "petri.timed-firing.v1",
+      "nanos_per_tick": 1000000,
+      "policy": "seeded",
+      "seed": 0,
+      "budgets": {
+        "steps_per_instant": 1000,
+        "total_steps": 100000,
+        "events": 100000,
+        "end_time": 20000
+      }
+    },
+    "model_digest": "974f01a5647abf07a16ebc2f2c02473e62a0a909f7e4d051ccfd89a860fc3f21",
+    "language_data": {
+      "name": "Conflict",
+      "places": [
+        {
+          "id": "conflict.petri#1",
+          "name": "idle",
+          "tokens": 1
+        },
+        {
+          "id": "conflict.petri#2",
+          "name": "left",
+          "tokens": 0
+        },
+        {
+          "id": "conflict.petri#3",
+          "name": "right",
+          "tokens": 0
+        }
+      ],
+      "transitions": [
+        {
+          "delay_ms": 0,
+          "external": false,
+          "id": "conflict.petri#4",
+          "inputs": [
+            {
+              "place": "conflict.petri#1",
+              "weight": 1
+            }
+          ],
+          "name": "chooseLeft",
+          "outputs": [
+            {
+              "place": "conflict.petri#2",
+              "weight": 1
+            }
+          ]
+        },
+        {
+          "delay_ms": 0,
+          "external": false,
+          "id": "conflict.petri#7",
+          "inputs": [
+            {
+              "place": "conflict.petri#1",
+              "weight": 1
+            }
+          ],
+          "name": "chooseRight",
+          "outputs": [
+            {
+              "place": "conflict.petri#3",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "entries": [
+    {
+      "seq": 0,
+      "time": 0,
+      "kind": "run_start",
+      "label": "timed-firing",
+      "observation": {
+        "action": null,
+        "marking": {
+          "conflict.petri#1": 1,
+          "conflict.petri#2": 0,
+          "conflict.petri#3": 0
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 1,
+      "time": 0,
+      "kind": "step_fired",
+      "label": "chooseRight",
+      "observation": {
+        "action": {
+          "phase": "fired",
+          "transition": "conflict.petri#7"
+        },
+        "marking": {
+          "conflict.petri#1": 0,
+          "conflict.petri#2": 0,
+          "conflict.petri#3": 1
+        },
+        "pending": {}
+      }
+    },
+    {
+      "seq": 2,
+      "time": 0,
+      "kind": "run_end",
+      "label": "Quiescence"
+    }
+  ]
+}
