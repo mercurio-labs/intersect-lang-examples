@@ -38,9 +38,14 @@ pub struct Text<'a> {
     pub content: &'a str,
 }
 
+pub enum Structure<'a> {
+    Ecore(Text<'a>),
+    Rcore(Text<'a>),
+}
+
 pub struct Language<'a> {
     pub namespace: &'a str,
-    pub ecore: Text<'a>,
+    pub structure: Structure<'a>,
     pub grammar: Text<'a>,
     pub bindings: Text<'a>,
 }
@@ -84,40 +89,48 @@ fn locate_issue(model: &Model, found: ObjectIssue) -> LocatedIssue {
     }
 }
 
-/// Prepare Ecore and Xtext, construct a frozen model, link it through the
+/// Prepare a metamodel and Xtext, construct a frozen model, link it through the
 /// declared Rcore scopes, validate its structure, and locate Rcore rule issues.
 pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Loaded, String> {
-    let ecore = language.ecore.definition(SourceKind::Ecore);
+    let (structure, migrate) = match language.structure {
+        Structure::Ecore(text) => (text.definition(SourceKind::Ecore), true),
+        Structure::Rcore(text) => (text.definition(SourceKind::Rcore), false),
+    };
     let mut terminals = DefinitionSource::new(TERMINALS_URI, SourceKind::Xtext, TERMINALS);
-    terminals.dependencies.push(ecore.id.clone());
+    terminals.dependencies.push(structure.id.clone());
     let mut grammar = language.grammar.definition(SourceKind::Xtext);
     grammar
         .dependencies
-        .extend([ecore.id.clone(), terminals.id.clone()]);
+        .extend([structure.id.clone(), terminals.id.clone()]);
     let mut rules = DefinitionSource::new(
         "load-rules.rcore",
         SourceKind::RcoreBehavior,
         r#"rcore 1; package example.load version "1";"#,
     );
-    rules.dependencies.push(ecore.id.clone());
+    rules.dependencies.push(structure.id.clone());
 
     let input = BundleCompilation {
         bundle: DefinitionBundle {
             version: 1,
-            sources: vec![ecore.clone(), terminals, grammar.clone(), rules.clone()],
+            sources: vec![structure.clone(), terminals, grammar.clone(), rules.clone()],
             namespaces: vec![],
         },
-        ecore: ecore.id.clone(),
+        ecore: structure.id.clone(),
         xtext: Some(grammar.id),
         rcore_behavior: rules.id,
         namespace: language.namespace.into(),
         materialized_types: vec![],
     };
-    let migration = intersect_model::migration::migrate_ecore_bundle(
-        input.bundle.clone(),
-        &[(ecore.id, "structure.rcore".into())].into(),
-    )
-    .map_err(|error| format!("Migrate Ecore: {error}"))?;
+    // Preparation retains an exact origin bundle. An empty target map
+    // passes authored Rcore through with its original source identity.
+    let targets = if migrate {
+        [(structure.id, "structure.rcore".into())].into()
+    } else {
+        Default::default()
+    };
+    let migration =
+        intersect_model::migration::migrate_ecore_bundle(input.bundle.clone(), &targets)
+            .map_err(|error| format!("Prepare structure origin: {error}"))?;
     let input = migration.remap_compilation(&input)?;
     let policy = CompilationSourcePolicy::default();
     let definition = intersect_xtext::compiler::prepare_bundle_with_borrowed_authored_validation(
@@ -157,7 +170,7 @@ pub fn load(language: &Language<'_>, sources: &[Source]) -> Result<Loaded, Strin
         .sources
         .iter()
         .find(|source| source.kind == SourceKind::Rcore)
-        .ok_or("Prepared language has no migrated structure")?
+        .ok_or("Prepared language has no Rcore structure")?
         .clone();
     let mut bindings = language.bindings.definition(SourceKind::RcoreBehavior);
     bindings.dependencies.push(structure.id.clone());

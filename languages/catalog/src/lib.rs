@@ -1,12 +1,12 @@
 //! Handwritten catalog definition registration. Text loading is shared.
-use examples_support::{Language, Loaded, Source, Text};
+use examples_support::{Language, Loaded, Source, Structure, Text};
 
 pub const LANGUAGE: Language<'static> = Language {
     namespace: "urn:intersect:example:catalog:1",
-    ecore: Text {
+    structure: Structure::Ecore(Text {
         uri: "catalog.ecore",
         content: include_str!("../language/catalog.ecore"),
-    },
+    }),
     grammar: Text {
         uri: "catalog.xtext",
         content: include_str!("../language/catalog.xtext"),

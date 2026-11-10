@@ -1,7 +1,7 @@
 # Timed Petri nets
 
-- **Imported.** The example authors its own Ecore, Xtext, and Rcore definitions.
-- **Consumed.** The shared support crate parses `.petri` models, resolves arc
+- **Imported.** The metamodel and rules are authored in Rcore, with an Xtext grammar.
+- **Consumed.** The shared support crate prepares the authored Rcore metamodel, parses `.petri` models, resolves arc
   places within their owning net, validates structure, and runs the Rcore
   validation rules. Rule issues include the source resource and object span.
 - **Semantically verified.** The definition tests cover three valid nets and one

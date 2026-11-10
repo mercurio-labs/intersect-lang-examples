@@ -1,0 +1,29 @@
+rcore 1;
+package example.petri version "1";
+
+metamodel "urn:intersect:example:petri:1" prefix p {
+  class Net {
+    attr name: String [1,1];
+    ref places: Place [0,*] containment;
+    ref transitions: Transition [0,*] containment;
+  }
+  class Place {
+    attr name: String [1,1];
+    attr tokens: Int32 [0,1] default 0;
+  }
+  class Transition {
+    attr name: String [1,1];
+    attr `external`: Bool [0,1] default false;
+    ref delay: Delay [0,1] containment;
+    ref inputs: Arc [0,*] containment;
+    ref outputs: Arc [0,*] containment;
+  }
+  class Arc {
+    attr weight: Int32 [0,1] default 1;
+    ref place: Place [1,1];
+  }
+  class Delay {
+    attr amount: Int32 [1,1];
+    attr unit: String [1,1];
+  }
+}

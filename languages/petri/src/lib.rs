@@ -6,14 +6,14 @@ pub use semantics::{
     TimedPetri, Transition, profile,
 };
 
-use examples_support::{Language, Loaded, Source, Text};
+use examples_support::{Language, Loaded, Source, Structure, Text};
 
 const LANGUAGE: Language<'static> = Language {
     namespace: "urn:intersect:example:petri:1",
-    ecore: Text {
-        uri: "petri.ecore",
-        content: include_str!("../language/petri.ecore"),
-    },
+    structure: Structure::Rcore(Text {
+        uri: "petri.rcore",
+        content: include_str!("../language/petri.rcore"),
+    }),
     grammar: Text {
         uri: "petri.xtext",
         content: include_str!("../language/petri.xtext"),
