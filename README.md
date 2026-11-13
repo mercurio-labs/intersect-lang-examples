@@ -29,10 +29,12 @@ the authored definitions through the shared parser.
 
 ## Browser examples
 
-Hosting is currently disabled. Download **examples-site** from a successful
-[Browser examples build](https://github.com/mercurio-labs/intersect-lang-examples/actions/workflows/web.yml), unzip it,
+Hosting is currently disabled. Download **examples-site.zip** from the
+[verified preview build](https://github.com/mercurio-labs/intersect-lang-examples/releases/tag/examples-preview-2026-11-13), unzip it,
 then run `python -m http.server 8000` in the extracted directory and open
 `http://localhost:8000/`. The site links below are reserved for future hosting.
+Future successful Browser examples workflow runs also provide an `examples-site`
+artifact; the preview download is built and checked locally.
 
 [Open the interactive examples](https://mercurio-labs.github.io/intersect-lang-examples/)
 — landing pages pair each Rust walkthrough with a runnable browser tool.
