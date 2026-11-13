@@ -30,7 +30,7 @@ mod rcore_text;
 
 pub use intersect_xtext::Source;
 pub use pack::{MAX_EXAMPLE_PACK_BYTES, build_pack, load_pack};
-pub use rcore_text::load_rcore_text;
+pub use rcore_text::{load_rcore_runtime, load_rcore_text};
 
 const TERMINALS_URI: &str = "org/eclipse/xtext/common/Terminals.xtext";
 const TERMINALS: &str = include_str!("../language/Terminals.xtext");

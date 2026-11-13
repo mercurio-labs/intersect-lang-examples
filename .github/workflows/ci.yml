@@ -32,5 +32,9 @@ jobs:
           esac
           ASKPASS
           chmod 700 "$GIT_ASKPASS"
-          cargo clippy --locked --all-targets -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run -- -D warnings
-          python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run --lib --bins --tests --locked
+          cargo clippy --locked --all-targets -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run -p examples-web -p examples-stopwatch -- -D warnings
+          python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run -p examples-web -p examples-stopwatch --lib --bins --tests --locked
+          cargo run --locked --profile test-fast -p examples-petri --example petri_lifecycle
+          cargo run --locked --profile test-fast -p examples-catalog --example catalog_lifecycle
+          cargo run --locked --profile test-fast -p examples-library --example library_lifecycle
+          cargo run --locked --profile test-fast -p examples-stopwatch --example stopwatch_lifecycle

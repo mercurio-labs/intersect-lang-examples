@@ -281,6 +281,27 @@ ui.layout.addEventListener("change", async () => {
 });
 
 const query = new URLSearchParams(location.search);
+if (query.get("embedded") === "1" && window.parent !== window) {
+  document.body.classList.add("embedded");
+  // Only the same-origin embedding page may supply a newly executed trace.
+  window.addEventListener("message", event => {
+    if (event.origin !== location.origin || event.source !== window.parent) return;
+    if (event.data?.type === "intersect:viewer-ping") {
+      window.parent.postMessage({ type: "intersect:viewer-ready" }, location.origin);
+    } else if (event.data?.type === "intersect:clear") {
+      pause();
+      ui.replay.hidden = true;
+      ui.status.textContent = "Run a model to begin.";
+    } else if (event.data?.type === "intersect:trace") {
+      try { install(event.data.trace); }
+      catch (error) {
+        showError(error);
+        window.parent.postMessage({ type: "intersect:viewer-error", message: error.message }, location.origin);
+      }
+    }
+  });
+  window.parent.postMessage({ type: "intersect:viewer-ready" }, location.origin);
+}
 if (query.has("trace")) {
   jsonAt(query.get("trace")).then(async data => {
     install(data);

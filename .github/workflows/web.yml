@@ -1,0 +1,89 @@
+name: Browser examples
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Publish the tested playground to GitHub Pages
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: true
+      GIT_TERMINAL_PROMPT: 0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install browser toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+          cargo install wasm-pack --version 0.14.0 --locked
+      - name: Install Node for the WASM smoke check
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Toolkit dependencies
+        run: npm --prefix toolkit ci
+      - name: Build with the pinned core
+        env:
+          LC_ALL: C
+          SITE_BASE: /
+          INTERSECT_CORE_TOKEN: ${{ secrets.INTERSECT_CORE_TOKEN }}
+        run: |
+          export GIT_ASKPASS="$RUNNER_TEMP/intersect-askpass"
+          cat > "$GIT_ASKPASS" <<'ASKPASS'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' x-access-token ;;
+            *Password*) printf '%s\n' "$INTERSECT_CORE_TOKEN" ;;
+          esac
+          ASKPASS
+          chmod 700 "$GIT_ASKPASS"
+          python -B tools/build_web.py
+      - name: Execute shipped WebAssembly
+        run: node tools/check_web.mjs
+      - name: Check independent Toolkit and model/text synchronization
+        working-directory: toolkit
+        run: |
+          npm run test:standalone
+          npm run test:rhai-editor
+          npx playwright install --with-deps chromium
+          npm test -- tests/library-text.spec.js tests/model-text.spec.js
+          npx playwright test --config playwright.site.config.js
+      - name: Upload runnable site download
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples-site
+          path: dist
+          retention-days: 30
+      - name: Upload static site
+        if: github.event_name == 'workflow_dispatch' && inputs.deploy
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.ref == 'refs/heads/develop'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy tested playground
+        id: deployment
+        uses: actions/deploy-pages@v4

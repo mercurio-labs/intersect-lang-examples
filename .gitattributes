@@ -2,3 +2,7 @@
 *.petri text eol=lf
 *.scenario.json text eol=lf
 *.trace.json text eol=lf
+
+# Preserve imported browser oracle evidence byte for byte.
+toolkit/tests/fixtures/** -text -whitespace
+toolkit/licenses/** -text -whitespace

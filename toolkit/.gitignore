@@ -1,0 +1,7 @@
+/node_modules/
+/dist/
+/.runtime/
+/public/intersect_web.wasm
+/public/python/
+/test-results/
+/playwright-report/

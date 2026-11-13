@@ -1,0 +1,37 @@
+{
+  "name": "intersect-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.15"
+  },
+  "scripts": {
+    "wasm": "node scripts/build-wasm.mjs && node scripts/python-assets.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "npm run wasm && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node scripts/prepare-runtime.mjs && playwright test",
+    "test:xtext": "node scripts/prepare-runtime.mjs && node --test tests/xtext.node.js",
+    "test:rhai-editor": "node scripts/prepare-runtime.mjs && node --test tests/rhai-editor.node.js",
+    "test:compatibility": "node scripts/prepare-runtime.mjs && node --test tests/compatibility.node.js",
+    "test:inference-archives": "node scripts/prepare-runtime.mjs && node --test tests/inference-archives.node.js",
+    "test:inference-graph": "node scripts/prepare-runtime.mjs && node --test tests/inference-graph.node.js",
+    "test:inference-diagnostics": "node scripts/prepare-runtime.mjs && node --test tests/inference-diagnostics.node.js",
+    "test:inference-project": "node scripts/prepare-runtime.mjs && node --test tests/inference-project.node.js",
+    "test:production": "node scripts/prepare-runtime.mjs && playwright test --config playwright.production.config.js",
+    "prepare:runtime": "node scripts/prepare-runtime.mjs",
+    "predev": "npm run wasm",
+    "test:standalone": "node --test tests/standalone.node.js"
+  },
+  "dependencies": {
+    "browser-basedpyright": "1.40.2",
+    "fflate": "0.8.2",
+    "monaco-editor": "0.57.0",
+    "pyodide": "0.29.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "vite": "6.4.4"
+  }
+}

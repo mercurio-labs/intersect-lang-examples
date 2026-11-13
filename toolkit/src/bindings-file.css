@@ -1,0 +1,13 @@
+#rhai-file { order: 1; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#rhai-file[hidden] { display: none; }
+.rhai-editor { flex: 1; min-height: 120px; }
+.rhai-run { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 8px; border-top: 1px solid var(--border); }
+.rhai-run label { display: flex; gap: 6px; align-items: center; }
+.rhai-run { font-size: 12px; }
+.rhai-run button, .rhai-run input, .rhai-run select { font: inherit; color: var(--text, #e7eaf3); background: var(--chrome, #202637); border: 1px solid var(--border); border-radius: 3px; padding: 5px 8px; }
+#rhai-arguments { width: 160px; }
+#rhai-status { margin: 6px 10px; font-size: 12px; }
+#rhai-result { margin: 0 10px 10px; max-height: 130px; overflow: auto; }
+
+.rhai-implementation { overflow-wrap: anywhere; }
+.rhai-implementation:empty { display: none; }

@@ -13,3 +13,23 @@
 
 The example covers the declarations and references in these two models.
 Behavior, execution and validation rules beyond the metamodel are out of scope.
+
+## Full lifecycle in Rust
+
+Run the commented [Catalog lifecycle example](examples/catalog_lifecycle.rs)
+from the repository root:
+
+```sh
+cargo run --profile test-fast -p examples-catalog --example catalog_lifecycle
+```
+
+It prepares the retained definitions, parses both sources into one store, links
+and structurally validates the model, and prints all nine resolved references.
+It then writes `target/runs/catalog-lifecycle/catalog.pack`, restores the
+compiled definitions, reloads the original sources and checks that every
+reference retains the same source and target identities. Packs contain the
+language definition; the two model resources remain explicit loader inputs.
+
+The [shared loader](../../support/src/lib.rs) shows the preparation, parsing,
+linking and validation operations. [The scoping test](tests/scoping.rs) checks
+the independently listed expected targets, including cross-resource references.

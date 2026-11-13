@@ -1,0 +1,253 @@
+{
+  "description": "Current association accounting for durable-provider-goldens.json rows. The goldens remain byte-identical to their pinned durable-document evidence (fixtures/xtext/durable-documents); association_usage changed when document values moved to the shared ValuePool (546f9e632). Values are native document/analyze dispatcher outputs, identical on 64-bit and 32-bit native targets; every other golden field is unchanged.",
+  "cases": {
+    "typed_terminal_nodefault_companion": {
+      "paint": [
+        {
+          "bytes": 446,
+          "operations": 9,
+          "records": 5
+        }
+      ],
+      "paint #010203": [
+        {
+          "bytes": 6877,
+          "operations": 798,
+          "records": 46
+        }
+      ],
+      "paint #123abc": [
+        {
+          "bytes": 6885,
+          "operations": 798,
+          "records": 46
+        }
+      ],
+      "paint #bad": [
+        {
+          "bytes": 2724,
+          "operations": 100,
+          "records": 20
+        }
+      ],
+      "paint #": [
+        {
+          "bytes": 790,
+          "operations": 10,
+          "records": 9
+        }
+      ],
+      "paint #010203 trailing": [
+        {
+          "bytes": 9141,
+          "operations": 806,
+          "records": 71
+        }
+      ]
+    },
+    "typed_rule_nodefault_companion": {
+      "paint": [
+        {
+          "bytes": 446,
+          "operations": 9,
+          "records": 5
+        }
+      ],
+      "paint #010203": [
+        {
+          "bytes": 6944,
+          "operations": 800,
+          "records": 48
+        }
+      ],
+      "paint #123abc": [
+        {
+          "bytes": 6952,
+          "operations": 800,
+          "records": 48
+        }
+      ],
+      "paint #bad": [
+        {
+          "bytes": 2791,
+          "operations": 102,
+          "records": 22
+        }
+      ],
+      "paint #": [
+        {
+          "bytes": 790,
+          "operations": 10,
+          "records": 9
+        }
+      ],
+      "paint #010203 trailing": [
+        {
+          "bytes": 9208,
+          "operations": 808,
+          "records": 73
+        }
+      ]
+    },
+    "nested_lexical_collection": {
+      "paint": [
+        {
+          "bytes": 446,
+          "operations": 9,
+          "records": 5
+        }
+      ],
+      "paint #010203": [
+        {
+          "bytes": 7009,
+          "operations": 802,
+          "records": 50
+        }
+      ],
+      "paint #123abc": [
+        {
+          "bytes": 7017,
+          "operations": 802,
+          "records": 50
+        }
+      ],
+      "paint #bad": [
+        {
+          "bytes": 2856,
+          "operations": 104,
+          "records": 24
+        }
+      ],
+      "paint #": [
+        {
+          "bytes": 790,
+          "operations": 10,
+          "records": 9
+        }
+      ],
+      "paint #010203 trailing": [
+        {
+          "bytes": 9273,
+          "operations": 810,
+          "records": 75
+        }
+      ]
+    },
+    "nested_nominal_depth3": {
+      "paint": [
+        {
+          "bytes": 446,
+          "operations": 9,
+          "records": 5
+        }
+      ],
+      "paint #010203": [
+        {
+          "bytes": 7073,
+          "operations": 804,
+          "records": 52
+        }
+      ],
+      "paint #123abc": [
+        {
+          "bytes": 7081,
+          "operations": 804,
+          "records": 52
+        }
+      ],
+      "paint #bad": [
+        {
+          "bytes": 2920,
+          "operations": 106,
+          "records": 26
+        }
+      ],
+      "paint #": [
+        {
+          "bytes": 790,
+          "operations": 10,
+          "records": 9
+        }
+      ],
+      "paint #010203 trailing": [
+        {
+          "bytes": 9337,
+          "operations": 812,
+          "records": 77
+        }
+      ],
+      "paint  #010203": [
+        {
+          "bytes": 7073,
+          "operations": 804,
+          "records": 52
+        }
+      ],
+      "paint #010203 ": [
+        {
+          "bytes": 7113,
+          "operations": 804,
+          "records": 53
+        }
+      ]
+    },
+    "nested_mixed_estring": {
+      "paint": [
+        {
+          "bytes": 446,
+          "operations": 9,
+          "records": 5
+        }
+      ],
+      "paint #010203": [
+        {
+          "bytes": 7071,
+          "operations": 804,
+          "records": 52
+        }
+      ],
+      "paint #123abc": [
+        {
+          "bytes": 7079,
+          "operations": 804,
+          "records": 52
+        }
+      ],
+      "paint #bad": [
+        {
+          "bytes": 2918,
+          "operations": 106,
+          "records": 26
+        }
+      ],
+      "paint #": [
+        {
+          "bytes": 790,
+          "operations": 10,
+          "records": 9
+        }
+      ],
+      "paint #010203 trailing": [
+        {
+          "bytes": 9335,
+          "operations": 812,
+          "records": 77
+        }
+      ],
+      "paint  #010203": [
+        {
+          "bytes": 7071,
+          "operations": 804,
+          "records": 52
+        }
+      ],
+      "paint #010203 ": [
+        {
+          "bytes": 7111,
+          "operations": 804,
+          "records": 53
+        }
+      ]
+    }
+  }
+}

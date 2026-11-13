@@ -1,0 +1,30 @@
+[package]
+name = "examples-web"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+autotests = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+examples-petri.workspace = true
+examples-stopwatch.workspace = true
+examples-catalog.workspace = true
+examples-support.workspace = true
+intersect-run.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.105"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[[test]]
+name = "all"
+path = "tests/all.rs"

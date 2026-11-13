@@ -1,0 +1,10 @@
+import { defineConfig } from '@playwright/test';
+import { testServer } from './playwright-server.js';
+const { baseURL, webServer } = testServer();
+export default defineConfig({
+  testDir: './tests', testMatch: ['resource-lifecycle.spec.js', 'model-text.spec.js', 'library-text.spec.js', 'imported-assignment.spec.js', 'scalar-comparison-pending.spec.js', 'durable-document.spec.js', 'durable-provider.spec.js', 'numeric-resource-pending.spec.js', 'reference-domain-pending.spec.js', 'string-transport.spec.js', 'input-string-transport.spec.js', 'json-resource-pending.spec.js', 'hidden-scope.spec.js', 'terminal-cardinality.spec.js', 'grouped-negation.spec.js', 'mixed-bindings.spec.js', 'contextual-first-rule.spec.js', 'until-operands.spec.js', 'literal-negation.spec.js', 'terminal-negation.spec.js', 'inferred-recovery.spec.js', 'inference-provider-project.spec.js', 'converted-query.spec.js', 'inference-parameters.spec.js', 'inference-diagnostics.spec.js', 'inference-graph.spec.js', 'inference-authoring.spec.js', 'inference-worker.spec.js', 'xtext-prediction.spec.js', 'semantic-bindings.spec.js', 'xtext-example.spec.js', 'rcore-example.spec.js', 'editor-windows.spec.js', 'structure.spec.js', 'ecore-python.spec.js', 'project.spec.js', 'ide-layout.spec.js', 'model-tree.spec.js', 'workbench.spec.js', 'python*.spec.js', 'package.spec.js', 'query.spec.js', 'interchange.spec.js', 'generic-reference-context.spec.js', 'runtime-feature-domains.spec.js', 'wildcard-defaults.spec.js', 'runtime-operations.spec.js', 'runtime-bridge.spec.js', 'eobject-construction.spec.js', 'rcore-behavior-structural.spec.js', 'rcore-behavior-scalar.spec.js', 'rcore-behavior-functions.spec.js'], timeout: 45000, fullyParallel: false, workers: 1,
+  // One CI retry absorbs runner timing stalls; Playwright still reports the test as flaky.
+  retries: process.env.CI ? 1 : 0,
+  use: { baseURL, viewport: { width: 1440, height: 1080 }, screenshot: 'only-on-failure', trace: 'retain-on-failure' },
+  webServer,
+});
