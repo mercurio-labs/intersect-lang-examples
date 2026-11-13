@@ -39,6 +39,8 @@ def main():
     toolkit_env["TOOLKIT_BASE"] = os.environ.get("SITE_BASE", "/") + "toolkit/"
     subprocess.run([npm, "run", "build"], cwd=ROOT / "toolkit", env=toolkit_env, check=True)
     shutil.copytree(ROOT / "toolkit" / "dist", dist / "toolkit", dirs_exist_ok=True)
+    shutil.copytree(ROOT / "toolkit" / "licenses", dist / "toolkit" / "licenses", dirs_exist_ok=True)
+    shutil.copy2(ROOT / "LICENSE", dist / "LICENSE")
     (dist / "viewer").mkdir(exist_ok=True)
     for name in ("index.html", "viewer.css", "viewer.js"):
         shutil.copy2(ROOT / "viewer" / name, dist / "viewer" / name)
