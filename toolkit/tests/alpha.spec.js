@@ -41,6 +41,7 @@ test('retained authored sources reconstruct a Library model in a fresh browser c
     expect(rebuilt.sources).toEqual(retained.sources);
     expect(rebuilt.evaluation.model).toEqual(retained.evaluation.model);
     expect(rebuilt.evaluation.derived).toEqual(retained.evaluation.derived);
-    expect(rebuilt.undo).toBe(false);
+    expect(rebuilt.undo).toBe(0);
+    expect(rebuilt.redo).toBe(0);
   } finally { await fresh.close(); }
 });
