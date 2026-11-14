@@ -1,0 +1,38 @@
+[
+  {
+    "filename": "catalog.rcore",
+    "source": "generated from languages/catalog/language/catalog.ecore",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/catalog/language/catalog.ecore",
+    "sha256": "57b8c4f9119b3f83a28b5631f603fa22d8ab1c028de6da32d8ba69542c353f11"
+  },
+  {
+    "filename": "catalog.xtext",
+    "source": "languages/catalog/language/catalog.xtext",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/catalog/language/catalog.xtext",
+    "sha256": "fe70c58273a6c409ca21e2a4d5b370670197acd74d45b1c664884ab522297a93"
+  },
+  {
+    "filename": "catalog-scoping.rcore",
+    "source": "languages/catalog/language/catalog-scoping.rcore",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/catalog/language/catalog-scoping.rcore",
+    "sha256": "3117fad582c9ceda7c242c6f9fb43b8c74202acc519f41e9c5c49025539004b4"
+  },
+  {
+    "filename": "types.catalog",
+    "source": "languages/catalog/models/types.catalog",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/catalog/models/types.catalog",
+    "sha256": "7d105671511d9fbb0a679aaaf9e0c0f6fb6517e9ec8c5535b4411d7d81164f48"
+  },
+  {
+    "filename": "shop.catalog",
+    "source": "languages/catalog/models/shop.catalog",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/catalog/models/shop.catalog",
+    "sha256": "a50cb0044eb8ad8a2e370a18abab326e706a3ec4a0c779e63dcfecbef71f55c8"
+  },
+  {
+    "filename": "catalog_lifecycle.rs",
+    "source": "languages/catalog/examples/catalog_lifecycle.rs",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/catalog/examples/catalog_lifecycle.rs",
+    "sha256": "08d0c5ce0bc772ab851d8a958dc2fe6064067d2743fa4fda95a911aae6760c9d"
+  }
+]

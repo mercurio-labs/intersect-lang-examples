@@ -6,3 +6,7 @@
 # Preserve imported browser oracle evidence byte for byte.
 toolkit/tests/fixtures/** -text -whitespace
 toolkit/licenses/** -text -whitespace
+
+# Gallery listings are generated; downloaded sources retain exact source bytes.
+web/examples/** linguist-generated
+web/examples/*/sources/** -text -whitespace

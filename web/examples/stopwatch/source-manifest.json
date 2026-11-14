@@ -1,0 +1,26 @@
+[
+  {
+    "filename": "stopwatch.rcore",
+    "source": "languages/stopwatch/language/stopwatch.rcore",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/stopwatch/language/stopwatch.rcore",
+    "sha256": "a0cd07cda5ffde0806a83e0df4a46a9c0db552a3eac7c54891920c6a7fe13cbd"
+  },
+  {
+    "filename": "stopwatch.xtext",
+    "source": "languages/stopwatch/language/stopwatch.xtext",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/stopwatch/language/stopwatch.xtext",
+    "sha256": "384779621794df7dce876abe04797a479ef291437097daf1b9f4fc11a8092c29"
+  },
+  {
+    "filename": "demo.watch",
+    "source": "languages/stopwatch/models/demo.watch",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/stopwatch/models/demo.watch",
+    "sha256": "ceecd8302bb0dfff35cc7bb2c51ae72c534db56b81e1b8705bc3f2e219910a11"
+  },
+  {
+    "filename": "stopwatch_lifecycle.rs",
+    "source": "languages/stopwatch/examples/stopwatch_lifecycle.rs",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/stopwatch/examples/stopwatch_lifecycle.rs",
+    "sha256": "5de8fcebec80e508651e53100af9d04a4facada63d1842f38e7c91ff088827fb"
+  }
+]

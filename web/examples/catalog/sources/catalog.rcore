@@ -1,0 +1,29 @@
+rcore 1;
+package catalog version "1";
+metamodel "urn:intersect:example:catalog:1" prefix cat {
+  class Model {
+    ref imports: Import [0,*] containment;
+    ref elements: Element [0,*] containment;
+  }
+  class Import {
+    attr importedNamespace: EString [1,1];
+  }
+  abstract class Element {
+    attr name: EString [1,1];
+  }
+  class Package extends Element {
+    ref elements: Element [0,*] containment;
+  }
+  abstract class Type extends Element {
+  }
+  class DataType extends Type {
+  }
+  class Entity extends Type {
+    ref superType: Entity [0,1];
+    ref features: Feature [0,*] containment;
+  }
+  class Feature extends Element {
+    attr many: EBoolean [0,1];
+    ref type: Type [1,1];
+  }
+}

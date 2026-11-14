@@ -1,0 +1,9 @@
+stopwatch Demo {
+  start
+  wait 2s
+  stop
+  wait 500ms
+  start
+  wait 750ms
+  stop
+}

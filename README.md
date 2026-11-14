@@ -37,7 +37,11 @@ Future successful Browser examples workflow runs also provide an `examples-site`
 artifact; the preview download is built and checked locally.
 
 [Open the interactive examples](https://mercurio-labs.github.io/intersect-lang-examples/)
-— landing pages pair each Rust walkthrough with a runnable browser tool.
+— a visual gallery leads to one page per example, with the Rcore metamodel,
+Xtext parser, sample text, explanation, live solution, and Rust walkthrough.
+Source listings and downloadable definitions are generated from the runnable
+examples by `tools/build_gallery.py`; Catalog labels its generated Rcore
+migration and Library identifies its pinned Toolkit definitions.
 
 - [Stopwatch simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/stopwatch/): command text, an Rcore state machine, Run timing and trace replay.
 - [Petri simulation](https://mercurio-labs.github.io/intersect-lang-examples/examples/petri/): timed firing and animated trace replay.

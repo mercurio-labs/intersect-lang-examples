@@ -1,1 +1,160 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Library model and text · Intersect</title><style>:root{color-scheme:dark;font:17px/1.6 system-ui;background:#0e1722;color:#e8eef4}body{margin:0}main{max-width:1040px;margin:auto;padding:40px 24px}a{color:#68e0bd}h1{font-size:clamp(32px,5vw,54px);line-height:1.15}p{max-width:760px;color:#b8c8d8}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}.card{background:#152333;border:1px solid #33475b;border-radius:12px;padding:24px}.button{display:inline-block;background:#68e0bd;color:#10261f;padding:12px 18px;border-radius:6px;text-decoration:none;font-weight:600}li{margin:12px 0}textarea{width:100%;min-height:260px;background:#101c29;color:#e8eef4;font:14px/1.7 monospace}button,select{font:inherit;padding:8px}table{width:100%;text-align:left}td{padding:8px;border-bottom:1px solid #33475b}.selected{background:#235748} [hidden]{display:none!important}</style><main><a href="../../">← All examples</a><h1>Library model and text</h1><p>Manipulate books, members and loans while keeping the object model and authored source synchronized.</p><p><a class="button" href="../../toolkit/library-text.html">Open the Library simulator →</a></p><h2>Try it</h2><ol><li>Change a book title or rename it; watch references and source update.</li><li>Add or delete a loan, change its member, and try undo and redo.</li><li>Edit the source and apply it to update the object model. Invalid edits retain the last accepted model.</li></ol><p><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/library/examples/library_lifecycle.rs">Read the Rust lifecycle walkthrough</a> · <a href="https://github.com/mercurio-labs/intersect-lang-examples/tree/develop/languages/library">Language definitions and guide</a></p></main></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library · Intersect examples</title><link rel="stylesheet" href="../../gallery.css"><script src="../../gallery.js" defer></script></head>
+<body><header class="site-header"><a class="brand" href="../../">intersect<span>/ examples</span></a><nav class="header-links" aria-label="Site"><a href="../../">Gallery</a><a href="https://github.com/mercurio-labs/intersect-lang-examples">GitHub ↗</a><a href="../../toolkit/">Toolkit ↗</a></nav></header>
+<main><div class="breadcrumb"><a href="../../">Examples</a> / Library</div>
+<div class="example-intro"><div><p class="eyebrow">Model ↔ text</p><h1>Library</h1><p class="lede">Edit books, members and loans as objects or as text. Keep both views synchronized, including references and history.</p><div class="actions"><a class="button" href="#solution">Try the solution ↓</a><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/library/examples/library_lifecycle.rs">Rust walkthrough ↗</a></div></div><div class="thumbnail"><svg viewBox="0 0 540 235" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g font-family="system-ui,sans-serif" font-size="13" fill="#42526a"><rect x="38" y="43" width="200" height="148" rx="6" fill="white" stroke="#d4ddea"/><text x="57" y="72" font-weight="600">BookCopy</text><path d="M38 87h200" stroke="#e2e6ec"/><text x="57" y="114">name: earthsea</text><text x="57" y="143">edition: 2</text><text x="57" y="172" fill="#268769">available: true</text><text x="265" y="123" text-anchor="middle" font-size="23" fill="#2563eb">↔</text><rect x="296" y="43" width="206" height="148" rx="6" fill="#142238"/><text x="313" y="82" fill="#c1c9ff" font-family="monospace">copy earthsea</text><text x="313" y="111" fill="#a6d9b6" font-family="monospace">"Earthsea"</text><text x="313" y="140" fill="#d7e3f2" font-family="monospace">edition 2;</text></g></svg></div></div>
+<nav class="section-nav" aria-label="Example sections"><a href="#metamodel">01 Metamodel</a><a href="#parser">02 Parser</a><a href="#example-text">03 Example text</a><a href="#solution">04 Solution</a></nav>
+<section class="section" id="definitions"><div class="section-title"><span class="number">01 / 02</span><h2>The language</h2></div><p>The Library editor exposes one accepted model through object controls and authored text. Object changes produce checked source edits; accepted text changes refresh the model. Derived availability and validation use the shared Rcore runtime.</p><div class="notice">These are the exact Library definitions used by the interactive Toolkit solution, pinned to Text revision <code>61459127</code>. The linked Rust walkthrough is a smaller related Library consumer with an additional operation.</div><div class="source-grid"><section id="metamodel"><h3>Metamodel</h3><p class="muted">Structure and behavior in Rcore</p><div class="code-panel"><div class="code-heading"><span>library-project.rcore</span><div class="code-actions"><button type="button" data-copy="metamodel-code" aria-label="Copy library-project.rcore">Copy</button><a href="sources/library-project.rcore" download>Download ↓</a></div></div><pre><code id="metamodel-code" data-source="library-project.rcore"><span class="keyword">rcore</span> <span class="number">1</span>;
+<span class="keyword">package</span> library <span class="keyword">version</span> <span class="string">&quot;1&quot;</span>;
+<span class="keyword">metamodel</span> <span class="string">&quot;urn:intersect:example:library:1&quot;</span> <span class="keyword">prefix</span> lib {
+  <span class="comment">// The first literal is also the implicit enum default.</span>
+  <span class="keyword">enum</span> BookCondition { GOOD = <span class="number">0</span>; WORN = <span class="number">1</span>; DAMAGED = <span class="number">2</span>; }
+  <span class="keyword">abstract</span> <span class="keyword">class</span> Named { <span class="keyword">attr</span> name: String [<span class="number">1</span>,<span class="number">1</span>]; }
+  <span class="keyword">class</span> Library <span class="keyword">extends</span> Named {
+    <span class="keyword">ref</span> copies: BookCopy [<span class="number">0</span>,*] <span class="keyword">containment</span> <span class="keyword">opposite</span> BookCopy.library;
+    <span class="keyword">ref</span> members: Member [<span class="number">0</span>,*] <span class="keyword">containment</span>;
+    <span class="keyword">ref</span> loans: Loan [<span class="number">0</span>,*] <span class="keyword">containment</span>;
+    <span class="keyword">attr</span> copyCount: Int64 [<span class="number">1</span>,<span class="number">1</span>] <span class="keyword">derived</span>;
+  }
+  <span class="keyword">class</span> BookCopy <span class="keyword">extends</span> Named {
+    <span class="keyword">attr</span> title: String [<span class="number">0</span>,<span class="number">1</span>];
+    <span class="keyword">attr</span> edition: Int32 [<span class="number">0</span>,<span class="number">1</span>] <span class="keyword">default</span> <span class="number">1</span>;
+    <span class="keyword">attr</span> condition: BookCondition [<span class="number">0</span>,<span class="number">1</span>] <span class="keyword">default</span> BookCondition.GOOD;
+    <span class="keyword">ref</span> library: Library [<span class="number">0</span>,<span class="number">1</span>] <span class="keyword">opposite</span> Library.copies;
+    <span class="keyword">attr</span> available: Bool [<span class="number">1</span>,<span class="number">1</span>] <span class="keyword">derived</span>;
+  }
+  <span class="keyword">class</span> Member <span class="keyword">extends</span> Named {}
+  <span class="keyword">class</span> Loan <span class="keyword">extends</span> Named {
+    <span class="keyword">ref</span> copy: BookCopy [<span class="number">1</span>,<span class="number">1</span>];
+    <span class="keyword">ref</span> member: Member [<span class="number">1</span>,<span class="number">1</span>];
+  }
+}
+
+<span class="comment">// Typed providers activate through the shared model-rule evaluator.</span>
+<span class="keyword">behavior</span> {
+  <span class="keyword">import</span> <span class="keyword">model</span> <span class="string">&quot;urn:intersect:example:library:1&quot;</span> <span class="keyword">as</span> lib;
+
+  <span class="keyword">pub</span> <span class="keyword">derive</span> lib.Library.copyCount(self) -&gt; Int = size(self.copies);
+  <span class="keyword">pub</span> <span class="keyword">derive</span> lib.BookCopy.available(self) -&gt; Bool =
+    isEmpty(incoming::&lt;lib.Loan&gt;(self, <span class="string">&quot;copy&quot;</span>));
+
+  <span class="keyword">pub</span> <span class="keyword">validate</span> lib.Loan.singleLoan(self) {
+    <span class="keyword">require</span> size(incoming::&lt;lib.Loan&gt;(self.copy, <span class="string">&quot;copy&quot;</span>)) &lt;= <span class="number">1</span>
+      <span class="keyword">code</span> <span class="string">&quot;library.single-loan&quot;</span>
+      <span class="keyword">message</span> <span class="string">&quot;A book copy cannot have more than one active loan.&quot;</span>;
+  }
+}
+</code></pre></div><div class="source-caption"><a href="https://github.com/mercurio-labs/intersect-text/blob/614591271eb00ab848d8672a2f69c44d4282b39f/fixtures/library/library-project.rcore">Source / provenance ↗</a></div></section><section id="parser"><h3>Parser</h3><p class="muted">Concrete syntax in Xtext</p><div class="code-panel"><div class="code-heading"><span>library.xtext</span><div class="code-actions"><button type="button" data-copy="parser-code" aria-label="Copy library.xtext">Copy</button><a href="sources/library.xtext" download>Download ↓</a></div></div><pre><code id="parser-code" data-source="library.xtext"><span class="keyword">grammar</span> example.Library <span class="keyword">with</span> org.eclipse.xtext.common.Terminals
+<span class="keyword">import</span> <span class="string">&quot;urn:intersect:example:library:1&quot;</span> <span class="keyword">as</span> lib
+
+Library <span class="keyword">returns</span> lib::Library:
+  <span class="string">&#x27;library&#x27;</span> name=ID <span class="string">&#x27;{&#x27;</span>
+    (copies+=BookCopy | members+=Member | loans+=Loan)*
+  <span class="string">&#x27;}&#x27;</span>;
+
+BookCopy <span class="keyword">returns</span> lib::BookCopy:
+  <span class="string">&#x27;copy&#x27;</span> name=ID title=STRING (<span class="string">&#x27;edition&#x27;</span> edition=INT)? <span class="string">&#x27;;&#x27;</span>;
+
+Member <span class="keyword">returns</span> lib::Member:
+  <span class="string">&#x27;member&#x27;</span> name=ID <span class="string">&#x27;;&#x27;</span>;
+
+Loan <span class="keyword">returns</span> lib::Loan:
+  <span class="string">&#x27;loan&#x27;</span> name=ID <span class="string">&#x27;copy&#x27;</span> copy=[lib::BookCopy|ID]
+  <span class="string">&#x27;to&#x27;</span> member=[lib::Member|ID] <span class="string">&#x27;;&#x27;</span>;
+</code></pre></div><div class="source-caption"><a href="https://github.com/mercurio-labs/intersect-text/blob/614591271eb00ab848d8672a2f69c44d4282b39f/fixtures/library/library.xtext">Source / provenance ↗</a></div></section></div></section><section class="section" id="example-text"><div class="section-title"><span class="number">03</span><h2>Example text</h2></div><div class="sample-grid"><div class="sample-sources"><div class="code-panel"><div class="code-heading"><span>catalog.library</span><div class="code-actions"><button type="button" data-copy="sample-0" aria-label="Copy catalog.library">Copy</button><a href="sources/catalog.library" download>Download ↓</a></div></div><pre><code id="sample-0" data-source="catalog.library">library Catalog {
+  copy dune <span class="string">&quot;Dune&quot;</span>;
+  copy earthsea <span class="string">&quot;A Wizard of Earthsea&quot;</span> edition <span class="number">2</span>;
+  member ada;
+}
+</code></pre></div><div class="code-panel"><div class="code-heading"><span>loans.library</span><div class="code-actions"><button type="button" data-copy="sample-1" aria-label="Copy loans.library">Copy</button><a href="sources/loans.library" download>Download ↓</a></div></div><pre><code id="sample-1" data-source="loans.library">library Circulation {
+  loan first copy dune to ada;
+}
+</code></pre></div></div><div><h3>What to try</h3><ul><li>Select a book and change its title. The source changes with the object.</li><li>Rename a book, add a loan, or change a reference. Inspect the updated source and try undo/redo.</li><li>Edit the source directly and apply it. Invalid text stays visible while the last accepted model is retained.</li></ul><p>Model and text agree after each accepted edit. References follow renames, and history restores both the model and the authored source.</p></div></div></section>
+<section class="section" id="solution"><div class="solution-heading"><div><div class="section-title"><span class="number">04</span><h2>The solution</h2></div><p>Run and explore this example below.</p></div><a class="button secondary" href="../../toolkit/library-text.html" target="_blank" rel="noopener">Open full screen ↗</a></div><div class="solution-frame"><div class="frame-bar"><span>Live example · WebAssembly</span><a href="../../toolkit/library-text.html" target="_blank" rel="noopener">Open separately ↗</a></div><iframe title="Library live solution" src="../../toolkit/library-text.html" loading="lazy" style="height:1150px"></iframe></div><p class="solution-help">The controls above run locally in your browser. Definition listings are reference source; edit the example text inside the live tool to try a new model or run.</p>
+<details class="implementation"><summary>Read the Rust lifecycle solution</summary><p>The native walkthrough shows the public API calls and checks its results.</p><div class="code-panel"><div class="code-heading"><span>library_lifecycle.rs</span><div class="code-actions"><button type="button" data-copy="solution-code" aria-label="Copy library_lifecycle.rs">Copy</button><a href="sources/library_lifecycle.rs" download>Download ↓</a></div></div><pre><code id="solution-code" data-source="library_lifecycle.rs"><span class="comment">//! Handwritten walkthrough: load text -&gt; validate -&gt; inspect -&gt; read a derived</span>
+<span class="comment">//! feature -&gt; invoke an operation -&gt; save/reload the model and its definitions.</span>
+use intersect_model::{
+    core::{query::QueryBudget, storage},
+    <span class="keyword">rcore</span>::{DataWire, ExecutionLimits, RcorePackage},
+};
+use serde_json::json;
+use std::{fs, path::Path};
+
+<span class="keyword">fn</span> main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    <span class="keyword">let</span> output = Path::new(<span class="string">&quot;target/runs/library-lifecycle&quot;</span>);
+    fs::create_dir_all(output)?;
+
+    <span class="comment">// 1. Load the grammar and authored Rcore structure, parse and check the</span>
+    <span class="comment">// sample, preserve source identities, and bind the inventoryLabel operation.</span>
+    <span class="keyword">let</span> sources = [examples_library::sample()];
+    <span class="keyword">let</span> (<span class="keyword">package</span>, <span class="keyword">model</span>) = examples_library::load(&amp;sources)?;
+
+    <span class="comment">// 2. Structural validation and semantic rule evaluation are separate.</span>
+    <span class="keyword">model</span>.<span class="keyword">validate</span>()?;
+    <span class="keyword">let</span> rules = <span class="keyword">package</span>.evaluate_model_rules(&amp;<span class="keyword">model</span>)?;
+    <span class="keyword">if</span> !rules.diagnostics.is_empty() {
+        return Err(format!(<span class="string">&quot;Library rule diagnostics: {:?}&quot;</span>, rules.diagnostics).into());
+    }
+
+    <span class="comment">// 3. Export a model view for inspection and locate the receiver by name.</span>
+    <span class="comment">// Runtime calls use its exact identity; its span still selects source text.</span>
+    <span class="keyword">let</span> exported = storage::export(&amp;<span class="keyword">model</span>)?;
+    <span class="keyword">let</span> library = exported
+        .elements
+        .iter()
+        .find(|element| element.values.get(<span class="string">&quot;name&quot;</span>) == Some(&amp;json!(<span class="string">&quot;Catalog&quot;</span>)))
+        .ok_or(<span class="string">&quot;Missing Catalog library&quot;</span>)?;
+    <span class="keyword">let</span> span = sources[<span class="number">0</span>]
+        .text
+        .get(library.start..library.end)
+        .ok_or(<span class="string">&quot;Library source span is outside the source text&quot;</span>)?;
+    println!(<span class="string">&quot;{} in {}: {span}&quot;</span>, library.id, library.resource);
+
+    <span class="comment">// 4. Execute the authored derived getter and operation under explicit</span>
+    <span class="comment">// budgets. These use the shared Rcore evaluator, not handwritten behavior.</span>
+    <span class="keyword">let</span> limits = ExecutionLimits::<span class="keyword">default</span>();
+    <span class="keyword">let</span> count = <span class="keyword">package</span>.read_derived(
+        &amp;<span class="keyword">model</span>,
+        &amp;library.id,
+        <span class="string">&quot;copyCount&quot;</span>,
+        &amp;mut QueryBudget::new(10_000),
+        &amp;limits,
+    )?;
+    <span class="keyword">let</span> label = <span class="keyword">package</span>.invoke(&amp;<span class="keyword">model</span>, &amp;library.id, <span class="string">&quot;inventoryLabel&quot;</span>, &amp;[], &amp;limits)?;
+    <span class="keyword">if</span> count != json!({<span class="string">&quot;kind&quot;</span>: <span class="string">&quot;int64&quot;</span>, <span class="string">&quot;value&quot;</span>: <span class="string">&quot;2&quot;</span>})
+        || !matches!(&amp;label.value.data, DataWire::Scalar(value) <span class="keyword">if</span> value.payload == json!(<span class="string">&quot;Catalog inventory&quot;</span>))
+    {
+        return Err(<span class="string">&quot;Unexpected sample derived feature or operation result&quot;</span>.into());
+    }
+    println!(<span class="string">&quot;copyCount = 2; inventoryLabel() = Catalog inventory&quot;</span>);
+
+    <span class="comment">// 5. Save the model with exact definitions and explicit operation bindings.</span>
+    <span class="comment">// Reload recompiles verified sources and validates the restored model.</span>
+    <span class="keyword">let</span> path = output.join(<span class="string">&quot;library.model.json&quot;</span>);
+    fs::write(&amp;path, <span class="keyword">package</span>.save(&amp;<span class="keyword">model</span>)?)?;
+    <span class="keyword">let</span> (restored_package, restored_model) = RcorePackage::reload(&amp;fs::read(&amp;path)?)?;
+    <span class="keyword">let</span> restored_count = restored_package.read_derived(
+        &amp;restored_model,
+        &amp;library.id,
+        <span class="string">&quot;copyCount&quot;</span>,
+        &amp;mut QueryBudget::new(10_000),
+        &amp;limits,
+    )?;
+    <span class="keyword">let</span> restored_label =
+        restored_package.invoke(&amp;restored_model, &amp;library.id, <span class="string">&quot;inventoryLabel&quot;</span>, &amp;[], &amp;limits)?;
+    <span class="keyword">if</span> restored_count != count || restored_label.value != label.value {
+        return Err(<span class="string">&quot;Reload changed derived or operation behavior&quot;</span>.into());
+    }
+    <span class="keyword">let</span> restored_export = storage::export(&amp;*restored_model)?;
+    <span class="keyword">if</span> serde_json::to_value(&amp;restored_export)? != serde_json::to_value(&amp;exported)? {
+        return Err(<span class="string">&quot;Reload changed the model, source identities or spans&quot;</span>.into());
+    }
+    println!(
+        <span class="string">&quot;Model and Rcore behavior survived the round trip: {}&quot;</span>,
+        path.display()
+    );
+    Ok(())
+}
+</code></pre></div><p class="source-caption"><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/library/examples/library_lifecycle.rs">Read the Rust lifecycle walkthrough</a></p></details></section>
+<nav class="next-examples" aria-label="More examples"><a href="../../">← Back to the gallery</a><a href="../catalog/">Next example →</a></nav></main><footer><span>Intersect examples · Rust + WebAssembly</span><a href="https://github.com/mercurio-labs/intersect-lang-examples">Source, build instructions and downloads ↗</a></footer></body></html>

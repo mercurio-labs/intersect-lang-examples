@@ -1,0 +1,29 @@
+rcore 1;
+package stopwatch version "1";
+metamodel "urn:intersect:example:stopwatch:1" prefix sw {
+  class Script {
+    attr name: String [1,1];
+    ref commands: Command [0,*] containment;
+    op nextState(state: String [1,1], command: String [1,1]) -> String [1,1];
+  }
+  class Command {
+    attr kind: String [1,1];
+    attr amount: Int32 [0,1];
+    attr unit: String [0,1];
+  }
+}
+behavior {
+  import model "urn:intersect:example:stopwatch:1" as sw;
+  // State machine authority: idle --start--> running --stop--> stopped.
+  // Starting a stopped watch resumes its accumulated elapsed time.
+  // Waiting never changes state. All other transitions are rejected.
+  fn next_state(self:sw.Script, state:String, command:String)->String {
+    if command == "wait" { state } else {
+      if command == "start" {
+        if state == "idle" || state == "stopped" { "running" } else { "invalid" }
+      } else {
+        if command == "stop" && state == "running" { "stopped" } else { "invalid" }
+      }
+    }
+  }
+}

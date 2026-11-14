@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Build the actual Rust Petri runtime and a relocatable static playground.
+"""Build the gallery, Rust/WASM examples, and independent Toolkit.
 
 Requires Rust's wasm32-unknown-unknown target and wasm-pack 0.14.0.
-No npm dependencies or server-side runtime are needed.
+Toolkit requires its npm dependencies at build time. The output needs only a static HTTP server.
 """
 import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,16 +29,17 @@ def main():
         "--release", "--out-dir", str(dist / "pkg"), "--out-name", "examples_web",
         "--no-typescript", "--no-pack", "--locked",
     ], cwd=ROOT, env=env, check=True)
-    for source in (ROOT / "web").iterdir():
-        if source.is_file() and source.suffix in {".html", ".css", ".js"}:
-            shutil.copy2(source, dist / source.name)
-    shutil.copytree(ROOT / "web" / "examples", dist / "examples", dirs_exist_ok=True)
     npm = shutil.which("npm.cmd" if os.name == "nt" else "npm")
     if not npm:
         raise SystemExit("Node.js and npm are required to build Toolkit")
     toolkit_env = os.environ.copy()
     toolkit_env["TOOLKIT_BASE"] = os.environ.get("SITE_BASE", "/") + "toolkit/"
     subprocess.run([npm, "run", "build"], cwd=ROOT / "toolkit", env=toolkit_env, check=True)
+    subprocess.run([sys.executable, "-B", str(ROOT / "tools/build_gallery.py")], cwd=ROOT, check=True)
+    for source in (ROOT / "web").iterdir():
+        if source.is_file() and source.suffix in {".html", ".css", ".js"}:
+            shutil.copy2(source, dist / source.name)
+    shutil.copytree(ROOT / "web" / "examples", dist / "examples", dirs_exist_ok=True)
     shutil.copytree(ROOT / "toolkit" / "dist", dist / "toolkit", dirs_exist_ok=True)
     shutil.copytree(ROOT / "toolkit" / "licenses", dist / "toolkit" / "licenses", dirs_exist_ok=True)
     shutil.copy2(ROOT / "LICENSE", dist / "LICENSE")

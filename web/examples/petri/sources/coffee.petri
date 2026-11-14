@@ -1,0 +1,9 @@
+net CoffeeMachine {
+  place idle = 1
+  place coins
+  place brewing
+  place cups
+  transition insert external : -> coins
+  transition start : idle, coins -> brewing
+  transition brew after 3 s : brewing -> idle, cups
+}

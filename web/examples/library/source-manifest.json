@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "library-project.rcore",
+    "source": "@text/fixtures/library/library-project.rcore",
+    "origin": "https://github.com/mercurio-labs/intersect-text/blob/614591271eb00ab848d8672a2f69c44d4282b39f/fixtures/library/library-project.rcore",
+    "sha256": "035f102c3148add546a5d7cc2b11e7a9badb600d8f34108f4eba856a0d1450fa"
+  },
+  {
+    "filename": "library.xtext",
+    "source": "@text/fixtures/library/library.xtext",
+    "origin": "https://github.com/mercurio-labs/intersect-text/blob/614591271eb00ab848d8672a2f69c44d4282b39f/fixtures/library/library.xtext",
+    "sha256": "ae3bcebc48bb3c7c1df558929cb8487fdf68bea87ae494b0c72a4168a91d6ba7"
+  },
+  {
+    "filename": "catalog.library",
+    "source": "@text/fixtures/library/catalog.library",
+    "origin": "https://github.com/mercurio-labs/intersect-text/blob/614591271eb00ab848d8672a2f69c44d4282b39f/fixtures/library/catalog.library",
+    "sha256": "d0fbc27051ecd0e5643b227fd7a2359c50dd1b33188c8e59178b7af9d5a1f922"
+  },
+  {
+    "filename": "loans.library",
+    "source": "@text/fixtures/library/loans.library",
+    "origin": "https://github.com/mercurio-labs/intersect-text/blob/614591271eb00ab848d8672a2f69c44d4282b39f/fixtures/library/loans.library",
+    "sha256": "8f601f7df5980e24033d3c4f621bf5fe877c170b2a92f28454aad1b6d0d26b58"
+  },
+  {
+    "filename": "library_lifecycle.rs",
+    "source": "languages/library/examples/library_lifecycle.rs",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/library/examples/library_lifecycle.rs",
+    "sha256": "8ecf85ae439b2a2fa18044ee61438db21c3867cfa50ce7ad83ded0cca8e800cd"
+  }
+]

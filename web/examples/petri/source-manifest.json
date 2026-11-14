@@ -1,0 +1,38 @@
+[
+  {
+    "filename": "petri.rcore",
+    "source": "languages/petri/language/petri.rcore",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/language/petri.rcore",
+    "sha256": "e657e93b88665260bdea0a057861bfd051892266b98903dfaf757731ec08656b"
+  },
+  {
+    "filename": "petri.xtext",
+    "source": "languages/petri/language/petri.xtext",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/language/petri.xtext",
+    "sha256": "8b7e0cbc304abea9161448d88f4d82c69b98b0f4e75bcbff57fb39d1d509e020"
+  },
+  {
+    "filename": "petri-bindings.rcore",
+    "source": "languages/petri/language/petri-bindings.rcore",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/language/petri-bindings.rcore",
+    "sha256": "70521340e3c1ff2912f68acd329ad93cd6b58dfa14c6fb771e9420fc549041b3"
+  },
+  {
+    "filename": "coffee.petri",
+    "source": "languages/petri/models/coffee.petri",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/models/coffee.petri",
+    "sha256": "246663bbf01d0e2e10463320ac51dd503daa1e54598216570fa59db8720e53a3"
+  },
+  {
+    "filename": "two-coins.scenario.json",
+    "source": "languages/petri/scenarios/two-coins.scenario.json",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/scenarios/two-coins.scenario.json",
+    "sha256": "2f8ca57e2120c90e717c39a3fa2bc7ca8513e3b4c54196ddf71c695a64bdca3a"
+  },
+  {
+    "filename": "petri_lifecycle.rs",
+    "source": "languages/petri/examples/petri_lifecycle.rs",
+    "origin": "https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/examples/petri_lifecycle.rs",
+    "sha256": "82024fbc719b8122df225b429a3cf236d8d04d279a5252dbd206435f55d2cac1"
+  }
+]

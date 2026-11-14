@@ -1,1 +1,216 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Timed Petri nets · Intersect</title><style>:root{color-scheme:dark;font:17px/1.6 system-ui;background:#0e1722;color:#e8eef4}body{margin:0}main{max-width:1040px;margin:auto;padding:40px 24px}a{color:#68e0bd}h1{font-size:clamp(32px,5vw,54px);line-height:1.15}p{max-width:760px;color:#b8c8d8}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}.card{background:#152333;border:1px solid #33475b;border-radius:12px;padding:24px}.button{display:inline-block;background:#68e0bd;color:#10261f;padding:12px 18px;border-radius:6px;text-decoration:none;font-weight:600}li{margin:12px 0}textarea{width:100%;min-height:260px;background:#101c29;color:#e8eef4;font:14px/1.7 monospace}button,select{font:inherit;padding:8px}table{width:100%;text-align:left}td{padding:8px;border-bottom:1px solid #33475b}.selected{background:#235748} [hidden]{display:none!important}</style><main><a href="../../">← All examples</a><h1>Timed Petri nets</h1><p>Edit a coffee machine, simulate timed transitions, and replay token movement.</p><p><a class="button" href="../../petri.html">Run the simulation →</a></p><h2>Try it</h2><ol><li>Change a transition delay or schedule a third coin.</li><li>Run the net and inspect its marking, event log and animation.</li><li>Download the trace and replay it with the same Rust semantics.</li></ol><p><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/examples/petri_lifecycle.rs">Read the Rust lifecycle walkthrough</a> · <a href="https://github.com/mercurio-labs/intersect-lang-examples/tree/develop/languages/petri">Language definitions and guide</a></p></main></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timed Petri nets · Intersect examples</title><link rel="stylesheet" href="../../gallery.css"><script src="../../gallery.js" defer></script></head>
+<body><header class="site-header"><a class="brand" href="../../">intersect<span>/ examples</span></a><nav class="header-links" aria-label="Site"><a href="../../">Gallery</a><a href="https://github.com/mercurio-labs/intersect-lang-examples">GitHub ↗</a><a href="../../toolkit/">Toolkit ↗</a></nav></header>
+<main><div class="breadcrumb"><a href="../../">Examples</a> / Timed Petri nets</div>
+<div class="example-intro"><div><p class="eyebrow">Simulation</p><h1>Timed Petri nets</h1><p class="lede">Turn a coffee-machine net into an animated run. Explore tokens, delayed transitions and external inputs.</p><div class="actions"><a class="button" href="#solution">Try the solution ↓</a><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/examples/petri_lifecycle.rs">Rust walkthrough ↗</a></div></div><div class="thumbnail"><svg viewBox="0 0 540 235" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g font-family="system-ui,sans-serif" font-size="13" fill="#42526a"><path d="M107 112h105m36 0h112m36 0h50" stroke="#93a6c0" stroke-width="2"/><circle cx="85" cy="112" r="33" fill="white" stroke="#8ca2c1" stroke-width="2"/><text x="85" y="179" text-anchor="middle">idle</text><circle cx="85" cy="112" r="5" fill="#2563eb"/><circle cx="382" cy="112" r="33" fill="white" stroke="#8ca2c1" stroke-width="2"/><text x="382" y="179" text-anchor="middle">cups</text><circle cx="373" cy="112" r="5" fill="#2563eb"/><circle cx="391" cy="112" r="5" fill="#2563eb"/><rect x="213" y="77" width="36" height="70" rx="3" fill="#e3edff" stroke="#8aaff7" stroke-width="2"/><text x="231" y="179" text-anchor="middle">brew</text><text x="231" y="56" text-anchor="middle" font-size="11">after 3s</text><text x="460" y="117" font-size="12" fill="#2563eb">+1 cup</text></g></svg></div></div>
+<nav class="section-nav" aria-label="Example sections"><a href="#metamodel">01 Metamodel</a><a href="#parser">02 Parser</a><a href="#example-text">03 Example text</a><a href="#solution">04 Solution</a></nav>
+<section class="section" id="definitions"><div class="section-title"><span class="number">01 / 02</span><h2>The language</h2></div><p>Places hold tokens and arcs connect them to transitions. Rcore supplies structure, scoping and validation; the language&#x27;s Rust semantics consume tokens when a firing starts and produce them when its delay expires. Run schedules and traces those events.</p><div class="notice">These authored definitions are compiled by the same Rust language package used by the live example.</div><div class="source-grid"><section id="metamodel"><h3>Metamodel</h3><p class="muted">Structure and behavior in Rcore</p><div class="code-panel"><div class="code-heading"><span>petri.rcore</span><div class="code-actions"><button type="button" data-copy="metamodel-code" aria-label="Copy petri.rcore">Copy</button><a href="sources/petri.rcore" download>Download ↓</a></div></div><pre><code id="metamodel-code" data-source="petri.rcore"><span class="keyword">rcore</span> <span class="number">1</span>;
+<span class="keyword">package</span> example.petri <span class="keyword">version</span> <span class="string">&quot;1&quot;</span>;
+
+<span class="keyword">metamodel</span> <span class="string">&quot;urn:intersect:example:petri:1&quot;</span> <span class="keyword">prefix</span> p {
+  <span class="keyword">class</span> Net {
+    <span class="keyword">attr</span> name: String [<span class="number">1</span>,<span class="number">1</span>];
+    <span class="keyword">ref</span> places: Place [<span class="number">0</span>,*] <span class="keyword">containment</span>;
+    <span class="keyword">ref</span> transitions: Transition [<span class="number">0</span>,*] <span class="keyword">containment</span>;
+  }
+  <span class="keyword">class</span> Place {
+    <span class="keyword">attr</span> name: String [<span class="number">1</span>,<span class="number">1</span>];
+    <span class="keyword">attr</span> tokens: Int32 [<span class="number">0</span>,<span class="number">1</span>] <span class="keyword">default</span> <span class="number">0</span>;
+  }
+  <span class="keyword">class</span> Transition {
+    <span class="keyword">attr</span> name: String [<span class="number">1</span>,<span class="number">1</span>];
+    <span class="keyword">attr</span> `external`: Bool [<span class="number">0</span>,<span class="number">1</span>] <span class="keyword">default</span> false;
+    <span class="keyword">ref</span> delay: Delay [<span class="number">0</span>,<span class="number">1</span>] <span class="keyword">containment</span>;
+    <span class="keyword">ref</span> inputs: Arc [<span class="number">0</span>,*] <span class="keyword">containment</span>;
+    <span class="keyword">ref</span> outputs: Arc [<span class="number">0</span>,*] <span class="keyword">containment</span>;
+  }
+  <span class="keyword">class</span> Arc {
+    <span class="keyword">attr</span> weight: Int32 [<span class="number">0</span>,<span class="number">1</span>] <span class="keyword">default</span> <span class="number">1</span>;
+    <span class="keyword">ref</span> place: Place [<span class="number">1</span>,<span class="number">1</span>];
+  }
+  <span class="keyword">class</span> Delay {
+    <span class="keyword">attr</span> amount: Int32 [<span class="number">1</span>,<span class="number">1</span>];
+    <span class="keyword">attr</span> unit: String [<span class="number">1</span>,<span class="number">1</span>];
+  }
+}
+</code></pre></div><div class="source-caption"><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/language/petri.rcore">Source / provenance ↗</a></div></section><section id="parser"><h3>Parser</h3><p class="muted">Concrete syntax in Xtext</p><div class="code-panel"><div class="code-heading"><span>petri.xtext</span><div class="code-actions"><button type="button" data-copy="parser-code" aria-label="Copy petri.xtext">Copy</button><a href="sources/petri.xtext" download>Download ↓</a></div></div><pre><code id="parser-code" data-source="petri.xtext"><span class="keyword">grammar</span> org.intersect.examples.Petri <span class="keyword">with</span> org.eclipse.xtext.common.Terminals
+<span class="keyword">import</span> <span class="string">&quot;urn:intersect:example:petri:1&quot;</span> <span class="keyword">as</span> p
+<span class="keyword">import</span> <span class="string">&quot;http://www.eclipse.org/emf/2002/Ecore&quot;</span> <span class="keyword">as</span> ecore
+
+Net <span class="keyword">returns</span> p::Net:
+  <span class="string">&#x27;net&#x27;</span> name=ID <span class="string">&#x27;{&#x27;</span> (places+=Place | transitions+=Transition)* <span class="string">&#x27;}&#x27;</span>;
+
+Place <span class="keyword">returns</span> p::Place:
+  <span class="string">&#x27;place&#x27;</span> name=ID (<span class="string">&#x27;=&#x27;</span> tokens=INT)?;
+
+Transition <span class="keyword">returns</span> p::Transition:
+  <span class="string">&#x27;transition&#x27;</span> name=ID (external?=<span class="string">&#x27;external&#x27;</span>)? (delay=Delay)?
+  <span class="string">&#x27;:&#x27;</span> (inputs+=Arc (<span class="string">&#x27;,&#x27;</span> inputs+=Arc)*)? <span class="string">&#x27;-&gt;&#x27;</span> (outputs+=Arc (<span class="string">&#x27;,&#x27;</span> outputs+=Arc)*)?;
+
+Arc <span class="keyword">returns</span> p::Arc:
+  (weight=INT <span class="string">&#x27;*&#x27;</span>)? place=[p::Place];
+
+Delay <span class="keyword">returns</span> p::Delay:
+  <span class="string">&#x27;after&#x27;</span> amount=INT unit=TimeUnit;
+
+TimeUnit <span class="keyword">returns</span> ecore::EString:
+  <span class="string">&#x27;ms&#x27;</span> | <span class="string">&#x27;s&#x27;</span>;
+</code></pre></div><div class="source-caption"><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/language/petri.xtext">Source / provenance ↗</a></div></section></div><details class="implementation"><summary>Scoping and validation bindings (.rcore)</summary><div class="code-panel"><div class="code-heading"><span>petri-bindings.rcore</span><div class="code-actions"><button type="button" data-copy="bindings-code" aria-label="Copy petri-bindings.rcore">Copy</button><a href="sources/petri-bindings.rcore" download>Download ↓</a></div></div><pre><code id="bindings-code" data-source="petri-bindings.rcore"><span class="keyword">rcore</span> <span class="number">1</span>;
+<span class="keyword">package</span> example.petri.bindings <span class="keyword">version</span> <span class="string">&quot;1&quot;</span>;
+<span class="keyword">import</span> <span class="keyword">model</span> <span class="string">&quot;urn:intersect:example:petri:1&quot;</span> <span class="keyword">as</span> p;
+
+<span class="keyword">bind</span> <span class="keyword">scope</span> p.Arc.place = places_in_net;
+<span class="keyword">bind</span> <span class="keyword">validate</span> p.Arc = positive_weight;
+<span class="keyword">bind</span> <span class="keyword">validate</span> p.Transition = has_arc;
+<span class="keyword">bind</span> <span class="keyword">validate</span> p.Transition = has_input_or_is_external;
+<span class="keyword">bind</span> <span class="keyword">validate</span> p.Net = unique_place_names;
+
+<span class="keyword">fn</span> places_in_net(a:p.Arc, name:String)-&gt;Sequence&lt;p.Place&gt; =
+  ancestors::&lt;p.Net&gt;(a).flatMap(|net| net.places).filter(|place| place.name == name);
+
+<span class="keyword">fn</span> positive_weight(a:p.Arc)-&gt;Sequence&lt;Issue&gt; =
+  <span class="keyword">match</span> a.weight {
+    Some(weight) =&gt; <span class="keyword">if</span> weight &lt; <span class="number">1</span> {
+      [issue_at(<span class="string">&quot;error&quot;</span>, <span class="string">&quot;petri.arc.weight&quot;</span>, <span class="string">&quot;An explicit arc weight must be positive.&quot;</span>, <span class="string">&quot;weight&quot;</span>)]
+    } <span class="keyword">else</span> { [] },
+    None =&gt; []
+  };
+
+<span class="keyword">fn</span> has_arc(t:p.Transition)-&gt;Sequence&lt;Issue&gt; =
+  <span class="keyword">if</span> size(t.inputs) + size(t.outputs) == <span class="number">0</span> {
+    [issue(<span class="string">&quot;error&quot;</span>, <span class="string">&quot;petri.transition.arcs&quot;</span>, <span class="string">&quot;A transition must have at least one arc.&quot;</span>)]
+  } <span class="keyword">else</span> { [] };
+
+<span class="keyword">fn</span> has_input_or_is_external(t:p.Transition)-&gt;Sequence&lt;Issue&gt; =
+  <span class="keyword">if</span> size(t.inputs) == <span class="number">0</span> &amp;&amp; size(t.outputs) &gt; <span class="number">0</span> &amp;&amp; t.external != Some(true) {
+    [issue_at(<span class="string">&quot;error&quot;</span>, <span class="string">&quot;petri.transition.input&quot;</span>, <span class="string">&quot;An automatic transition must have an input arc.&quot;</span>, <span class="string">&quot;inputs&quot;</span>)]
+  } <span class="keyword">else</span> { [] };
+
+<span class="keyword">fn</span> unique_place_names(n:p.Net)-&gt;Sequence&lt;Issue&gt; =
+  <span class="keyword">if</span> Sequence(n.places).exists(|place| n.places.filter(|other| place.name == other.name).size() &gt; <span class="number">1</span>) {
+    [issue_at(<span class="string">&quot;error&quot;</span>, <span class="string">&quot;petri.net.place_names&quot;</span>, <span class="string">&quot;Place names must be unique in each net.&quot;</span>, <span class="string">&quot;places&quot;</span>)]
+  } <span class="keyword">else</span> { [] };
+</code></pre></div></details></section><section class="section" id="example-text"><div class="section-title"><span class="number">03</span><h2>Example text</h2></div><div class="sample-grid"><div class="sample-sources"><div class="code-panel"><div class="code-heading"><span>coffee.petri</span><div class="code-actions"><button type="button" data-copy="sample-0" aria-label="Copy coffee.petri">Copy</button><a href="sources/coffee.petri" download>Download ↓</a></div></div><pre><code id="sample-0" data-source="coffee.petri">net CoffeeMachine {
+  place idle = <span class="number">1</span>
+  place coins
+  place brewing
+  place cups
+  transition insert external : -&gt; coins
+  transition start : idle, coins -&gt; brewing
+  transition brew after <span class="number">3</span> s : brewing -&gt; idle, cups
+}
+</code></pre></div><div class="code-panel"><div class="code-heading"><span>two-coins.scenario.json</span><div class="code-actions"><button type="button" data-copy="sample-1" aria-label="Copy two-coins.scenario.json">Copy</button><a href="sources/two-coins.scenario.json" download>Download ↓</a></div></div><pre><code id="sample-1" data-source="two-coins.scenario.json">{
+  <span class="string">&quot;inputs&quot;</span>: [
+    { <span class="string">&quot;at_ms&quot;</span>: <span class="number">0</span>, <span class="string">&quot;transition&quot;</span>: <span class="string">&quot;insert&quot;</span> },
+    { <span class="string">&quot;at_ms&quot;</span>: <span class="number">1000</span>, <span class="string">&quot;transition&quot;</span>: <span class="string">&quot;insert&quot;</span> }
+  ]
+}
+</code></pre></div></div><div><h3>What to try</h3><ul><li>Run the bundled two-coin scenario and play the token trace.</li><li>Change the brew delay or add a third coin to the scenario, then run again.</li><li>Inspect the final marking and event log, or download the trace for replay.</li></ul><p>Two coins produce two cups, with brew completions at 3000 and 6000 ms. The diagram, markings and event log describe the same recorded run.</p></div></div></section>
+<section class="section" id="solution"><div class="solution-heading"><div><div class="section-title"><span class="number">04</span><h2>The solution</h2></div><p>Run and explore this example below.</p></div><a class="button secondary" href="../../petri.html" target="_blank" rel="noopener">Open full screen ↗</a></div><div class="solution-frame"><div class="frame-bar"><span>Live example · WebAssembly</span><a href="../../petri.html" target="_blank" rel="noopener">Open separately ↗</a></div><iframe title="Timed Petri nets live solution" src="../../petri.html" loading="lazy" style="height:1300px"></iframe></div><p class="solution-help">The controls above run locally in your browser. Definition listings are reference source; edit the example text inside the live tool to try a new model or run.</p>
+<details class="implementation"><summary>Read the Rust lifecycle solution</summary><p>The native walkthrough shows the public API calls and checks its results.</p><div class="code-panel"><div class="code-heading"><span>petri_lifecycle.rs</span><div class="code-actions"><button type="button" data-copy="solution-code" aria-label="Copy petri_lifecycle.rs">Copy</button><a href="sources/petri_lifecycle.rs" download>Download ↓</a></div></div><pre><code id="solution-code" data-source="petri_lifecycle.rs"><span class="comment">//! Handwritten walkthrough: authored definitions -&gt; checked model -&gt; timed run</span>
+<span class="comment">//! -&gt; saved trace -&gt; replay, with a compiled-language-pack round trip.</span>
+use examples_petri::{DEFAULT_END_TIME, Scenario, TimedPetri, profile};
+use examples_support::Source;
+use intersect_run::{EndReason, Policy, Trace};
+use sha2::{Digest, Sha256};
+use std::{fs, path::Path};
+
+<span class="keyword">fn</span> main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    <span class="keyword">let</span> output = Path::new(<span class="string">&quot;target/runs/petri-lifecycle&quot;</span>);
+    fs::create_dir_all(output)?;
+
+    <span class="comment">// 1. Supply source text and stable resource URIs. The language package owns</span>
+    <span class="comment">// the Rcore metamodel, Xtext grammar, scope bindings and validation rules.</span>
+    <span class="keyword">let</span> text = include_str!(<span class="string">&quot;../models/coffee.petri&quot;</span>);
+    <span class="keyword">let</span> sources = [Source {
+        uri: <span class="string">&quot;coffee.petri&quot;</span>.into(),
+        text: text.into(),
+    }];
+    <span class="keyword">let</span> scenario_text = include_str!(<span class="string">&quot;../scenarios/two-coins.scenario.json&quot;</span>);
+
+    <span class="comment">// 2. Prepare the definitions, parse, link arc references in each net, and</span>
+    <span class="comment">// validate structure and Rcore rules through the shared support loader.</span>
+    <span class="comment">// See support/src/lib.rs for the individual frozen-engine operations.</span>
+    <span class="keyword">let</span> loaded = examples_petri::load(&amp;sources)?;
+    for diagnostic in &amp;loaded.diagnostics {
+        eprintln!(
+            <span class="string">&quot;{:?}: {}: {}&quot;</span>,
+            diagnostic.location, diagnostic.issue.<span class="keyword">code</span>, diagnostic.issue.<span class="keyword">message</span>
+        );
+    }
+    <span class="keyword">if</span> loaded.has_errors() {
+        return Err(<span class="string">&quot;Petri model failed validation; execution was not started&quot;</span>.into());
+    }
+
+    <span class="comment">// 3. Project the checked model into the language&#x27;s execution semantics.</span>
+    <span class="comment">// Place and arc identities still refer to the original source objects.</span>
+    <span class="keyword">let</span> net = TimedPetri::from_loaded(&amp;loaded)?;
+    println!(
+        <span class="string">&quot;{}: {} places, {} transitions, {} checked objects&quot;</span>,
+        net.net().name,
+        net.net().places.len(),
+        net.net().transitions.len(),
+        loaded.<span class="keyword">model</span>.objects().len()
+    );
+    for place in &amp;net.net().places {
+        println!(
+            <span class="string">&quot;  {} ({}) starts with {} token(s)&quot;</span>,
+            place.name, place.id, place.tokens
+        );
+    }
+
+    <span class="comment">// 4. Choose explicit deterministic scheduling inputs, limits and policy.</span>
+    <span class="comment">// The digest records which model text the trace describes.</span>
+    <span class="keyword">let</span> settings = profile(Policy::First, <span class="number">0</span>, DEFAULT_END_TIME);
+    <span class="keyword">let</span> scenario: Scenario = serde_json::from_str(scenario_text)?;
+    <span class="keyword">let</span> digest = Some(format!(<span class="string">&quot;{:x}&quot;</span>, Sha256::digest(text.as_bytes())));
+    <span class="keyword">let</span> (outcome, trace) = net.execute(&amp;settings, scenario, digest.clone())?;
+    <span class="keyword">let</span> cups = net
+        .net()
+        .places
+        .iter()
+        .find(|p| p.name == <span class="string">&quot;cups&quot;</span>)
+        .ok_or(<span class="string">&quot;Missing cups&quot;</span>)?;
+    <span class="keyword">if</span> outcome.reason != EndReason::Quiescence
+        || outcome.time != 6_000
+        || outcome.state.tokens.get(&amp;cups.id) != Some(&amp;<span class="number">2</span>)
+    {
+        return Err(<span class="string">&quot;The two-coins scenario did not produce two cups at 6000 ms&quot;</span>.into());
+    }
+    println!(<span class="string">&quot;{:?} at {} ms: two cups&quot;</span>, outcome.reason, outcome.time);
+
+    <span class="comment">// 5. Save and read the same versioned trace consumed by viewer/. Replaying</span>
+    <span class="comment">// observations does not execute the model again or implement new semantics.</span>
+    <span class="keyword">let</span> trace_path = output.join(<span class="string">&quot;coffee.trace.json&quot;</span>);
+    fs::write(&amp;trace_path, serde_json::to_vec_pretty(&amp;trace)?)?;
+    <span class="keyword">let</span> replay: Trace = serde_json::from_slice(&amp;fs::read(&amp;trace_path)?)?;
+    <span class="keyword">if</span> replay != trace {
+        return Err(<span class="string">&quot;Trace serialization changed the recorded run&quot;</span>.into());
+    }
+    for entry in &amp;replay.entries {
+        println!(<span class="string">&quot;  {:&gt;5} ms  {:?}: {}&quot;</span>, entry.time, entry.kind, entry.label);
+    }
+
+    <span class="comment">// 6. Save a trusted host-local compiled language pack, then restore it with</span>
+    <span class="comment">// the original model sources. Packs contain definitions, not run state.</span>
+    <span class="comment">// Exact compiler/source identities and pack integrity are checked on load.</span>
+    <span class="keyword">let</span> pack_path = output.join(<span class="string">&quot;petri.pack&quot;</span>);
+    fs::write(
+        &amp;pack_path,
+        examples_support::build_pack(&amp;examples_petri::LANGUAGE)?,
+    )?;
+    <span class="keyword">let</span> restored =
+        examples_support::load_pack(&amp;examples_petri::LANGUAGE, fs::read(&amp;pack_path)?, &amp;sources)?;
+    <span class="keyword">let</span> restored_net = TimedPetri::from_loaded(&amp;restored)?;
+    <span class="keyword">let</span> (_, restored_trace) =
+        restored_net.execute(&amp;settings, serde_json::from_str(scenario_text)?, digest)?;
+    <span class="keyword">if</span> restored_trace != trace {
+        return Err(<span class="string">&quot;Restoring the language pack changed the trace&quot;</span>.into());
+    }
+    println!(<span class="string">&quot;Pack round trip preserved the complete trace.&quot;</span>);
+    println!(<span class="string">&quot;Replay {} in viewer/.&quot;</span>, trace_path.display());
+    Ok(())
+}
+</code></pre></div><p class="source-caption"><a href="https://github.com/mercurio-labs/intersect-lang-examples/blob/develop/languages/petri/examples/petri_lifecycle.rs">Read the Rust lifecycle walkthrough</a></p></details></section>
+<nav class="next-examples" aria-label="More examples"><a href="../../">← Back to the gallery</a><a href="../library/">Next example →</a></nav></main><footer><span>Intersect examples · Rust + WebAssembly</span><a href="https://github.com/mercurio-labs/intersect-lang-examples">Source, build instructions and downloads ↗</a></footer></body></html>

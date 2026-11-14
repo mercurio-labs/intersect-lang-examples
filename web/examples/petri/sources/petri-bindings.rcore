@@ -1,0 +1,35 @@
+rcore 1;
+package example.petri.bindings version "1";
+import model "urn:intersect:example:petri:1" as p;
+
+bind scope p.Arc.place = places_in_net;
+bind validate p.Arc = positive_weight;
+bind validate p.Transition = has_arc;
+bind validate p.Transition = has_input_or_is_external;
+bind validate p.Net = unique_place_names;
+
+fn places_in_net(a:p.Arc, name:String)->Sequence<p.Place> =
+  ancestors::<p.Net>(a).flatMap(|net| net.places).filter(|place| place.name == name);
+
+fn positive_weight(a:p.Arc)->Sequence<Issue> =
+  match a.weight {
+    Some(weight) => if weight < 1 {
+      [issue_at("error", "petri.arc.weight", "An explicit arc weight must be positive.", "weight")]
+    } else { [] },
+    None => []
+  };
+
+fn has_arc(t:p.Transition)->Sequence<Issue> =
+  if size(t.inputs) + size(t.outputs) == 0 {
+    [issue("error", "petri.transition.arcs", "A transition must have at least one arc.")]
+  } else { [] };
+
+fn has_input_or_is_external(t:p.Transition)->Sequence<Issue> =
+  if size(t.inputs) == 0 && size(t.outputs) > 0 && t.external != Some(true) {
+    [issue_at("error", "petri.transition.input", "An automatic transition must have an input arc.", "inputs")]
+  } else { [] };
+
+fn unique_place_names(n:p.Net)->Sequence<Issue> =
+  if Sequence(n.places).exists(|place| n.places.filter(|other| place.name == other.name).size() > 1) {
+    [issue_at("error", "petri.net.place_names", "Place names must be unique in each net.", "places")]
+  } else { [] };
