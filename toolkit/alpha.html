@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Intersect — alpha examples</title>
+  <style>
+    :root { color-scheme: light; font: 18px/1.6 system-ui, sans-serif; color: #182c3b; background: #f2f6f8; }
+    body { max-width: 900px; margin: auto; padding: 60px 24px; }
+    h1 { font-size: clamp(2rem, 7vw, 3.5rem); line-height: 1.1; margin: 16px 0; }
+    h2 { margin-top: 0; } a { color: #075b7c; text-underline-offset: 4px; }
+    .eyebrow { color: #496371; font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; }
+    .examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin: 36px 0; }
+    article { background: white; border: 1px solid #cbdbe3; border-radius: 12px; padding: 28px; }
+    footer { border-top: 1px solid #cbdbe3; padding-top: 20px; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">0.1.0-alpha.1 · Evaluation and feedback</p>
+    <h1>One model. Editable text.</h1>
+    <p>Explore how Intersect Model and Intersect Text keep structured models and authored source in agreement. Both examples run locally in your browser.</p>
+    <div class="examples">
+      <article><h2>Library</h2><p>Edit books, members and loans across two source files. Rename a book and follow its references, preserve comments, and undo your changes.</p><a href="./library-text.html">Open Library editor</a></article>
+      <article><h2>Model and text</h2><p>Try state machines, expressions and other small languages. Edit model features or source, then generate and check the resulting text.</p><a href="./model-text.html">Open model/text editor</a></article>
+    </div>
+    <p>This is an early evaluation release. Supported edits depend on the selected example. Changes and undo history live in memory and are lost on reload; copy any source you want to keep.</p>
+  </main>
+  <footer><a href="./README.txt">Running these examples</a> · <a href="./THIRD_PARTY_NOTICES.md">Licenses and notices</a></footer>
+</body>
+</html>

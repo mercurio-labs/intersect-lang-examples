@@ -1,5 +1,6 @@
 /node_modules/
 /dist/
+/alpha-dist/
 /.runtime/
 /public/intersect_web.wasm
 /public/python/

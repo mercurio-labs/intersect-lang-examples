@@ -29,6 +29,12 @@ the authored definitions through the shared parser.
 
 ## Browser examples
 
+For the Model/Text `0.1.0-alpha.1` candidate, use the
+[focused Toolkit build](toolkit/README.md#focused-modeltext-alpha). It produces
+an independent Library and model/text demonstration on the selected alpha pair.
+The broader gallery and preview described below use an older runtime and are
+not evidence for the alpha. The candidate remains local and unpublished.
+
 Hosting is currently disabled. Download **examples-site.zip** from the
 [verified preview build](https://github.com/mercurio-labs/intersect-lang-examples/releases/tag/examples-preview-2026-11-13), unzip it,
 then run `python -m http.server 8000` in the extracted directory and open
