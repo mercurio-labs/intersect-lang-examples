@@ -1,12 +1,13 @@
 # Intersect language examples contributor guidance
 
-Read README.md and the relevant language README before changing source. Core
-architecture and roadmap are in mercurio-labs/intersect at
-docs/architecture.md and docs/roadmap.md.
+Read README.md and the relevant language README before changing source. Current
+core architecture and release plans are in mercurio-labs/intersect-model and
+mercurio-labs/intersect-text at docs/architecture.md and docs/release-plan.md.
 
-- Core dependencies share one pinned git revision. Land changes in core
-  first and then bump every pin together. Use the README's command-line path
-  patches while a core revision is local.
+- The focused Toolkit alpha pins Text in toolkit/runtime.json; Text pins Model.
+  Land Model first, then Text, then update this pin. The legacy gallery still uses
+  the combined core and is outside the focused alpha qualification. Keep that
+  separate source identity explicit; use documented overrides only for local work.
 
 - Use `develop` as the default base for new branches and managed worktrees.
   Specify it explicitly; use another base only when the user requests it.

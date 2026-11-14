@@ -2,9 +2,11 @@
 
 ## Focused Model/Text alpha
 
-The local `release/0.1.0-alpha.1` candidate builds two small browser examples:
+The evaluation-alpha candidate builds two small browser examples:
 Library and generic model/text editing. The alpha artifact uses the exact Text
 revision in `runtime.json` and that revision's immutable Model dependency.
+The pin selects the fresh-history Text baseline; rebuild artifacts before claiming
+qualification of that pair. Earlier preview downloads retain their original inputs.
 The root gallery still uses the older combined repository and is outside this
 candidate's qualification. No release is published by these commands.
 
