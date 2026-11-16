@@ -111,19 +111,35 @@ enums and operation contracts, with a link to the full language reference.
 **File → Download ready-to-run ZIP** exports the current valid model together
 with its compiled language in a native `model.pack` container. The ZIP includes
 authored definitions, model sources, the saved Toolkit project, a small Rust
-harness, `Cargo.toml` and `Cargo.lock`. Extract the ZIP and run:
+harness, `Cargo.toml` and `Cargo.lock`. The README and two short examples start
+with the tasks the code is for:
 
 ```sh
-cargo run --release --locked
+cargo run --release --locked -- load model.pack
+cargo run --release --locked -- inspect model.pack
+cargo run --release --locked -- unpack existing.pack editable
+cargo run --release --locked -- build editable/project.json rebuilt.pack
+cargo run --release --locked -- load rebuilt.pack
 ```
 
 Rust 1.88 or newer is required. The first run downloads the pinned public
-crates.io dependencies and builds the harness. The harness verifies the pack,
-recompiles and verifies the retained language definitions, restores the complete
-model snapshot, validates it and evaluates derived values. Results go to
-`output/model.json`. Edit `src/main.rs` to add application-specific operations.
-The pack is the runtime input; editing the reference source files alone does not
-rebuild it. Recompile and export again from Toolkit to incorporate source changes.
+crates.io dependencies and builds the program. `load` restores the saved model,
+validates it and evaluates derived values; results go to `output/model.json`.
+No arguments still loads the included `model.pack`.
+
+`project.json` maps editable files under `definitions/` and `models/` to their
+original source URIs. `build` recompiles those files using the retained language
+settings, parses and validates the model, then writes a new pack. Compilation
+or validation failures preserve an existing output pack. `unpack` extracts the
+same editable project from an existing Toolkit pack into an empty folder.
+`inspect` also describes other recipes supported by the native container reader;
+loading their semantics requires the owning language's loader.
+
+`examples/load_pack.rs` and `examples/build_pack.rs` demonstrate the application
+API in a few lines. `src/main.rs` provides the four commands. Support modules
+own file I/O, source identity refresh and the native container recipe; the
+downloaded Rust project contains no WASM host code or browser build features.
+The original Toolkit project, when present, is under `toolkit/`.
 
 Compile pending definition edits and fix model diagnostics before exporting.
 The standalone runner supports self-contained Rcore/Xtext languages. External
@@ -135,3 +151,8 @@ the existing source/compiled-language distribution and optional Python wrappers.
 uses the published Model/Text alpha crates. Model's existing native pack builder
 produces the binary container in WASM; no second container or semantic engine
 is implemented in JavaScript.
+
+For milestone qualification of a downloaded Library fixture, run
+`python -B tools/verify_runner_workflows.py --project target/runner-export/extracted --target-dir toolkit/runner/target`.
+It checks loading, source/definition edits, rebuilding, unpacking, failure preservation,
+pack corruption and the two short examples. The Pages deployment runs this check.

@@ -45,6 +45,7 @@ jobs:
             toolkit/runner/target
           key: ${{ runner.os }}-public-toolkit-v2-${{ hashFiles('toolkit/runtime.json', 'toolkit/package-lock.json', 'toolkit/runner/Cargo.lock', 'toolkit/runner/Cargo.toml') }}
           restore-keys: |
+            ${{ runner.os }}-public-toolkit-v2-
             ${{ runner.os }}-public-toolkit-v1-${{ hashFiles('toolkit/runtime.json', 'toolkit/package-lock.json') }}
       - name: Check the Pages-prefix test server
         run: python -B -m unittest discover -s tools -p test_serve_site.py
@@ -78,13 +79,7 @@ jobs:
       - name: Verify the extracted ready-to-run model
         run: |
           python -B tools/test_report.py run --no-server --out target/runner-tests -- --manifest-path toolkit/runner/Cargo.toml --lib --locked
-          cargo run --locked --manifest-path target/runner-export/extracted/Cargo.toml --target-dir toolkit/runner/target
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          root = Path('target/runner-export/extracted')
-          assert json.loads((root / 'model.json').read_text()) == json.loads((root / 'output/model.json').read_text())['model']
-          PY
+          python -B tools/verify_runner_workflows.py --project target/runner-export/extracted --target-dir toolkit/runner/target
       - name: Save public Toolkit compilation cache
         if: steps.toolkit-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4

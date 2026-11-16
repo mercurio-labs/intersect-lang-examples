@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
-import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {readFile,mkdir,writeFile,rm} from 'node:fs/promises';
+import {resolve,sep} from 'node:path';
 import {unzipSync,strFromU8} from 'fflate';
 
 test('Mercurio themes and contextual language guides follow the selected source',async({page})=>{
@@ -55,10 +56,19 @@ test('right-click creates a project file and downloads a complete native runner'
   expect(strFromU8(files['Cargo.lock'])).not.toContain('git+');
   expect(files['src/main.rs']).toBeDefined();
   expect(files['src/lib.rs']).toBeDefined();
+  expect(files['examples/load_pack.rs']).toBeDefined();
+  expect(files['examples/build_pack.rs']).toBeDefined();
+  expect(files['src/wasm.rs']).toBeUndefined();
+  expect(strFromU8(files['README.md'])).toContain('unpack existing.pack editable');
   expect(files['language/definitions/bundle.json']).toBeDefined();
-  expect(JSON.parse(strFromU8(files['sources.json'])).some(source=>source.uri.endsWith('extra.library'))).toBe(true);
+  const project=JSON.parse(strFromU8(files['project.json']));
+  expect(project.models.some(source=>source.uri.endsWith('extra.library'))).toBe(true);
+  expect(project.definitions.some(source=>source.file.endsWith('.rcore'))).toBe(true);
   const output='../target/runner-export';await mkdir(output,{recursive:true});
   await writeFile(`${output}/download.zip`,bytes);
+  const extracted=resolve(output,'extracted');
+  if(!extracted.startsWith(resolve('..','target','runner-export')+sep))throw new Error('Unexpected extraction folder');
+  await rm(extracted,{recursive:true,force:true});
   for(const [path,content] of Object.entries(files)){
     await mkdir(`${output}/extracted/${path.split('/').slice(0,-1).join('/')}`,{recursive:true});
     await writeFile(`${output}/extracted/${path}`,content);

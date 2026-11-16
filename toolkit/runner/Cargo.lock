@@ -110,6 +110,7 @@ version = "0.1.0"
 dependencies = [
  "intersect-model",
  "intersect-text",
+ "serde",
  "serde_json",
 ]
 
