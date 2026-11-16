@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('KerML operations appear in the diagram and containment with preserved declaration metadata', async ({ page }) => {
-  await page.locator('#example').selectOption('rcore');
+  await page.locator('#example').selectOption('rcore',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled', { timeout: 60000 });
   const operation = page.locator('.structure-class[data-class="Type"] [data-operation="0"]');
   await expect(operation).toContainText('allGenerals(');

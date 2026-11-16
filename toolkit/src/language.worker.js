@@ -598,6 +598,12 @@ async function handle(method, params = {}) {
       evaluation = imported; generation += 1; overlay = true; modelOrigin = 'import'; publish();
       return { generation, evaluation };
     }
+    case 'intersect/runnerSnapshot': {
+      requireCurrentDocument();
+      if (!active?.package.grammar || !evaluation || evaluation.diagnostics.length) throw new Error('Compile a language and fix model diagnostics before exporting a runnable model.');
+      if (transactions.size || functionRequests.size) throw new Error('Finish active scripts before exporting a runnable model.');
+      return {package:active.package,evaluation,sources:currentSources(),entry_rule:entryRule,interfaceRevision:`${session}:${revision}`,generation};
+    }
     case 'intersect/packageExport': {
       requireCurrentDocument();
       if (!active) throw new Error('Compile a language before exporting a package.');

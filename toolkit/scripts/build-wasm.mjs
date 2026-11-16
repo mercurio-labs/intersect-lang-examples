@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 const root = fileURLToPath(new URL('../', import.meta.url));
 mkdirSync(resolve(root, 'public'), { recursive: true });
+const packBuild = spawnSync('cargo', ['build', '--manifest-path', resolve(root, 'runner/Cargo.toml'), '--target-dir', resolve(root, 'runner/target'), '--release', '--lib', '--no-default-features', '--target', 'wasm32-unknown-unknown', '--locked'], {cwd: root, stdio: 'inherit'});
+if (packBuild.status !== 0) process.exit(packBuild.status || 1);
+copyFileSync(resolve(root, 'runner/target/wasm32-unknown-unknown/release/intersect_toolkit_runner.wasm'), resolve(root, 'public/toolkit_pack.wasm'));
 // INTERSECT_WEB_WASM names a prebuilt host module with the same ABI, for
 // example intersect-lang-kerml's intersect_kerml_web.wasm, which adds the
 // KerML draft methods (`draft/kerml/*`) this repository no longer contains.

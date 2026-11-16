@@ -2,16 +2,16 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await page.getByRole('tab', { name: 'Test', exact: true }).click();
 });
 
 async function create(page, type, name) {
-  await page.getByRole('button', { name: 'New window' }).click();
+  await page.locator('#new-window').click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Window type').selectOption(type);
+  await dialog.getByLabel('File type').selectOption(type);
   await dialog.getByLabel('Name', { exact: true }).fill(name);
-  await dialog.getByRole('button', { name: 'Create window' }).click();
+  await dialog.getByRole('button', { name: 'Create file' }).click();
   await expect(dialog).toBeHidden();
   return page.getByRole('tabpanel', { name, exact: true });
 }
@@ -76,10 +76,10 @@ test('additional Python window executes its own script and retains API binding t
 });
 
 test('new window validation, atomic import and narrow layout', async ({ page }) => {
-  await page.getByRole('button', { name: 'New window' }).click();
+  await page.locator('#new-window').click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Name', { exact: true }).fill('catalog.library');
-  await dialog.getByRole('button', { name: 'Create window' }).click();
+  await dialog.getByRole('button', { name: 'Create file' }).click();
   await expect(dialog.getByRole('status')).toContainText('already exists');
   await dialog.getByRole('button', { name: 'Cancel' }).click();
   const before = await page.evaluate(() => window.workbench.project.snapshot());

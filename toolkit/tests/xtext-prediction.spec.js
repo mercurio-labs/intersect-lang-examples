@@ -102,6 +102,6 @@ for(const [name,version,fixture,catalogOperator,loansOperator,trailing] of cases
     },files);
     expect(imported.package).toEqual(before.package);expect(imported.evaluation.diagnostics).toEqual([]);expect(imported.evaluation.model).toEqual(before.evaluation.model);
     await page.getByRole('tab',{name:'Test',exact:true}).click();await page.screenshot({path:`test-results/xtext-${name}-adoption.png`,fullPage:true});
-    await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+    await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
   });
 }

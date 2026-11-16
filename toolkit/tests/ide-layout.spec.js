@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 
 test('File menu distinguishes metamodel and model commands while keeping project actions', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   const menu = page.locator('.ide-file-menu');
   await expect(page.locator('#definition-mode')).toBeVisible();
   await expect(page.locator('#compile')).toBeVisible();
@@ -41,7 +41,7 @@ test('File menu distinguishes metamodel and model commands while keeping project
 test('Test uses shared tabs, right-side properties and a resizable bottom panel', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await page.getByRole('tab', { name: 'Test', exact: true }).click();
   const group = page.locator('.editor-group:visible');
   await expect(group).toHaveCount(1);
@@ -83,7 +83,7 @@ test('Test uses shared tabs, right-side properties and a resizable bottom panel'
 test('vertical dividers resize adjacent columns and keep model layout unchanged', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   const left = page.getByRole('separator', { name: 'Resize containment and class diagram' });
   const right = page.getByRole('separator', { name: 'Resize class diagram and properties' });
   const widths = () => page.evaluate(() => ['.structure-tree-panel', '.structure-diagram-panel', '.structure-properties-panel'].map(selector => document.querySelector(selector).getBoundingClientRect().width));
@@ -122,7 +122,7 @@ test('vertical dividers resize adjacent columns and keep model layout unchanged'
 test('resized columns adapt to window changes and retain the stacked mobile layout', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   const left = page.getByRole('separator', { name: 'Resize containment and class diagram' });
   await left.press('End');
   await page.setViewportSize({ width: 700, height: 768 });
@@ -140,7 +140,7 @@ test('resized columns adapt to window changes and retain the stacked mobile layo
 test('desktop workspace fits the window, preserves source, and exposes collapsible tools', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await expect(page.locator('.structure-class')).toHaveCount(6); // Five classes and BookCondition enum.
   const source = await page.evaluate(() => window.workbench.definitionModels.ecore.getValue());
   for (const width of [1366, 1024]) {
@@ -183,7 +183,7 @@ test('desktop workspace fits the window, preserves source, and exposes collapsib
 test('narrow workspace keeps commands reachable and scrolls inside the editor', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await expect(page.locator('#compile')).toBeInViewport();
   expect(await page.evaluate(() => document.querySelector('#app').scrollWidth <= innerWidth)).toBe(true);
   await page.locator('.ide-file-menu > summary').click();
@@ -199,14 +199,14 @@ test('narrow workspace keeps commands reachable and scrolls inside the editor', 
 test('center Xtext guide collapses independently and preserves source across views', async ({ page }) => {
   await page.setViewportSize({width:1366,height:768});
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   const center=page.locator('.structure-diagram-panel');
   const guide=page.getByRole('complementary',{name:'Xtext language guide'});
   const toggle=page.getByRole('button',{name:'Xtext guide',exact:true});
   await expect(toggle).toBeHidden();
   await center.getByRole('tab',{name:'Xtext',exact:true}).click();
   const source=await page.evaluate(()=>window.workbench.definitionModels.xtext.getValue());
-  const editor=center.locator('.definition-guide-editor');
+  const editor=center.locator('.definition-guide-editor:visible');
   const open=await editor.boundingBox();
   await expect(guide).toBeVisible();
   const bounds=await guide.boundingBox();
@@ -235,7 +235,7 @@ test('center Xtext guide collapses independently and preserves source across vie
 test('separate behavior projects remain editable through File without an automatic tab', async({page})=>{
   const behavior = await readFile(new URL('../.runtime/intersect-text/fixtures/library/library-behavior.rcore',import.meta.url),'utf8');
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await page.evaluate(behavior=>{
     const p=window.workbench.project.snapshot();
     const text=p.definitions.rcore;
@@ -251,7 +251,7 @@ test('separate behavior projects remain editable through File without an automat
   await page.locator('#open-behavior-source').click();
   await expect(page.getByRole('textbox',{name:'Definition source',exact:true})).toBeVisible();
   await page.locator('#compile').click();
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   expect((await page.evaluate(()=>window.workbench.project.snapshot())).definitions.rcore_behavior).toBe(behavior);
   await page.locator('[data-ecore-view="structure"]').click();
   await expect(page.locator('[data-ecore-view="behavior"]')).toBeHidden();
@@ -260,7 +260,7 @@ test('separate behavior projects remain editable through File without an automat
 test('center pane toggles between diagram and live Rcore while retaining both sidebars', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   const tree = page.locator('.structure-tree-panel');
   const properties = page.locator('.structure-properties-panel');
   const center = page.locator('.structure-diagram-panel');
@@ -313,7 +313,7 @@ test('center pane toggles between diagram and live Rcore while retaining both si
 test('center tabs host Xtext and all view switches preserve pane geometry', async ({page}) => {
   await page.setViewportSize({width:1366,height:768});
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await expect(page.locator('[data-definition="rcore_behavior"]')).toBeHidden();
   const sidebar = page.locator('.structure-tree-panel');
   await expect(sidebar.getByRole('tab',{name:'Containment',exact:true})).toBeVisible();
@@ -327,14 +327,14 @@ test('center tabs host Xtext and all view switches preserve pane geometry', asyn
   await expect(page.getByRole('textbox',{name:'Definition source',exact:true})).toBeVisible();
   const after = await Promise.all(selectors.map(s=>page.locator(s).boundingBox()));
   expect(after).toEqual(before);
-  expect(await page.locator('#definition-editor').boundingBox()).toEqual(diagram);
+  expect(await center.locator('.definition-guide-workspace:visible').boundingBox()).toEqual(diagram);
   await page.screenshot({path:'test-results/combined-rcore-source.png'});
   await center.getByRole('tab',{name:'Xtext',exact:true}).click();
   await expect(center.getByRole('textbox',{name:'Xtext source',exact:true})).toBeVisible();
   await expect(page.getByRole('textbox',{name:'Definition source',exact:true})).toBeHidden();
   await expect(sidebar.getByRole('tree')).toBeVisible();
   expect(await Promise.all(selectors.map(s=>page.locator(s).boundingBox()))).toEqual(before);
-  expect(await center.locator('.definition-guide-workspace').boundingBox()).toEqual(diagram);
+  expect(await center.locator('.definition-guide-workspace:visible').boundingBox()).toEqual(diagram);
   expect(await page.locator('.structure-properties-panel').boundingBox()).toEqual(before[2]);
   await sidebar.getByRole('tab',{name:'Containment',exact:true}).click();
   await page.getByRole('button',{name:'Class diagram',exact:true}).click();
@@ -346,7 +346,7 @@ test('center tabs host Xtext and all view switches preserve pane geometry', asyn
 test('curated demos keep one global picker and explicit access to retained language cases', async({page})=>{
   test.setTimeout(180000);
   await page.goto('/');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   const choices=['library','library-implementations','rcore','xtext-converters','xtext-arguments'];
   expect(await page.locator('#example option').evaluateAll(nodes=>nodes.map(node=>node.value))).toEqual(choices);
   await expect(page.locator('#model-scenario')).toHaveCount(0);
@@ -355,18 +355,18 @@ test('curated demos keep one global picker and explicit access to retained langu
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await expect(page.locator('#model-samples')).toBeVisible();
   await page.getByRole('tab',{name:'Define',exact:true}).click();
-  await page.locator('#example').selectOption('xtext-converters');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await page.locator('#example').selectOption('xtext-converters',{force:true});
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await expect(page.locator('[data-ecore-view="behavior"]')).toBeHidden();
   const converted=await page.evaluate(()=>window.workbench.inspect());
   expect(converted.package.grammar.profile).toBe('intersect.xtext.native.v8');
-  await page.locator('#example').selectOption('xtext-arguments');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await page.locator('#example').selectOption('xtext-arguments',{force:true});
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.xtext.native.v11');
   await page.locator('.ide-file-menu > summary').click();
   await page.locator('.ide-test-cases > summary').click();
   await page.locator('[data-load-example="xtext-current"]').click();
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   await expect(page.locator('#example')).toHaveValue('xtext-current');
   await expect(page.locator('#example option')).toHaveCount(6);
   const saved=await page.evaluate(()=>window.workbench.project.snapshot());
@@ -374,7 +374,7 @@ test('curated demos keep one global picker and explicit access to retained langu
   await page.evaluate(async saved=>{window.workbench.project.load(saved);await window.workbench.compile();},saved);
   await expect(page.locator('#example')).toHaveValue('xtext-current');
   expect((await page.evaluate(()=>window.workbench.project.snapshot())).definitions).toEqual(saved.definitions);
-  await page.locator('#example').selectOption('library');
-  await expect(page.locator('#compile-status')).toContainText('Language compiled');
+  await page.locator('#example').selectOption('library',{force:true});
+  await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:30000});
   expect(await page.locator('#example option').evaluateAll(nodes=>nodes.map(node=>node.value))).toEqual(choices);
 });

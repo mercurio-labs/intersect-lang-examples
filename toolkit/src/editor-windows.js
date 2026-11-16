@@ -27,7 +27,7 @@ export function createEditorWindows({ host, initial, create, onActivate, extensi
   let split = false, focus = 0, selected = ['catalog', null], mode = 'language', sequence = 0;
   host.classList.add('editor-windows');
   const toolbar = document.createElement('div'); toolbar.className = 'window-toolbar';
-  toolbar.innerHTML = '<button id="new-window">＋ New window</button><span class="window-hint">Model files · Python · Queries</span><button id="split-windows" aria-pressed="true">Side-by-side</button><button id="move-window">Move to other group</button>';
+  toolbar.innerHTML = '<button id="new-window">＋ New file</button><span class="window-hint">Model files · Python · Queries</span><button id="split-windows" aria-pressed="true">Side-by-side</button><button id="move-window">Move to other group</button>';
   const groups = [0, 1].map(index => {
     const group = document.createElement('section'); group.className = 'editor-group';
     group.innerHTML = `<nav class="window-tabs" role="tablist" aria-label="Editor group ${index + 1}"></nav><div class="window-content"></div>`;
@@ -35,8 +35,8 @@ export function createEditorWindows({ host, initial, create, onActivate, extensi
     return group;
   });
   const body = document.createElement('div'); body.className = 'window-groups'; body.append(...groups);
-  const dialog = document.createElement('dialog'); dialog.id = 'new-window-dialog';
-  dialog.innerHTML = '<form><h2>New window</h2><label>Window type<select name="type"><option value="model">Model file</option><option value="python">Python script</option><option value="query">Query</option></select></label><label>Name<input name="name" required maxlength="80" autocomplete="off"></label><p class="window-error" role="status"></p><div><button type="button" data-cancel>Cancel</button><button type="submit" class="primary">Create window</button></div></form>';
+  const dialog = document.createElement('dialog'); dialog.id = 'new-window-dialog'; dialog.setAttribute('aria-labelledby','new-file-title');
+  dialog.innerHTML = '<form><h2 id="new-file-title">New file</h2><label>File type<select name="type"><option value="model">Model file</option><option value="python">Python script</option><option value="query">Query</option></select></label><label>Name<input name="name" required maxlength="80" autocomplete="off"></label><p class="window-error" role="status"></p><div><button type="button" data-cancel>Cancel</button><button type="submit" class="primary">Create file</button></div></form>';
   host.append(toolbar, body, dialog);
   const form = dialog.querySelector('form'), type = form.elements.type, name = form.elements.name;
   const available = doc => mode !== 'structure' || doc.type !== 'model';
@@ -68,6 +68,7 @@ export function createEditorWindows({ host, initial, create, onActivate, extensi
     body.classList.toggle('is-split', split && groups.every(group => !group.hidden));
     for (const doc of documents.filter(d => !available(d))) doc.panel.hidden = true;
     activateContext();
+    document.dispatchEvent(new Event('toolkit:files-changed'));
   }
   groups.forEach(group => group.firstElementChild.addEventListener('keydown', event => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -117,6 +118,7 @@ export function createEditorWindows({ host, initial, create, onActivate, extensi
   render();
   return {
     documents, open,
+    newFile() { toolbar.querySelector('#new-window').click(); },
     setModelLabels(labels) {
       for (const doc of documents.filter(d => d.type === 'model')) {
         doc.displayName = labels[doc.id] || doc.name;

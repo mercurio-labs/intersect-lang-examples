@@ -1,0 +1,26 @@
+[package]
+name = "intersect-toolkit-runner"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = ["native"]
+native = ["dep:intersect-text"]
+
+[dependencies]
+intersect-model = "=0.1.0-alpha.1"
+intersect-text = { version = "=0.1.0-alpha.1", optional = true }
+serde_json = "1"
+
+[[bin]]
+name = "run-model"
+path = "src/main.rs"
+required-features = ["native"]

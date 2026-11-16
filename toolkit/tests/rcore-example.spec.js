@@ -33,7 +33,7 @@ test('starter scenarios expose graph closure, defaults and domain validation', a
   await page.locator('#rcore-run').click();
   await expect(page.locator('#rcore-result')).toHaveText('D');
   await page.getByRole('tab', {name:'Define',exact:true}).click();
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled', {timeout:60000});
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await page.locator('#model-samples > summary').click();
@@ -67,7 +67,7 @@ test('Rcore definitions compile into the editable language and execute current m
   test.setTimeout(180000);
   await page.goto('/');
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
-  await page.locator('#example').selectOption('rcore');
+  await page.locator('#example').selectOption('rcore',{force:true});
   await expect(page.locator('#definition-file')).toHaveText('specialization.rcore');
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   await expect(page.locator('#element-count')).toHaveText('8 elements');
@@ -120,7 +120,7 @@ test('Rcore definitions compile into the editable language and execute current m
   await expect(page.locator('#compile-status')).toContainText('Definition compilation failed');
   await expect(page.locator('#diagnostic-list')).toContainText('Unknown structural type Missing');
   expect(await page.evaluate(async()=>(await window.workbench.inspect()).revision)).toBe(revision);
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('[data-definition="rcore"]')).toBeVisible();
@@ -241,7 +241,7 @@ test('qualified Library enum defaults compile and reject invalid literals in WAS
 test('KerML Test editors follow the selected starter and retain edits across Define and Test', async ({page}) => {
   await page.goto('/');
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
-  await page.locator('#example').selectOption('rcore');
+  await page.locator('#example').selectOption('rcore',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await expect(page.getByRole('tab',{name:'types.demo',exact:true})).toBeVisible();
@@ -259,7 +259,7 @@ test('KerML Test editors follow the selected starter and retain edits across Def
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   expect(await page.evaluate(()=>window.workbench.modelModels.catalog.getValue())).toBe(edited);
   const saved=await page.evaluate(()=>window.workbench.project.snapshot());
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await expect(page.getByRole('tab',{name:'catalog.library',exact:true})).toBeVisible();

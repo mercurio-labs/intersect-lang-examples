@@ -42,7 +42,10 @@ jobs:
           path: |
             ~/.cargo/registry
             toolkit/.runtime/intersect-text/target
-          key: ${{ runner.os }}-public-toolkit-v1-${{ hashFiles('toolkit/runtime.json', 'toolkit/package-lock.json') }}
+            toolkit/runner/target
+          key: ${{ runner.os }}-public-toolkit-v2-${{ hashFiles('toolkit/runtime.json', 'toolkit/package-lock.json', 'toolkit/runner/Cargo.lock', 'toolkit/runner/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-public-toolkit-v1-${{ hashFiles('toolkit/runtime.json', 'toolkit/package-lock.json') }}
       - name: Check the Pages-prefix test server
         run: python -B -m unittest discover -s tools -p test_serve_site.py
       - name: Build with the pinned core
@@ -63,14 +66,6 @@ jobs:
           python -B tools/build_web.py
       - name: Execute shipped WebAssembly
         run: node tools/check_web.mjs
-      - name: Save public Toolkit compilation cache
-        if: steps.toolkit-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            toolkit/.runtime/intersect-text/target
-          key: ${{ steps.toolkit-cache.outputs.cache-primary-key }}
       - name: Check independent Toolkit and model/text synchronization
         working-directory: toolkit
         run: |
@@ -78,7 +73,27 @@ jobs:
           npm run test:rhai-editor
           npx playwright install --with-deps chromium
           npm test -- tests/library-text.spec.js tests/model-text.spec.js
+          npm test -- tests/runner-export.spec.js tests/package.spec.js tests/ide-layout.spec.js --grep-invert 'inferred source archive'
           npx playwright test --config playwright.site.config.js
+      - name: Verify the extracted ready-to-run model
+        run: |
+          python -B tools/test_report.py run --no-server --out target/runner-tests -- --manifest-path toolkit/runner/Cargo.toml --lib --locked
+          cargo run --locked --manifest-path target/runner-export/extracted/Cargo.toml --target-dir toolkit/runner/target
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('target/runner-export/extracted')
+          assert json.loads((root / 'model.json').read_text()) == json.loads((root / 'output/model.json').read_text())['model']
+          PY
+      - name: Save public Toolkit compilation cache
+        if: steps.toolkit-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            toolkit/.runtime/intersect-text/target
+            toolkit/runner/target
+          key: ${{ steps.toolkit-cache.outputs.cache-primary-key }}
       - name: Build and verify the GitHub Pages project prefix
         working-directory: toolkit
         env:

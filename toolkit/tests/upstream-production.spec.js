@@ -401,7 +401,7 @@ test('static Rcore example supports definition and language usage without develo
   await page.locator('#rcore-seed').fill('missing');
   await page.locator('#rcore-run').click();
   await expect(page.locator('#rcore-result')).toHaveText('No Type named missing.');
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled');
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   expect(errors).toEqual([]);

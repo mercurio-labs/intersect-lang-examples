@@ -108,7 +108,7 @@ test('Library w/ Implementations loads working scripts, reads live models and su
   const repriced = await exportedModel(page);
   expect(repriced.derived[loan.id].overdueFee.value).toBe('200');
   await page.getByRole('tab',{name:'Define',exact:true}).click();
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled', {timeout:30000});
   await expect(page.locator('[data-ecore-view="rhai"]')).toBeHidden();
   await expect(page.locator('#rhai-file')).toBeHidden();

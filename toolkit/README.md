@@ -94,3 +94,44 @@ The public workbench is hosted at
 [intersect-lang-examples/toolkit/](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/).
 The Browser examples workflow deploys the verified artifact from `main`, including
 checks at the GitHub Pages project prefix and a full Monaco/workbench startup.
+
+## Explorer, language helpers and runnable downloads
+
+The workbench follows Mercurio's light/dark palette and three-pane layout.
+Use the explorer's **Model / Files** tabs to switch between containment and
+project files. Click a file to open its existing editor. Right-click in the
+explorer and choose **New File…**, or use its **+** button, to create a model
+file, Python script or query. New files are included in **File → Save project**.
+Starter examples are under **File → Starter projects**.
+
+The Rcore and Xtext source editors have contextual, collapsible syntax guides.
+The Rcore guide covers metamodels, classes, features, multiplicities, references,
+enums and operation contracts, with a link to the full language reference.
+
+**File → Download ready-to-run ZIP** exports the current valid model together
+with its compiled language in a native `model.pack` container. The ZIP includes
+authored definitions, model sources, the saved Toolkit project, a small Rust
+harness, `Cargo.toml` and `Cargo.lock`. Extract the ZIP and run:
+
+```sh
+cargo run --release --locked
+```
+
+Rust 1.88 or newer is required. The first run downloads the pinned public
+crates.io dependencies and builds the harness. The harness verifies the pack,
+recompiles and verifies the retained language definitions, restores the complete
+model snapshot, validates it and evaluates derived values. Results go to
+`output/model.json`. Edit `src/main.rs` to add application-specific operations.
+The pack is the runtime input; editing the reference source files alone does not
+rebuild it. Recompile and export again from Toolkit to incorporate source changes.
+
+Compile pending definition edits and fix model diagnostics before exporting.
+The standalone runner supports self-contained Rcore/Xtext languages. External
+Rhai implementations and host-specific conversion/setter providers require host
+integration; Save project retains their definitions. **Export language ZIP** remains available for
+the existing source/compiled-language distribution and optional Python wrappers.
+
+`runner/` owns only the portable Toolkit pack recipe and example harness. It
+uses the published Model/Text alpha crates. Model's existing native pack builder
+produces the binary container in WASM; no second container or semantic engine
+is implemented in JavaScript.

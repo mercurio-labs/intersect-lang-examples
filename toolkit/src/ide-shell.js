@@ -70,14 +70,13 @@ export function createIdeShell() {
   tabs.setAttribute('role','tablist'); tabs.setAttribute('aria-label','Definition sidebar');
   const treePanel = $('.structure-tree-panel');
   treePanel.querySelector('h3').replaceWith(tabs);
-  const xtextWorkspace = $('.definition-guide-workspace');
   $('#ecore-views').append($('[data-definition="xtext"]'));
-  $('.structure-diagram-panel').append(xtextWorkspace);
+  document.querySelectorAll('.definition-guide-workspace').forEach(workspace => $('.structure-diagram-panel').append(workspace));
   $('.structure-diagram-heading h3').replaceWith($('#ecore-views'));
   $('.structure-diagram-heading').append($('#ecore-history'));
   const toolbar = $('.structure-toolbar');
   $('.structure-diagram-heading').after(toolbar);
-  toolbar.append($('#ecore-folding'), $('#xtext-guide-toggle'));
+  toolbar.append($('#ecore-folding'), $('#xtext-guide-toggle'), $('#rcore-guide-toggle'));
   toolbar.after($('#inference-source-controls'), $('#inference-provider-controls'), $('#inference-generated-controls'));
   $('.definitions > .panel-heading').remove();
   // Keep contextual information accessible in the status popover.

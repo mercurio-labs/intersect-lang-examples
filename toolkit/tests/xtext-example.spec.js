@@ -50,7 +50,7 @@ test('bounded KerML Boolean syntax compiles, rejects bad definitions and returns
   await expect(page.locator('#compile-status')).toContainText('failed', { timeout: 60000 });
   const rejected = await page.evaluate(() => window.workbench.request('intersect/inspect'));
   expect(rejected.evaluation.model).toEqual(inspected.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);
   await expect(page.locator('#compile-status')).toContainText('Language compiled', { timeout: 60000 });
   const library = await page.evaluate(() => window.workbench.request('intersect/inspect'));
   expect(library.evaluation.diagnostics).toEqual([]);
@@ -89,7 +89,7 @@ test('bounded KerML dispatch constructs subtypes, replays its project and reject
   await page.locator('[data-load-example="xtext-kerml"]').click();
   await expect(page.locator('#element-count')).toHaveText('6 elements', {timeout:60000});
   await expect(page.locator('.structure-class')).toHaveCount(2);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);
   await expect(page.locator('#compile-status')).toContainText('Language compiled', {timeout:60000});
   const library = await page.evaluate(() => window.workbench.request('intersect/inspect'));
   expect(library.evaluation.diagnostics).toEqual([]);
@@ -128,7 +128,7 @@ test('typed fragment example preserves callers and linked references through pro
   await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   const rejected=await page.evaluate(()=>window.workbench.request('intersect/inspect'));
   expect(rejected.evaluation.model).toEqual(inspected.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   const library=await page.evaluate(()=>window.workbench.request('intersect/inspect'));
   expect(library.evaluation.model.elements.some(e=>e.class==='BookCopy')).toBe(true);
@@ -187,7 +187,7 @@ test('punctuation example preserves operator values and exact project replay', a
   await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   const rejected=await page.evaluate(()=>window.workbench.inspect());
   expect(rejected.evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);
   await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
@@ -220,7 +220,7 @@ test('qualified-name datatypes link exact names across resources and preserve pr
   await page.locator('#compile').click();
   await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);
   await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
@@ -255,7 +255,7 @@ test('leading simple actions select concrete classes, initialize and retain proj
   await page.locator('#compile').click();
   await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);
   await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
@@ -283,7 +283,7 @@ test('native terminal example preserves raw names, references and project replay
   await page.evaluate(()=>{const m=window.workbench.definitionModels.xtext;m.setValue(m.getValue()+'\nterminal OTHER: "@" "x";');});
   await page.locator('#compile').click();await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
 
@@ -310,7 +310,7 @@ test('explicit lexical example retains significant comments and exact pinned ter
   await page.evaluate(()=>{const m=window.workbench.definitionModels.xtext;m.setValue(m.getValue().replace('hidden(WS)','hidden(MISSING)'));});
   await page.locator('#compile').click();await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
 
@@ -339,7 +339,7 @@ test('predictive lexical example preserves overlapping tokens and the versioned 
   await page.evaluate(()=>{const m=window.workbench.definitionModels.xtext;m.setValue(m.getValue().replace('hidden(WS, ML_NOTE, SL_NOTE)','hidden(MISSING)'));});
   await page.locator('#compile').click();await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
 
@@ -385,7 +385,7 @@ test('inherited grammar example retains parent sources through projects and arch
   await page.evaluate(()=>{const m=window.workbench.definitionModels.xtext;m.setValue(m.getValue().replace('with example.Base','with example.Missing'));});
   await page.locator('#compile').click();await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect(await page.evaluate(()=>window.workbench.project.snapshot().definitionBundle)).toBeUndefined();
 });
 
@@ -420,7 +420,7 @@ test('contextual parser overrides preserve inherited callers, shadowed sources a
   await page.evaluate(()=>{const m=window.workbench.definitionModels.xtext;m.setValue(m.getValue().replace('@Override\nMember','@Override\nMissing'));});
   await page.locator('#compile').click();await expect(page.locator('#compile-status')).toContainText('failed',{timeout:60000});
   expect((await page.evaluate(()=>window.workbench.inspect())).evaluation.model).toEqual(before.evaluation.model);
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements',{timeout:60000});
   expect(await page.evaluate(()=>window.workbench.project.snapshot().definitionBundle)).toBeUndefined();
 });
 
@@ -449,7 +449,7 @@ test('cumulative KerML showcase replays projects and downloaded language ZIP wit
   expect(imported.package).toEqual(before.package);expect(imported.evaluation.diagnostics).toEqual([]);expect(imported.evaluation.model).toEqual(before.evaluation.model);
   await page.getByRole('tab',{name:'Test',exact:true}).click();await expect(page.locator('#model-tree')).toContainText('Wheel assembly');
   await page.screenshot({path:'test-results/kerml-xtext-showcase.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
 
@@ -480,7 +480,7 @@ test('inferred KerML datatypes preserve exact project and downloaded archive rep
   expect(imported.package).toEqual(before.package);expect(imported.evaluation.diagnostics).toEqual([]);expect(imported.evaluation.model).toEqual(before.evaluation.model);
   await page.getByRole('tab',{name:'Test',exact:true}).click();await expect(page.locator('#model-tree')).toContainText('Wheel assembly');
   await page.screenshot({path:'test-results/kerml-inferred-datatypes.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
   expect((await page.evaluate(()=>window.workbench.inspect())).package.grammar.profile).toBe('intersect.workbench.v1');
 });
 
@@ -516,7 +516,7 @@ test('current actions retain constructed graphs through project and downloaded p
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await expect(page.locator('#model-tree')).toContainText('OperatorExpression');
   await page.screenshot({path:'test-results/xtext-current-actions.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('first-token predicates retain selected branches through project and downloaded package replay', async ({page}) => {
@@ -548,7 +548,7 @@ test('first-token predicates retain selected branches through project and downlo
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await expect(page.locator('#model-tree')).toContainText('Left');
   await page.screenshot({path:'test-results/xtext-predicates-actions.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('cumulative enum rules retain literal identities through project and downloaded package replay', async ({page}) => {
@@ -585,7 +585,7 @@ test('cumulative enum rules retain literal identities through project and downlo
   }
   await page.getByRole('treeitem',{name:"Vehicles::'Wheel assembly' · Type",exact:true}).locator(':scope > .instance-row').click();
   await page.screenshot({path:'test-results/xtext-enums-actions.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('cumulative rule converters retain Boolean semantics through project and downloaded package replay', async ({page}) => {
@@ -628,7 +628,7 @@ test('cumulative rule converters retain Boolean semantics through project and do
   }
   await page.getByRole('treeitem',{name:'front · Feature',exact:true}).locator(':scope > .instance-row').click();
   await page.screenshot({path:'test-results/xtext-converters.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('recursive predicates retain committed branches through project and downloaded package replay', async ({page}) => {
@@ -660,7 +660,7 @@ test('recursive predicates retain committed branches through project and downloa
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await expect(page.locator('#model-tree')).toContainText('Left');
   await page.screenshot({path:'test-results/xtext-recursive-actions.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('real values retain IEEE semantics through project and downloaded package replay', async ({page}) => {
@@ -690,7 +690,7 @@ test('real values retain IEEE semantics through project and downloaded package r
   expect(imported.package).toEqual(before.package);expect(imported.evaluation.model).toEqual(before.evaluation.model);
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await page.screenshot({path:'test-results/xtext-real-values.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('recursive arguments retain caller ownership through project and downloaded package replay', async ({page}) => {
@@ -722,7 +722,7 @@ test('recursive arguments retain caller ownership through project and downloaded
   expect(imported.package).toEqual(before.package);expect(imported.evaluation.model).toEqual(before.evaluation.model);
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await page.screenshot({path:'test-results/xtext-recursive-arguments.png',fullPage:true});
-  await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 for (const [example,count] of [['xtext-library-advanced',6],['xtext-expressions-advanced',9]]) {
@@ -759,7 +759,7 @@ for (const [example,count] of [['xtext-library-advanced',6],['xtext-expressions-
     const imported=await page.evaluate(async files=>{const {loadRuntime}=await import('/src/runtime.js');const runtime=await loadRuntime();const result=runtime({method:'package/import',files});if(!result.package)throw new Error('Archive import returned no package');return {package:result.package,evaluation:runtime({method:'evaluate',package:result.package,sources:Object.values(window.workbench.modelModels).map(m=>({uri:m.uri.toString(),text:m.getValue()}))})};},files);
     expect(imported.package).toEqual(before.package);expect(imported.evaluation.model).toEqual(before.evaluation.model);
     await page.getByRole('tab',{name:'Test',exact:true}).click();await page.screenshot({path:`test-results/${example}.png`,fullPage:true});
-    await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+    await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
   });
 }
 
@@ -807,6 +807,6 @@ for (const [example,count] of [['xtext-library-composed',6],['xtext-expressions-
     const imported=await page.evaluate(async files=>{const {loadRuntime}=await import('/src/runtime.js');const runtime=await loadRuntime();const result=runtime({method:'package/import',files});if(!result.package)throw new Error('Archive import returned no package');return {package:result.package,evaluation:runtime({method:'evaluate',package:result.package,sources:Object.values(window.workbench.modelModels).map(m=>({uri:m.uri.toString(),text:m.getValue()}))})};},files);
     expect(imported.package).toEqual(before.package);expect(imported.evaluation.model).toEqual(before.evaluation.model);
     await page.getByRole('tab',{name:'Test',exact:true}).click();await page.screenshot({path:`test-results/${example}.png`,fullPage:true});
-    await page.locator('#example').selectOption('library');await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
+    await page.locator('#example').selectOption('library',{force:true});await waitForExample(page,'library',null);await expect(page.locator('#element-count')).toHaveText('6 elements');
   });
 }

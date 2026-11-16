@@ -3,6 +3,8 @@
 /alpha-dist/
 /.runtime/
 /public/intersect_web.wasm
+/public/toolkit_pack.wasm
+/runner/target/
 /public/python/
 /test-results/
 /playwright-report/

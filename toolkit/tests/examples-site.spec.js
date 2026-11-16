@@ -1,5 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {createHash} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
+import {unzipSync,strFromU8} from 'fflate';
 const prefix=process.env.INTERSECT_SITE_BASE || (process.env.INTERSECT_SITE_URL ? new URL(process.env.INTERSECT_SITE_URL).pathname : '');
 const site=path=>prefix.replace(/\/$/,'')+path;
 test('gallery pairs each code walkthrough with its runnable tool',async({page})=>{
@@ -78,6 +80,14 @@ test('full workbench loads Monaco and compiles its starter language at the deplo
   await expect(page.locator('.structure-class[data-class="Library"]')).toBeVisible();
   await page.getByRole('button',{name:'Rcore source',exact:true}).click();
   await expect(page.locator('#definition-editor .monaco-editor')).toBeVisible();
+  await expect(page.locator('#rcore-guide')).toBeVisible();
   await expect(page.locator('#compile')).toBeVisible();
+  await expect(page.locator('.topbar > label:has(#example)')).toHaveCount(0);
+  await page.locator('.ide-file-menu > summary').click();
+  const downloading=page.waitForEvent('download');
+  await page.locator('#export-runner').click();
+  const files=unzipSync(await readFile(await (await downloading).path()));
+  expect(strFromU8(files['model.pack'].slice(0,8))).toBe('IXLPACK\0');
+  expect(files['src/main.rs']).toBeDefined();
   expect(failed).toEqual([]);
 });

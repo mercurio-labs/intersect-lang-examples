@@ -17,7 +17,7 @@ test('static starter scenarios execute cyclic closure and recover from Library v
   await page.locator('#rcore-run').click();
   await expect(page.locator('#rcore-result')).toHaveText('A → B → D → C',{timeout:60000});
   await page.getByRole('tab',{name:'Define',exact:true}).click();
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await page.locator('#model-samples > summary').click();
@@ -38,11 +38,11 @@ test('static editor windows create model files, Python scripts and queries throu
   await expect(page.locator('#compile-status')).toContainText('Language compiled');
   await page.getByRole('tab', { name: 'Test', exact: true }).click();
   async function create(type, name) {
-    await page.getByRole('button', { name: 'New window' }).click();
+    await page.getByRole('button', { name: 'New file' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Window type').selectOption(type);
+    await dialog.getByLabel('File type').selectOption(type);
     await dialog.getByLabel('Name', { exact: true }).fill(name);
-    await dialog.getByRole('button', { name: 'Create window' }).click();
+    await dialog.getByRole('button', { name: 'Create file' }).click();
     return page.getByRole('tabpanel', { name, exact: true });
   }
   const model = await create('model', 'branch.library');
@@ -223,7 +223,7 @@ test('static bounded KerML syntax example and Library share the shipped WASM run
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   await expect(page.locator('#model-tree')).toContainText('Vehicle');
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
@@ -241,7 +241,7 @@ test('static KerML dispatch example creates concrete subtypes and preserves Libr
   await expect(page.locator('#model-tree')).toContainText('Vehicle');
   await expect(page.locator('#model-tree')).toContainText('wheel');
   expect(await page.evaluate(() => typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
 });
@@ -257,7 +257,7 @@ test('static typed fragment example links its caller features using the shipped 
   await expect(page.locator('#model-tree')).toContainText('Axle');
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#model-tree')).toContainText('dune');
   await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
@@ -271,7 +271,7 @@ test('static punctuation example executes compound keywords and preserves Librar
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['Parts','Units','Wheel','front','Local']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
 });
@@ -284,7 +284,7 @@ test('static qualified-name example links through the shipped datatype runtime',
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['Parts::Wheel','front','distance','Units::Length']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
 });
@@ -297,7 +297,7 @@ test('static simple-action example and Library share the shipped runtime', async
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['Vehicle','Wheel','wheel','Spare']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');
+  await page.locator('#example').selectOption('library',{force:true});
   await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
 });
@@ -308,7 +308,7 @@ test('static native terminal example preserves tagged names and Library switchin
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['@Wheel','wheel','@Spare']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
@@ -318,7 +318,7 @@ test('static explicit lexical example preserves quoted names and Library switchi
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ["'Wheel assembly'",'wheel','Spare']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
@@ -328,7 +328,7 @@ test('static predictive lexical example preserves quoted names and Library switc
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ["'Wheel assembly'",'wheel','Spare']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
   await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
@@ -340,7 +340,7 @@ test('static inherited grammar example executes parent declarations and returns 
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['Wheel','Spare']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('static parser override example executes inherited calls and returns to Library', async ({page}) => {
@@ -351,7 +351,7 @@ test('static parser override example executes inherited calls and returns to Lib
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['Wheel','Spare']) await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('static cumulative KerML syntax showcase exposes combined model values and returns to Library', async ({page}) => {
@@ -360,7 +360,7 @@ test('static cumulative KerML syntax showcase exposes combined model values and 
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['Wheel assembly','Library::Spare','front','spare'])await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
 test('static inferred KerML datatypes expose combined model values and returns to Library', async ({page}) => {
@@ -369,7 +369,7 @@ test('static inferred KerML datatypes expose combined model values and returns t
   await page.getByRole('tab',{name:'Test',exact:true}).click();
   for(const name of ['Wheel assembly','Library::Spare','front','spare'])await expect(page.locator('#model-tree')).toContainText(name);
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
 
@@ -378,7 +378,7 @@ test('static current-action expression construction runs without development hoo
   await expect(page.locator('#element-count')).toHaveText('8 elements');
   await page.getByRole('tab',{name:'Test',exact:true}).click();await expect(page.locator('#model-tree')).toContainText('OperatorExpression');
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
 test('static first-token predicate example selects its guarded branch without development hooks', async ({page}) => {
@@ -386,7 +386,7 @@ test('static first-token predicate example selects its guarded branch without de
   await expect(page.locator('#element-count')).toHaveText('5 elements');
   await page.getByRole('tab',{name:'Test',exact:true}).click();await expect(page.locator('#model-tree')).toContainText('Left');
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
 test('static cumulative enum example retains KerML teaching links and returns to Library', async ({page}) => {
@@ -399,7 +399,7 @@ test('static cumulative enum example retains KerML teaching links and returns to
     await expect(page.getByRole('region',{name:'Instance properties'})).toContainText(literal);
   }
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
 test('static cumulative converter example retains distinct Boolean policies and returns to Library', async ({page}) => {
@@ -416,7 +416,7 @@ test('static cumulative converter example retains distinct Boolean policies and 
     for(const [field,value] of [['isUnique',unique],['isOrdered',ordered],['isEnabled',enabled]])await expect(page.getByRole('region',{name:'Instance properties'}).getByText(field,{exact:true}).locator('xpath=following-sibling::dd[1]')).toHaveText(String(value));
   }
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');await expect(page.locator('#model-tree')).toContainText('dune');
 });
 
 
@@ -427,7 +427,7 @@ test('static recursive predicates construct nested objects without development h
   await page.locator('.instance-row').filter({hasText:'Left'}).first().click();
   await expect(page.getByRole('region',{name:'Instance properties'}).getByText('number',{exact:true}).locator('xpath=following-sibling::dd[1]')).toHaveText('12');
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 test('static real values preserve exact IEEE values without development hooks', async ({page}) => {
@@ -437,7 +437,7 @@ test('static real values preserve exact IEEE values without development hooks', 
   await page.locator('.instance-row').filter({hasText:'LiteralRational'}).first().click();
   await expect(page.getByRole('region',{name:'Instance properties'})).toContainText('3fe0000000000000');
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 
@@ -452,7 +452,7 @@ test('static recursive arguments preserve nested ownership and named links', asy
   await expect(page.getByRole('region',{name:'Instance properties'})).toContainText('target');
   await page.screenshot({path:'test-results/xtext-arguments-production.png',fullPage:true});
   expect(await page.evaluate(()=>typeof window.workbench)).toBe('undefined');
-  await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+  await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
 });
 
 for(const [example,count] of [['xtext-library-advanced',6],['xtext-expressions-advanced',9]]) {
@@ -478,7 +478,7 @@ for(const [example,count] of [['xtext-library-advanced',6],['xtext-expressions-a
     const download=await downloading;
     const files=unzipSync(await readFile(await download.path()));
     expect(JSON.parse(strFromU8(files['manifest.json'])).runtime.profile).toBe('intersect.xtext.native.v27');
-    await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+    await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
   });
 }
 
@@ -507,7 +507,7 @@ for(const [example,count] of [['xtext-library-composed',6],['xtext-expressions-c
     const download=await downloading;
     const files=unzipSync(await readFile(await download.path()));
     expect(JSON.parse(strFromU8(files['manifest.json'])).runtime.profile).toBe('intersect.xtext.native.v52');
-    await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+    await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
   });
 }
 
@@ -551,7 +551,7 @@ for(const [name,version,operator] of [['projected',53,'left'],['nary',54,'branch
       expect(createHash('sha256').update(files[path]).digest('hex')).toBe(digest.sha256);
       expect(files[path].length).toBe(digest.bytes);
     }
-    await page.locator('#example').selectOption('library');await expect(page.locator('#element-count')).toHaveText('6 elements');
+    await page.locator('#example').selectOption('library',{force:true});await expect(page.locator('#element-count')).toHaveText('6 elements');
   });
 }
 

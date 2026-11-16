@@ -28,6 +28,8 @@ import { createIdeShell } from './ide-shell.js';
 import { createEditorWindows } from './editor-windows.js';
 import { createModelTree } from './model-tree.js';
 import { createXtextGuide } from './xtext-guide.js';
+import { createRcoreGuide } from './rcore-guide.js';
+import { createRunnerExport } from './runner-export.js';
 import ecore from '../.runtime/intersect-text/fixtures/library/library.ecore?raw';
 import libraryRcore from '../.runtime/intersect-text/fixtures/library/library-project.rcore?raw';
 import libraryImplementationsRcore from '../.runtime/intersect-text/fixtures/library/library-implementations.rcore?raw';
@@ -43,6 +45,7 @@ import {xtextExamples} from './xtext-example.js';
 import {showDemoChoices, testCaseChoices} from './demo-choices.js';
 import './ide-shell.css';
 import './editor-windows.css';
+import { createMercurioShell } from './mercurio-shell.js';
 
 self.MonacoEnvironment = { getWorker: () => new EditorWorker() };
 monaco.editor.defineTheme('intersect', {
@@ -106,7 +109,7 @@ behaviorPanel.innerHTML='<div class="panel-heading"><h2>Rcore behavior</h2><labe
 document.querySelector('.results').before(behaviorPanel);
 const definitionModels = Object.fromEntries(['ecore', 'xtext', 'rcore_behavior', 'rcore'].map(id => [id, monaco.editor.createModel(defaults[id], id === 'ecore' ? 'plaintext' : id, monaco.Uri.parse(`file:///definitions/library.${id}`))]));
 const modelModels = Object.fromEntries(['catalog', 'loans'].map(id => [id, monaco.editor.createModel(defaults[id], 'intersect-model', monaco.Uri.parse(`file:///models/${id}.library`))]));
-const editorOptions = { theme: 'intersect', automaticLayout: true, fontSize: 13, fontFamily: 'Consolas, "Liberation Mono", monospace', lineHeight: 22, minimap: { enabled: false }, scrollBeyondLastLine: false, padding: { top: 16, bottom: 16 }, tabSize: 2, roundedSelection: false, renderLineHighlight: 'line', wordWrap: 'on', fixedOverflowWidgets: true, overviewRulerLanes: 0, stickyScroll: { enabled: false } };
+const editorOptions = { automaticLayout: true, fontSize: 13, fontFamily: 'Consolas, "Liberation Mono", monospace', lineHeight: 22, minimap: { enabled: false }, scrollBeyondLastLine: false, padding: { top: 16, bottom: 16 }, tabSize: 2, roundedSelection: false, renderLineHighlight: 'line', wordWrap: 'on', fixedOverflowWidgets: true, overviewRulerLanes: 0, stickyScroll: { enabled: false } };
 const definitionEditor = monaco.editor.create($('definition-editor'), { ...editorOptions, model: definitionModels.rcore, ariaLabel: 'Definition source', folding: true, showFoldingControls: 'always' });
 document.querySelector('.definitions .panel-footer').insertAdjacentHTML('beforeend', '<div id="ecore-folding" class="definition-actions"><button id="ecore-collapse" class="text-button">Collapse all</button><button id="ecore-expand" class="text-button">Expand all</button></div>');
 $('ecore-collapse').onclick = () => (activeDefinition === 'xtext' ? xtextEditor : definitionEditor).getAction('editor.foldAll').run();
@@ -115,6 +118,8 @@ document.querySelector('.definitions .file-path').insertAdjacentHTML('beforebegi
 let ecoreView = 'structure';
 const xtextGuide = createXtextGuide(document.querySelector('.definitions'));
 const xtextEditor = monaco.editor.create(xtextGuide.editorHost, {...editorOptions, model:definitionModels.xtext, ariaLabel:'Xtext source', folding:true});
+const rcoreGuide = createRcoreGuide(document.querySelector('.definitions'));
+rcoreGuide.editorHost.append($('definition-editor'));
 const behaviorFileCommand = document.createElement('button');
 behaviorFileCommand.id = 'open-behavior-source'; behaviorFileCommand.type = 'button';
 behaviorFileCommand.textContent = 'Open separate behavior source'; behaviorFileCommand.hidden = true;
@@ -138,11 +143,12 @@ function updateDefinitionView() {
   $('ecore-folding').inert = !(sourceVisible || xtextVisible);
   document.querySelector('.structure-tree').hidden = false;
   xtextGuide.setActive(activeDefinition === 'xtext');
+  rcoreGuide.setActive(sourceVisible && activeDefinition !== 'xtext');
   // A separate imported file stays available through File; it never adds a tab automatically.
   behaviorFileCommand.hidden = !definitionModels.rcore_behavior.getValue().trim();
   document.querySelector('[data-ecore-view="behavior"]').hidden = activeDefinition !== 'rcore_behavior';
   const editorParent = document.querySelector('.structure-diagram-panel');
-  if ($('definition-editor').parentElement !== editorParent) editorParent.append($('definition-editor'));
+  if (rcoreGuide.editorHost.parentElement.parentElement !== editorParent) editorParent.append(rcoreGuide.editorHost.parentElement);
   structure.setView(ecoreView === 'structure' ? 'structure' : 'source');
   document.querySelectorAll('[data-ecore-view]').forEach(button => {
     const selected = button.dataset.ecoreView === ecoreView;
@@ -795,8 +801,14 @@ window.addEventListener('keydown', e => { if (!definitionPage.hidden && (e.ctrlK
 window.addEventListener('beforeunload', () => client?.dispose());
 // Explicit development/test surface: exercises the same editors, client and runtime.
 if (import.meta.env.DEV || import.meta.env.MODE === 'test') window.workbench = { python, structure, project, setDefinitionMode, selectActivity, definitionModels, modelModels, definitionEditor, get modelEditor() { return modelEditor; }, get windows() { return windows; }, compile: compileDefinitions, compileBundle, inspect: () => client.request('intersect/inspect'), request: (method, params) => client.request(method, params), get activeSources() { return activeSources; } };
-document.querySelector('.topbar').append($('example').closest('label'));
+const examplePicker = $('example').closest('label');
+examplePicker.remove();
 ide = createIdeShell();
+document.querySelector('[aria-label="Starter projects"]').append(examplePicker);
+document.querySelector('[aria-label="Project"]').append(createRunnerExport(() => client, () => {
+  if (bindings.snapshot().present) throw new Error('Runnable ZIP export requires self-contained Rcore/Xtext definitions. Save the project to retain external Rhai implementations.');
+  return !activeSources || Object.entries(definitionModels).filter(([key]) => key !== 'ecore').some(([key,model]) => sourceText(model) !== (activeSources[key] ?? '')) || (definitionMode==='inferred' && (inferred.hasPendingEdits(activeInferenceDraft) || inferred.providerDraft()!==activeProviderDraft));
+}, (message,error=false) => { $('project-status').textContent=message; $('project-status').classList.toggle('project-error',error); }, () => project.snapshot()));
 const createStubCommand = document.createElement('button'); createStubCommand.id = 'create-stub'; createStubCommand.textContent = 'Create Stub';
 document.querySelector('[aria-label="Metamodel · Define"]').append(createStubCommand);
 createStubCommand.onclick = async () => {
@@ -858,5 +870,13 @@ windows = createEditorWindows({
   extension: () => latestPackage?.grammar?.name?.split('.').at(-1).toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'model',
 });
 document.querySelector('.window-toolbar').append(modelSamplesMenu);
+createMercurioShell({monaco,
+  files: () => [
+    ...['rcore','xtext','rcore_behavior'].filter(key => definitionModels[key].getValue().trim()).map(key=>({id:key,name:definitionFilename(key),kind:'definition'})),
+    ...windows.documents.map(doc=>({id:doc.id,name:doc.displayName||doc.name,kind:doc.type})),
+  ],
+  openFile: file => { if(file.kind==='definition'){selectActivity('definition');ecoreView=file.id==='xtext'?'xtext':'source';selectDefinition(file.id);}else{selectActivity('usage');windows.open(file.id);} },
+  newFile: () => { selectActivity('usage');windows.newFile(); },
+});
 selectDefinition('rcore');
 start().then(()=>{const example=new URLSearchParams(location.search).get('example');if((example==='rcore' || example==='library-implementations' || Object.hasOwn(xtextExamples, example))){loadExample(example);}});
