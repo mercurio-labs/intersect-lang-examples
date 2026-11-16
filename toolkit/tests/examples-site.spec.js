@@ -4,7 +4,8 @@ const prefix=process.env.INTERSECT_SITE_BASE || (process.env.INTERSECT_SITE_URL 
 const site=path=>prefix.replace(/\/$/,'')+path;
 test('gallery pairs each code walkthrough with its runnable tool',async({page})=>{
   await page.goto(site('/'));
-  await expect(page.locator('.example-card')).toHaveCount(4);
+  await expect(page.locator('.example-card')).toHaveCount(5);
+  await expect(page.locator('.example-card').first()).toHaveAttribute('href','toolkit/');
   for(const slug of ['petri','catalog','library','stopwatch']){
     await page.goto(site(`/examples/${slug}/`));
     await expect(page.locator('.example-intro a[href*="_lifecycle.rs"]')).toHaveAttribute('href',new RegExp(`${slug}_lifecycle.rs$`));

@@ -24,6 +24,7 @@ p{margin:0 0 16px}
 .example-card{text-decoration:none;color:inherit;display:block}
 .example-card:hover{color:inherit}
 .thumbnail{height:235px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#f7f9fc;transition:border-color .15s,transform .15s}
+.example-card .thumbnail{height:140px}
 .example-card:hover .thumbnail{border-color:#9bb9f5;transform:translateY(-2px)}
 .thumbnail svg{width:100%;height:100%;display:block}
 .card-body{padding:17px 1px}

@@ -29,18 +29,14 @@ the authored definitions through the shared parser.
 
 ## Browser examples
 
-For the Model/Text `0.1.0-alpha.1` candidate, use the
-[focused Toolkit build](toolkit/README.md#focused-modeltext-alpha). It produces
-an independent Library and model/text demonstration on the selected alpha pair.
-The broader gallery and preview described below use an older runtime and are
-not evidence for the alpha. The candidate remains local and unpublished.
+[Open the Toolkit workbench](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/)
+for language authoring and model/text workflows. Toolkit uses the released
+Model/Text `0.1.0-alpha.1` source pair; see the
+[focused Toolkit build](toolkit/README.md#focused-modeltext-alpha) for build details.
+The broader gallery uses an older runtime and is not evidence for the alpha.
 
-Hosting is currently disabled. Download **examples-site.zip** from the
-[verified preview build](https://github.com/mercurio-labs/intersect-lang-examples/releases/tag/examples-preview-2026-11-13), unzip it,
-then run `python -m http.server 8000` in the extracted directory and open
-`http://localhost:8000/`. The site links below are reserved for future hosting.
-Future successful Browser examples workflow runs also provide an `examples-site`
-artifact; the preview download is built and checked locally.
+The gallery and full Toolkit are hosted publicly on GitHub Pages. Successful
+Browser examples workflow runs also provide an `examples-site` artifact for local use.
 
 [Open the interactive examples](https://mercurio-labs.github.io/intersect-lang-examples/)
 — a visual gallery leads to one page per example, with the Rcore metamodel,
@@ -49,11 +45,11 @@ Source listings and downloadable definitions are generated from the runnable
 examples by `tools/build_gallery.py`; Catalog labels its generated Rcore
 migration and Library identifies its pinned Toolkit definitions.
 
+- [Toolkit workbench](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/): full language authoring and model/text workflows ([source and build instructions](toolkit/README.md)).
 - [Stopwatch simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/stopwatch/): command text, an Rcore state machine, Run timing and trace replay.
 - [Petri simulation](https://mercurio-labs.github.io/intersect-lang-examples/examples/petri/): timed firing and animated trace replay.
 - [Library simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/library/): edit objects and source with synchronization, references and undo/redo.
 - [Catalog explorer](https://mercurio-labs.github.io/intersect-lang-examples/examples/catalog/): edit two resources and follow resolved references.
-- [Toolkit](toolkit/README.md): full language authoring and model/text workflows.
 
 Edit the coffee net and scenario, select a deterministic firing policy, and run
 them in your browser. The Rust language package compiles to WebAssembly; a web
