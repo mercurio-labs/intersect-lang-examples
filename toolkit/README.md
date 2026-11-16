@@ -5,8 +5,8 @@
 The evaluation-alpha candidate builds two small browser examples:
 Library and generic model/text editing. The alpha artifact uses the exact Text
 revision in `runtime.json` and that revision's immutable Model dependency.
-The pin selects the fresh-history Text baseline; rebuild artifacts before claiming
-qualification of that pair. Earlier preview downloads retain their original inputs.
+The pin selects Text's `v0.1.0-alpha.1` release source. Earlier preview downloads
+retain their original inputs and qualification scope.
 The root gallery still uses the older combined repository and is outside this
 candidate's qualification. No release is published by these commands.
 
@@ -54,8 +54,8 @@ The browser application and its browser/Node tests live in this repository.
 It consumes Intersect Text's WASM host, native test oracles and fixture corpus
 from the exact Git revision in `runtime.json`. `scripts/prepare-runtime.mjs`
 fetches that source into ignored `.runtime/intersect-text/`; no sibling checkout
-or workspace path patch is used. Git access to the private Text and Model
-repositories is required on the build machine, not in the browser.
+or workspace path patch is used. Text and Model are public repositories; the
+browser runs entirely from the built static assets.
 
 ```sh
 cd toolkit
@@ -89,3 +89,8 @@ For publication, set `TOOLKIT_BASE` to the served path (the site builder sets
 the repository root builds the gallery, Petri/Catalog WASM and Toolkit together.
 Update `runtime.json` deliberately when adopting a new Text revision; the pin
 also selects Text's Cargo.lock and its immutable Model dependencies.
+
+The public workbench is hosted at
+[intersect-lang-examples/toolkit/](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/).
+The Browser examples workflow deploys the verified artifact from `main`, including
+checks at the GitHub Pages project prefix and a full Monaco/workbench startup.

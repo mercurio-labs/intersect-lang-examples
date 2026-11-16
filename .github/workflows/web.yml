@@ -2,7 +2,7 @@ name: Browser examples
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -34,6 +34,8 @@ jobs:
           node-version: '22'
       - name: Install Toolkit dependencies
         run: npm --prefix toolkit ci
+      - name: Check the Pages-prefix test server
+        run: python -B -m unittest discover -s tools -p test_serve_site.py
       - name: Build with the pinned core
         env:
           LC_ALL: C
@@ -60,6 +62,15 @@ jobs:
           npx playwright install --with-deps chromium
           npm test -- tests/library-text.spec.js tests/model-text.spec.js
           npx playwright test --config playwright.site.config.js
+      - name: Build and verify the GitHub Pages project prefix
+        working-directory: toolkit
+        env:
+          TOOLKIT_BASE: /intersect-lang-examples/toolkit/
+          INTERSECT_SITE_BASE: /intersect-lang-examples/
+        run: |
+          npx vite build
+          cp -a dist/. ../dist/toolkit/
+          npx playwright test --config playwright.site.config.js
       - name: Upload runnable site download
         uses: actions/upload-artifact@v4
         with:
@@ -73,7 +84,7 @@ jobs:
           path: dist
 
   deploy:
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.ref == 'refs/heads/develop'
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     permissions:

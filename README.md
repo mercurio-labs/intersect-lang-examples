@@ -93,21 +93,22 @@ All asset paths are relative so the site also works under a GitHub project path.
 ### Publish the GitHub link
 
 The [Browser examples workflow](.github/workflows/web.yml) builds and checks the
-actual WASM binary on pushes to `develop` and pull requests, then uploads a
+actual WASM binary on pushes to `main` and pull requests, then uploads a
 static Pages artifact. Publishing is an explicit workflow dispatch:
 
-1. Configure repository **Settings â†’ Pages â†’ Source â†’ GitHub Actions**. For this
-   private repository, confirm the organization's Pages plan and intended site
-   visibility; Pages access is configured separately from repository access.
+1. Configure repository **Settings > Pages > Source > GitHub Actions**. The active
+   repository and its Pages site are public; the historical archives remain private.
 2. Configure `INTERSECT_CORE_TOKEN` with read access to the pinned private core,
    as for native CI. It is only used during the build and is not a site asset.
-3. Run **Actions â†’ Browser examples â†’ Run workflow** on `develop`, with
-   **Publish the tested playground to GitHub Pages** enabled. Allow `develop`
+3. Run **Actions > Browser examples > Run workflow** on `main`, with
+   **Publish the tested playground to GitHub Pages** enabled. Allow `main`
    in the `github-pages` environment's deployment rules.
 
 The deployment job reports the live URL. The README link above is the standard
 project URL; update it if the repository uses a custom domain. These source
-changes alone do not enable Pages or publish the private repository's runtime.
+changes alone do not deploy a site. The workflow verifies the actual project prefix,
+including the full Monaco workbench at
+[toolkit/](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/), before deployment.
 See [GitHub's custom Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
 ## Run and replay
