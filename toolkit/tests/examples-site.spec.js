@@ -75,7 +75,8 @@ test('full workbench loads Monaco and compiles its starter language at the deplo
   await expect(page).toHaveTitle('Intersect Toolkit');
   await expect(page.locator('#compile-status')).toContainText('Language compiled',{timeout:60000});
   await expect(page.locator('.structure-class[data-class="Library"]')).toBeVisible();
-  await expect(page.locator('.monaco-editor:visible').first()).toBeVisible();
+  await page.getByRole('button',{name:'Rcore source',exact:true}).click();
+  await expect(page.locator('#definition-editor .monaco-editor')).toBeVisible();
   await expect(page.locator('#compile')).toBeVisible();
   expect(failed).toEqual([]);
 });
