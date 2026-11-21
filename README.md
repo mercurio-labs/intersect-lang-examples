@@ -1,182 +1,116 @@
 # Intersect language examples
 
-Small language packages that use [Intersect](https://github.com/mercurio-labs/intersect).
-[Catalog](languages/catalog/README.md) demonstrates parsing and Rcore scoping
-across two resources. The support crate prepares the definitions and loads
-the model through the shared frozen engine. [Petri](languages/petri/README.md)
-adds net-local scoping and Rcore validation with source locations.
-[Library](languages/library/README.md) runs a derived feature and an operation
-written in Rcore.
-
-[Stopwatch](languages/stopwatch/README.md) adds start/wait/stop commands, an Rcore state machine, and deterministic timing through Intersect Run.
-
-## Lifecycle examples in code
-
-Each walkthrough is executable Rust, with comments at the API boundaries and
-checks on the result. Run these from the repository root:
-
-| Example | Lifecycle | Command |
-| --- | --- | --- |
-| [Stopwatch](languages/stopwatch/examples/stopwatch_lifecycle.rs) | Parse commands, execute Rcore transitions with Run timing, save/replay observations | `cargo run --profile test-fast -p examples-stopwatch --example stopwatch_lifecycle` |
-| [Petri](languages/petri/examples/petri_lifecycle.rs) | Prepare definitions, parse, scope, validate, inspect, run a scenario, serialize/reload its trace, restore a compiled language pack | `cargo run --profile test-fast -p examples-petri --example petri_lifecycle` |
-| [Catalog](languages/catalog/examples/catalog_lifecycle.rs) | Load two resources, validate, inspect resolved references and source identities, build/restore a language pack | `cargo run --profile test-fast -p examples-catalog --example catalog_lifecycle` |
-| [Library](languages/library/examples/library_lifecycle.rs) | Compile Rcore behavior, parse/check a model, read a derived feature, invoke an operation, export/restore the model | `cargo run --profile test-fast -p examples-library --example library_lifecycle` |
-
-The examples write artifacts below `target/runs/`. Read the language READMEs
-for expected outputs and the distinction between trace, model and language-pack
-persistence. Pack restoration is a host-local demonstration; the browser loads
-the authored definitions through the shared parser.
+Try Intersect Toolkit in your browser to edit a model, inspect its objects and references, and download a runnable Rust project. Start with the Library starter under **File → Starter projects**, then use **File → Download ready-to-run ZIP** to take a valid model into a local Rust project. [Open Toolkit](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/) · [Toolkit guide](toolkit/README.md#explorer-language-helpers-and-runnable-downloads)
 
 ## Browser examples
 
-[Open the Toolkit workbench](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/)
-for language authoring and model/text workflows. Toolkit uses the released
-Model/Text `0.1.0-alpha.1` source pair; see the
-[focused Toolkit build](toolkit/README.md#focused-modeltext-alpha) for build details.
-The broader gallery uses an older runtime and is not evidence for the alpha.
+The gallery pairs live demos with their language definitions, sample models, and Rust walkthroughs. [Browse the examples](https://mercurio-labs.github.io/intersect-lang-examples/)
 
-The gallery and full Toolkit are hosted publicly on GitHub Pages. Successful
-Browser examples workflow runs also provide an `examples-site` artifact for local use.
+- Edit Library objects and text in sync, follow references, and try undo and redo. [Library simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/library/)
+- Run a timed Petri net and replay its trace. [Petri simulation](https://mercurio-labs.github.io/intersect-lang-examples/examples/petri/)
+- Follow resolved references between two files. [Catalog explorer](https://mercurio-labs.github.io/intersect-lang-examples/examples/catalog/)
+- Step through timed commands and replay state transitions. [Stopwatch simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/stopwatch/)
 
-[Open the interactive examples](https://mercurio-labs.github.io/intersect-lang-examples/)
-— a visual gallery leads to one page per example, with the Rcore metamodel,
-Xtext parser, sample text, explanation, live solution, and Rust walkthrough.
-Source listings and downloadable definitions are generated from the runnable
-examples by `tools/build_gallery.py`; Catalog labels its generated Rcore
-migration and Library identifies its pinned Toolkit definitions.
+Toolkit uses the Text revision in its runtime manifest, which selects the Model/Text `0.1.0-alpha.1` source pair. Its downloadable Rust runner uses the matching crates.io releases. The native examples and the Petri, Catalog, and Stopwatch browser adapters still use an earlier combined core. Building those examples or the whole Pages site requires read access to that private repository. [Toolkit runtime manifest](toolkit/runtime.json) · [Runner dependencies](toolkit/runner/Cargo.toml) · [Native examples workspace](Cargo.toml)
 
-- [Toolkit workbench](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/): full language authoring and model/text workflows ([source and build instructions](toolkit/README.md)).
-- [Stopwatch simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/stopwatch/): command text, an Rcore state machine, Run timing and trace replay.
-- [Petri simulation](https://mercurio-labs.github.io/intersect-lang-examples/examples/petri/): timed firing and animated trace replay.
-- [Library simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/library/): edit objects and source with synchronization, references and undo/redo.
-- [Catalog explorer](https://mercurio-labs.github.io/intersect-lang-examples/examples/catalog/): edit two resources and follow resolved references.
+The browser demos run in WebAssembly workers. Petri browser runs accept up to 64 KiB each of model and scenario text, 1,000 scenario inputs, a one-hour horizon, and unsigned 32-bit seeds. They enforce 1,000 steps per instant and 10,000 total steps and events. The UI reports when a budget stops a run and lets you cancel work.
 
-Edit the coffee net and scenario, select a deterministic firing policy, and run
-them in your browser. The Rust language package compiles to WebAssembly; a web
-worker parses, links, validates and executes the edited model. The existing
-viewer replays the resulting trace with play/pause, stepping and a time slider.
-Download the trace to use it with the standalone viewer. There is no runtime
-server, Java dependency or JavaScript implementation of Petri semantics.
+## Lifecycle examples in code
 
-Petri and Catalog use the examples WASM adapter; Library uses the independently
-built Text runtime through Toolkit. Browser runs accept up to 64 KiB each of
-model and scenario text, 1,000 scenario inputs, a one-hour simulation horizon,
-and unsigned 32-bit seeds. Runs retain the normal 1,000 steps-per-instant limit
-and use 10,000 total-step/event budgets. The UI can cancel a worker and times out
-long-running work; budget stops are shown in the outcome, not treated as success
-at the requested horizon.
+Run these from the repository root with access to the pinned combined core. The walkthroughs write artifacts under `target/runs/`. Each language guide describes the outputs and how to rerun its example.
 
-### Build and preview locally
+| Walkthrough | What it shows | Command |
+| --- | --- | --- |
+| [Library](languages/library/examples/library_lifecycle.rs) | Compile Rcore behavior, evaluate a derived feature, invoke an operation, and restore a model | `cargo run --locked --profile test-fast -p examples-library --example library_lifecycle` |
+| [Catalog](languages/catalog/examples/catalog_lifecycle.rs) | Load two resources, resolve references, and build and restore a language pack | `cargo run --locked --profile test-fast -p examples-catalog --example catalog_lifecycle` |
+| [Petri](languages/petri/examples/petri_lifecycle.rs) | Validate a net, run a timed scenario, and replay its trace | `cargo run --locked --profile test-fast -p examples-petri --example petri_lifecycle` |
+| [Stopwatch](languages/stopwatch/examples/stopwatch_lifecycle.rs) | Parse commands, execute timed state transitions, and save observations | `cargo run --locked --profile test-fast -p examples-stopwatch --example stopwatch_lifecycle` |
 
-Install Rust, Python 3, Node.js 22+ (for the WASM smoke check), and wasm-pack:
+Language guides cover the definitions, expected outputs, and supported operations. [Library](languages/library/README.md) · [Catalog](languages/catalog/README.md) · [Petri](languages/petri/README.md) · [Stopwatch](languages/stopwatch/README.md)
+
+## Code and API reference
+
+The Toolkit runner's public library API covers loading, inspecting, unpacking, and building a model pack. Build a searchable HTML reference with Rustdoc from the repository root. This uses the standalone runner's crates.io dependencies.
+
+```sh
+cargo doc --manifest-path toolkit/runner/Cargo.toml --locked --lib --no-deps --open
+```
+
+Follow the API through the small native examples and the implementation. [Load a pack](toolkit/runner/examples/load_pack.rs) · [Build a pack](toolkit/runner/examples/build_pack.rs) · [Runner API source](toolkit/runner/src/lib.rs) · [Cargo documentation guide](https://doc.rust-lang.org/cargo/commands/cargo-doc.html)
+
+The upstream repositories document the modeling and text APIs. [Intersect Model](https://github.com/mercurio-labs/intersect-model) · [Intersect Text](https://github.com/mercurio-labs/intersect-text)
+
+## Build and preview locally
+
+For Toolkit alone, install Git, Rust with the `wasm32-unknown-unknown` target, and Node.js 22.15 or newer. Run the following from the repository root and open `http://127.0.0.1:4173/`. [Full Toolkit build and tests](toolkit/README.md#full-workbench-development) · [Focused Model/Text alpha build](toolkit/README.md#focused-modeltext-alpha)
 
 ```sh
 rustup target add wasm32-unknown-unknown
-cargo install wasm-pack --version 0.14.0 --locked
 npm --prefix toolkit ci
+npm --prefix toolkit run build
+npm --prefix toolkit run preview -- --host 127.0.0.1 --port 4173 --strictPort
+```
+
+To build the whole site, also install Python 3, `wasm-pack` 0.14.0, and configure Git access to the combined core named in the workspace manifest. Open `http://localhost:8000/` so the browser can load the module workers over HTTP.
+
+```sh
+cargo install wasm-pack --version 0.14.0 --locked
 python -B tools/build_web.py
 node tools/check_web.mjs
 python -m http.server 8000 --directory dist
 ```
 
-Open `http://localhost:8000/`. Serve `dist/` over HTTP; opening `index.html`
-directly cannot load the module worker. The build uses the pinned core revision,
-so it requires the same core repository access as native builds. Generated WASM
-and JavaScript stay in ignored `dist/pkg/`. The checked-in browser adapter is
-[browser/src/lib.rs](browser/src/lib.rs), and the UI is in [web/](web/).
-All asset paths are relative so the site also works under a GitHub project path.
+Successful Browser examples workflow runs also provide a ready-to-serve `examples-site` artifact. [Browser examples workflow](.github/workflows/web.yml)
 
 ### Publish the GitHub link
 
-The [Browser examples workflow](.github/workflows/web.yml) builds and checks the
-actual WASM binary on pushes to `main` and pull requests, then uploads a
-static Pages artifact. Publishing is an explicit workflow dispatch:
-
-1. Configure repository **Settings > Pages > Source > GitHub Actions**. The active
-   repository and its Pages site are public; the historical archives remain private.
-2. Configure `INTERSECT_CORE_TOKEN` with read access to the pinned private core,
-   as for native CI. It is only used during the build and is not a site asset.
-3. Run **Actions > Browser examples > Run workflow** on `main`, with
-   **Publish the tested playground to GitHub Pages** enabled. Allow `main`
-   in the `github-pages` environment's deployment rules.
-
-The deployment job reports the live URL. The README link above is the standard
-project URL; update it if the repository uses a custom domain. These source
-changes alone do not deploy a site. The workflow verifies the actual project prefix,
-including the full Monaco workbench at
-[toolkit/](https://mercurio-labs.github.io/intersect-lang-examples/toolkit/), before deployment.
-See [GitHub's custom Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+The Browser examples workflow builds the site, checks actual WASM at the Pages project prefix, and uploads the result. For maintainers, set **Settings → Pages → Source** to **GitHub Actions**, give `INTERSECT_CORE_TOKEN` read access to the pinned private core, and allow `main` in the `github-pages` environment. Dispatch the workflow on `main` with **Publish the tested playground to GitHub Pages** enabled. [Browser examples workflow](.github/workflows/web.yml)
 
 ## Run and replay
 
-From the repository root:
+Run the Petri example with the named scenario and open `http://localhost:8000/viewer/` to choose the generated trace. You can pass the trace as `?trace=../target/runs/coffee.trace.json`. An optional layout JSON maps stable node IDs to `{"x": number, "y": number}` and can be loaded with the picker or a relative `layout` URL.
 
-~~~sh
-cargo run -p examples-run -- petri languages/petri/models/coffee.petri --scenario languages/petri/scenarios/two-coins.scenario.json --until 20s --policy first --out target/runs/coffee.trace.json
+```sh
+cargo run --locked -p examples-run -- petri languages/petri/models/coffee.petri --scenario languages/petri/scenarios/two-coins.scenario.json --until 20s --policy first --out target/runs/coffee.trace.json
 python -m http.server 8000
-~~~
-
-Open `http://localhost:8000/viewer/` and choose the generated trace. You can
-also open `/viewer/?trace=../target/runs/coffee.trace.json` on the same server.
-Play, pause, step through trace entries, or scrub through simulation time.
-An optional layout JSON maps stable node IDs to `{"x": number, "y": number}`
-within the graph's view box. Choose it with the layout picker or pass a
-relative `layout` URL.
+```
 
 ![CoffeeMachine trace replay at 4450 ms](viewer/coffee-replay.png)
 
-Use `examples-run catalog check` to check the bundled catalog or pass model
-paths after `check`. Use `examples-run library check` for the bundled Library
-sample, or pass model paths after `check`.
+Use `examples-run catalog check` or `examples-run library check` to check the bundled model. Add paths after `check` to use your own inputs.
 
 ## Compiled language packs
 
-Build trusted host-local packs for Catalog and Petri, then load them from a
-new runner invocation:
+Build a host-local language pack, then load it in a new runner invocation. The pack retains the compiled grammar, schema, source provenance, and verified Rcore bindings. The runner checks integrity and compiler and source identities before restoring it. Rebuild after changing the compiler or language definition, and use packs from sources you trust.
 
-~~~sh
-cargo run -p examples-run -- pack catalog target/packs/catalog.pack
-cargo run -p examples-run -- pack petri target/packs/petri.pack
-cargo run -p examples-run -- catalog check --pack target/packs/catalog.pack
-cargo run -p examples-run -- petri languages/petri/models/coffee.petri --pack target/packs/petri.pack --scenario languages/petri/scenarios/two-coins.scenario.json --until 20s --out target/runs/coffee-packed.trace.json
-~~~
+```sh
+cargo run --locked -p examples-run -- pack catalog target/packs/catalog.pack
+cargo run --locked -p examples-run -- catalog check --pack target/packs/catalog.pack
+cargo run --locked -p examples-run -- pack petri target/packs/petri.pack
+cargo run --locked -p examples-run -- petri languages/petri/models/coffee.petri --pack target/packs/petri.pack --scenario languages/petri/scenarios/two-coins.scenario.json --until 20s --out target/runs/coffee-packed.trace.json
+```
 
-Each pack retains the compiled grammar and schema, source provenance, and
-verified Rcore bindings. The runner checks the pack's integrity and exact
-compiler and source identities, then restores the compiled data and links and
-validates the model. `--pack` fails on an invalid or incompatible pack. Rebuild
-the pack after a definition or compiler change. Use packs built by your own
-runner; integrity digests do not authenticate other publishers. Petri firing
-and scheduling use the Rust host and the separately supplied model and scenario.
+Toolkit's model pack includes the authored model and editable files in addition to its compiled language. [Toolkit model pack workflow](toolkit/README.md#explorer-language-helpers-and-runnable-downloads)
 
 ## Checks
 
-Run quick tests from the repository root with the test reporter.
+Read the contributor guide for test tiers. Run these checks for the native examples after configuring access to the pinned private core. Full browser and Pages checks run in the web workflow. [Contributor guide](AGENTS.md) · [Native CI](.github/workflows/ci.yml) · [Browser CI](.github/workflows/web.yml)
 
 ```sh
 cargo fmt --all --check
-cargo clippy --all-targets -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run -p examples-web -- -D warnings
-python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run -p examples-web --lib --bins --tests
-python -B tools/build_web.py
-node tools/check_web.mjs
+cargo clippy --workspace --all-targets --locked -- -D warnings
+python -B tools/test_report.py run -- --profile test-fast --workspace --lib --bins --tests --locked
 ```
-
-CI needs an `INTERSECT_CORE_TOKEN` with read access to the private core repository.
-The workspace manifest pins all core dependencies to one revision.
 
 ### Working with a local core
 
-Check out the pinned revision in a sibling directory named `intersect`.
-Until the revision is available upstream, supply Cargo's path patches on the
-command line. Use the same patches for Clippy.
+Check out the pinned combined core revision in a sibling directory named `intersect`. To test local edits in those crates, supply Cargo's path patches on the command line. Use the same patches for Clippy.
 
 ```sh
-python -B tools/test_report.py run -- --profile test-fast -p examples-support -p examples-catalog -p examples-petri -p examples-library -p examples-run --lib --bins --tests \
+python -B tools/test_report.py run -- --profile test-fast --workspace --lib --bins --tests \
   --config 'patch."https://github.com/mercurio-labs/intersect".intersect-model.path="../intersect/crates/intersect-model"' \
   --config 'patch."https://github.com/mercurio-labs/intersect".intersect-xtext.path="../intersect/crates/intersect-xtext"' \
   --config 'patch."https://github.com/mercurio-labs/intersect".intersect-run.path="../intersect/crates/intersect-run"'
 ```
 
-The patches can rewrite the local lockfile. Keep the committed lockfile
-resolved to the git revision. A fresh offline build also needs the revision
-in Cargo's Git cache.
+The patches can rewrite the local lockfile. Commit lockfile changes only with the intended Git revision resolved. A fresh offline build needs the revision in Cargo's Git cache.
