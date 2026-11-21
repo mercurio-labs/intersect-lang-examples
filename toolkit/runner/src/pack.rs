@@ -26,8 +26,8 @@ pub fn build_pack(input: &Value) -> Result<Vec<u8>, String> {
             version: "1".into(),
         },
         compiler: [
-            ("intersect-model".into(), "0.1.0-alpha.1".into()),
-            ("intersect-text".into(), "0.1.0-alpha.1".into()),
+            ("intersect-model".into(), "0.1.0-alpha.2".into()),
+            ("intersect-text".into(), "0.1.0-alpha.2".into()),
         ]
         .into(),
         recipe_constants: Default::default(),

@@ -11,9 +11,10 @@ The gallery pairs live demos with their language definitions, sample models, and
 - Follow resolved references between two files. [Catalog explorer](https://mercurio-labs.github.io/intersect-lang-examples/examples/catalog/)
 - Step through timed commands and replay state transitions. [Stopwatch simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/stopwatch/)
 
-This candidate Toolkit builds from exact Model and Text source revisions. The
-downloadable Rust runner still uses registry `0.1.0-alpha.1`, pending the next
-registry release. The native examples and the Petri, Catalog, and Stopwatch
+The alpha.2 Toolkit builds from exact Model and Text source revisions. The
+downloadable Rust runner pins registry `0.1.0-alpha.2`. Its lock was checked
+against the rehearsal archives and needs the published crate checksums before
+public distribution. The native examples and the Petri, Catalog, and Stopwatch
 browser adapters still depend on the earlier private combined core. Building
 those examples or the whole Pages site requires read access to that repository.
 [Toolkit runtime manifest](toolkit/runtime.json) · [Runner dependencies](toolkit/runner/Cargo.toml) · [Native examples workspace](Cargo.toml)

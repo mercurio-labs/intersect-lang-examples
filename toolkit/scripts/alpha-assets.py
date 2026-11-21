@@ -143,7 +143,7 @@ def main():
     shutil.copyfile(ROOT / 'public/intersect_web.wasm', OUT / 'intersect_web.wasm')
     (OUT / 'alpha.html').rename(OUT / 'index.html')
     (OUT / 'README.txt').write_text(
-        'Intersect 0.1.0-alpha.1 browser examples — evaluation and feedback\n\n'
+        'Intersect 0.1.0-alpha.2 browser examples — evaluation and feedback\n\n'
         'Serve this entire directory with: python -m http.server 8000 --bind 127.0.0.1\n'
         'Open http://127.0.0.1:8000/ (file:// is unsupported). No build checkout,\n'
         'Internet service, Rust installation or Java runtime is needed to run it.\n'
@@ -154,7 +154,7 @@ def main():
         'See provenance.json and THIRD_PARTY_NOTICES.md for sources and attribution.\n'
         f"Build URL base: {os.environ.get('TOOLKIT_BASE', '/')}\n", encoding='utf-8')
     provenance = {
-        'release': '0.1.0-alpha.1', 'examples_revision': run('git', 'rev-parse', 'HEAD', cwd=ROOT),
+        'release': '0.1.0-alpha.2', 'examples_revision': run('git', 'rev-parse', 'HEAD', cwd=ROOT),
         'examples_tracked_changes': run('git', 'status', '--porcelain', '--untracked-files=normal', cwd=ROOT),
         'text': pin, 'model_revision': model_revision, 'rustc': run('rustc', '--version'),
         'node': run('node', '--version', cwd=ROOT), 'vite': vite_version,

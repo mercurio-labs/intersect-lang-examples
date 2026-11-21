@@ -52,7 +52,7 @@ test('right-click creates a project file and downloads a complete native runner'
   const bytes=await readFile(await download.path());
   const files=unzipSync(bytes);
   expect(strFromU8(files['model.pack'].slice(0,8))).toBe('IXLPACK\0');
-  expect(strFromU8(files['Cargo.toml'])).toContain('intersect-model = "=0.1.0-alpha.1"');
+  expect(strFromU8(files['Cargo.toml'])).toContain('intersect-model = "=0.1.0-alpha.2"');
   expect(strFromU8(files['Cargo.lock'])).not.toContain('git+');
   expect(files['src/main.rs']).toBeDefined();
   expect(files['src/lib.rs']).toBeDefined();

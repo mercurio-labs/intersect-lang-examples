@@ -5,7 +5,7 @@
 The evaluation-alpha candidate builds two small browser examples:
 Library and generic model/text editing. The alpha artifact uses the exact Text
 revision in `runtime.json` and that revision's immutable Model dependency.
-The pin selects Text's `v0.1.0-alpha.1` release source. Earlier preview downloads
+The pin selects the Text source candidate for `v0.1.0-alpha.2`. Earlier preview downloads
 retain their original inputs and qualification scope.
 The root gallery still uses the older combined repository and is outside this
 candidate's qualification. No release is published by these commands.

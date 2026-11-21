@@ -72,4 +72,4 @@ cargo run --release --locked --example build_pack
 
 The pack includes retained language sources. Loading verifies them against a
 fresh compilation before using the saved model. Runtime versions are pinned
-to Intersect Model/Text `0.1.0-alpha.1` in Cargo.toml and Cargo.lock.
+to Intersect Model/Text `0.1.0-alpha.2` in Cargo.toml and Cargo.lock.
