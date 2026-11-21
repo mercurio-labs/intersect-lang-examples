@@ -11,7 +11,12 @@ The gallery pairs live demos with their language definitions, sample models, and
 - Follow resolved references between two files. [Catalog explorer](https://mercurio-labs.github.io/intersect-lang-examples/examples/catalog/)
 - Step through timed commands and replay state transitions. [Stopwatch simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/stopwatch/)
 
-Toolkit uses the Text revision in its runtime manifest, which selects the Model/Text `0.1.0-alpha.1` source pair. Its downloadable Rust runner uses the matching crates.io releases. The native examples and the Petri, Catalog, and Stopwatch browser adapters still use an earlier combined core. Building those examples or the whole Pages site requires read access to that private repository. [Toolkit runtime manifest](toolkit/runtime.json) · [Runner dependencies](toolkit/runner/Cargo.toml) · [Native examples workspace](Cargo.toml)
+This candidate Toolkit builds from exact Model and Text source revisions. The
+downloadable Rust runner still uses registry `0.1.0-alpha.1`, pending the next
+registry release. The native examples and the Petri, Catalog, and Stopwatch
+browser adapters still depend on the earlier private combined core. Building
+those examples or the whole Pages site requires read access to that repository.
+[Toolkit runtime manifest](toolkit/runtime.json) · [Runner dependencies](toolkit/runner/Cargo.toml) · [Native examples workspace](Cargo.toml)
 
 The browser demos run in WebAssembly workers. Petri browser runs accept up to 64 KiB each of model and scenario text, 1,000 scenario inputs, a one-hour horizon, and unsigned 32-bit seeds. They enforce 1,000 steps per instant and 10,000 total steps and events. The UI reports when a budget stops a run and lets you cancel work.
 

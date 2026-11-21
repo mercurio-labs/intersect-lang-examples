@@ -53,7 +53,16 @@ def main():
         reached.add(current)
         pending += [d['pkg'] for d in nodes[current]['deps']
                     if any(k['kind'] != 'dev' for k in d['dep_kinds'])]
-    model = next(p for p in packages.values() if p['name'] == 'intersect-model')
+    models = [packages[ident] for ident in reached if packages[ident]['name'] == 'intersect-model']
+    texts = [packages[ident] for ident in reached if packages[ident]['name'] == 'intersect-text']
+    if len(models) != 1 or len(texts) != 1:
+        raise ValueError('Web host must resolve exactly one Model and one Text package')
+    model, = models
+    text, = texts
+    if not (model.get('source') or '').startswith('git+'):
+        raise ValueError('Web host must use the pinned Model source')
+    if Path(text['manifest_path']).resolve() != (RUNTIME / 'crates/intersect-text/Cargo.toml').resolve():
+        raise ValueError('Web host must use Text from the pinned runtime checkout')
     model_root = Path(model['manifest_path']).parents[2]
     model_revision = model['source'].rsplit('#', 1)[1]
     if run('git', 'rev-parse', 'HEAD', cwd=model_root) != model_revision:

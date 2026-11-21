@@ -9,7 +9,7 @@ if (!base.startsWith('/') || !base.endsWith('/')) throw new Error('TOOLKIT_BASE 
 for (const [command, args] of [
   [process.execPath, ['scripts/build-wasm.mjs']],
   [process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--config', 'vite.alpha.config.js']],
-  ['python', ['-B', 'scripts/alpha-assets.py']],
+  [process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'), ['-B', 'scripts/alpha-assets.py']],
 ]) {
   const result = spawnSync(command, args, { cwd: root, stdio: 'inherit' });
   if (result.status !== 0) throw new Error(`${command} failed: ${result.error || result.status}`);
