@@ -7,7 +7,7 @@ if (process.env.INTERSECT_WEB_WASM) throw new Error('Alpha builds require the pi
 const base = process.env.TOOLKIT_BASE || '/';
 if (!base.startsWith('/') || !base.endsWith('/')) throw new Error('TOOLKIT_BASE must be an absolute URL path ending in /');
 for (const [command, args] of [
-  [process.execPath, ['scripts/build-wasm.mjs']],
+  [process.execPath, ['scripts/build-wasm.mjs', '--text-only']],
   [process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--config', 'vite.alpha.config.js']],
   [process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'), ['-B', 'scripts/alpha-assets.py']],
 ]) {
