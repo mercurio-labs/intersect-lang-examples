@@ -66,7 +66,7 @@ dependencies = [
 name = "intersect-build-support"
 version = "0.1.0-alpha.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f0038d8748f135dfc0a0210368c53da3aec7c28fcbcbfb54956ffa8700dbf9d"
+checksum = "92624b39e54a059e0ed707957a13bced62d61b0f57c5b0201bfca9fd60eb2428"
 dependencies = [
  "serde_json",
  "sha2",
@@ -76,7 +76,7 @@ dependencies = [
 name = "intersect-model"
 version = "0.1.0-alpha.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41f7ed3a6d5f2d1e085db7ddb0c60f03a7e3ff744beb5b862294b796853a916b"
+checksum = "b301ff4caeede2739222277709f5747e888d68504e0382a47a52e4a9b4ccefab"
 dependencies = [
  "intersect-build-support",
  "iri-string",
@@ -95,7 +95,7 @@ dependencies = [
 name = "intersect-text"
 version = "0.1.0-alpha.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e6cf95e885760db860da0da3e0146cf53f930f63ba974d5619b30b60c51edad"
+checksum = "7bf027407ac2630c38290515d4fe249c9e22f061f72296940fbcc3929fdc2598"
 dependencies = [
  "intersect-build-support",
  "intersect-model",
