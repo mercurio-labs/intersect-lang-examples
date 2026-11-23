@@ -48,12 +48,15 @@ versioned discrete-event trace.
 
 ## Run SysML
 
-Use a matching SysML v2 pack that includes a prepared standard library. The
-[KerML CLI guide](https://github.com/mercurio-labs/intersect-lang-kerml/blob/develop/docs/cli-tutorial.md)
-describes preparing packs. Run the following from the Intersect Examples repository root after
-setting `sysml_pack` to the prepared pack path:
+Build a SysML v2 pack with the same compiler as the analysis CLI. The first
+build compiles both languages and prepares the standard library. To reuse
+compatible parts of an earlier pack, add `--previous PATH`.
 
 ~~~sh
+mkdir -p analysis/target
+sysml_pack=analysis/target/sysml.pack
+python3 -B analysis/compiler_build.py pack "$sysml_pack"
+
 "$runner" sysml "$sysml_pack" analysis/examples/sysml/garden.sysml \
   --case CisternAnalysis::sizeInlet \
   --inputs analysis/examples/sysml/fill-in-four-seconds.json
