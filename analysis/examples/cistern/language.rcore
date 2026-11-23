@@ -1,0 +1,32 @@
+rcore 1;
+package cistern version "1";
+metamodel "urn:intersect:cistern:1" prefix cistern {
+  class Tank {
+    attr name: String [1,1];
+    ref initial: Quantity [1,1] containment;
+    ref capacity: Quantity [1,1] containment;
+    ref flow: Quantity [1,1] containment;
+    ref cases: Case [0,*] containment;
+  }
+  class Quantity {
+    attr amount: String [1,1];
+    attr unit: String [1,1];
+  }
+  abstract class Case {
+    attr name: String [1,1];
+  }
+  class FitCheck extends Case {
+    ref deadline: Quantity [1,1] containment;
+  }
+  class Sizing extends Case {
+    ref duration: Quantity [1,1] containment;
+  }
+  class Sweep extends Case {
+    ref flows: Quantity [1,*] containment;
+  }
+  class FillTrace extends Case {
+    ref horizon: Quantity [1,1] containment;
+    ref interval: Quantity [1,1] containment;
+    ref deadline: Quantity [1,1] containment;
+  }
+}
