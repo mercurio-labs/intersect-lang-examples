@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 8,
+  "id": "machine.states",
+  "label": "State transitions",
+  "language": "urn:intersect:example:state-machine:1",
+  "form": "graph",
+  "layout": {"strategy": "layered", "direction": "RIGHT"},
+  "symbols": [
+    {"id": "machine", "emit": "node", "match": "Machine", "notation": "machine",
+      "title": "machineName", "children": {"select": "machineStates"}},
+    {"id": "state", "emit": "node", "match": "State", "notation": "state",
+      "title": "stateName", "children": {"select": "childStates"}}
+  ],
+  "edges": [
+    {"id": "transition", "kind": "element", "per": "machine", "select": "allTransitions",
+      "notation": "transition", "label": "eventName", "sourcePath": "sourcePath",
+      "targetPath": "targetPath", "anchor": "owner"}
+  ],
+  "projection": {"kind": "nested"},
+  "routing": {"algorithm": "orthogonal", "clearance": 8, "stubLength": 18, "trunks": "none"}
+}

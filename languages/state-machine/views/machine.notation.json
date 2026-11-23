@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "machine.notation",
+  "shapes": {
+    "machine": {"shape": "rounded", "fill": "#f4f7fa", "stroke": "#aabac9", "radius": 12},
+    "state": {"shape": "rounded", "fill": "#ffffff", "stroke": "#708399", "radius": 10}
+  },
+  "edges": {
+    "transition": {"stroke": "#526b80", "line": "solid", "startMarker": "none", "endMarker": "arrow"}
+  }
+}

@@ -1,0 +1,19 @@
+rcore 1;
+package intersect.machine.views version "1";
+import model "urn:intersect:example:state-machine:1" as m;
+
+pub fn machineName(self:m.Machine)->String = self.name;
+pub fn machineStates(self:m.Machine)->Sequence<m.State> = Sequence(self.states);
+pub fn stateName(self:m.State)->String = self.name;
+pub fn childStates(self:m.State)->Sequence<m.State> = Sequence(self.states);
+pub fn allTransitions(self:m.Machine)->Sequence<m.Transition> = Sequence(self.transitions);
+pub fn eventName(self:m.Transition)->String = self.event.name;
+
+fn path2(state:m.State)->Sequence<m.State> =
+  match container::<m.State>(state) { Some(parent) => [parent, state], None => [state] };
+fn path3(state:m.State)->Sequence<m.State> =
+  match container::<m.State>(state) { Some(parent) => path2(parent).concat([state]), None => [state] };
+fn path(state:m.State)->Sequence<m.State> =
+  match container::<m.State>(state) { Some(parent) => path3(parent).concat([state]), None => [state] };
+pub fn sourcePath(self:m.Transition)->Sequence<m.State> = path(self.source);
+pub fn targetPath(self:m.Transition)->Sequence<m.State> = path(self.target);
