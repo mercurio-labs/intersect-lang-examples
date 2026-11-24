@@ -1,0 +1,222 @@
+{
+  "root": "Tank",
+  "subject_name": "name",
+  "subject_cases": "cases",
+  "case_name": "name",
+  "quantity": {
+    "class": "Quantity",
+    "value": "amount",
+    "unit": "unit"
+  },
+  "cases": {
+    "FitCheck": {
+      "variables": {
+        "capacity": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "capacity"
+        },
+        "initial": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "initial"
+        },
+        "flow": {
+          "unit": "L/s",
+          "from": "subject",
+          "feature": "flow"
+        },
+        "duration": {
+          "unit": "s",
+          "from": "case",
+          "feature": "deadline"
+        }
+      },
+      "operation": {
+        "kind": "check",
+        "constraint": {
+          "left": {
+            "op": "variable",
+            "name": "capacity"
+          },
+          "comparison": "less_or_equal",
+          "right": {
+            "op": "add",
+            "left": {
+              "op": "variable",
+              "name": "initial"
+            },
+            "right": {
+              "op": "multiply",
+              "left": {
+                "op": "variable",
+                "name": "flow"
+              },
+              "right": {
+                "op": "variable",
+                "name": "duration"
+              }
+            }
+          }
+        },
+        "tolerance": 1e-09
+      }
+    },
+    "Sizing": {
+      "variables": {
+        "capacity": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "capacity"
+        },
+        "initial": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "initial"
+        },
+        "flow": {
+          "unit": "L/s",
+          "from": "subject",
+          "feature": "flow"
+        },
+        "duration": {
+          "unit": "s",
+          "from": "case",
+          "feature": "duration"
+        }
+      },
+      "operation": {
+        "kind": "solve",
+        "constraint": {
+          "left": {
+            "op": "variable",
+            "name": "capacity"
+          },
+          "comparison": "equal",
+          "right": {
+            "op": "add",
+            "left": {
+              "op": "variable",
+              "name": "initial"
+            },
+            "right": {
+              "op": "multiply",
+              "left": {
+                "op": "variable",
+                "name": "flow"
+              },
+              "right": {
+                "op": "variable",
+                "name": "duration"
+              }
+            }
+          }
+        },
+        "unknown": "flow"
+      }
+    },
+    "Sweep": {
+      "variables": {
+        "capacity": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "capacity"
+        },
+        "initial": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "initial"
+        },
+        "flow": {
+          "unit": "L/s",
+          "from": "subject",
+          "feature": "flow"
+        },
+        "duration": {
+          "unit": "s"
+        }
+      },
+      "operation": {
+        "kind": "sweep",
+        "constraint": {
+          "left": {
+            "op": "variable",
+            "name": "capacity"
+          },
+          "comparison": "equal",
+          "right": {
+            "op": "add",
+            "left": {
+              "op": "variable",
+              "name": "initial"
+            },
+            "right": {
+              "op": "multiply",
+              "left": {
+                "op": "variable",
+                "name": "flow"
+              },
+              "right": {
+                "op": "variable",
+                "name": "duration"
+              }
+            }
+          }
+        },
+        "unknown": "duration",
+        "parameter": "flow",
+        "samples": "flows"
+      }
+    },
+    "FillTrace": {
+      "variables": {
+        "capacity": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "capacity"
+        },
+        "initial": {
+          "unit": "L",
+          "from": "subject",
+          "feature": "initial"
+        },
+        "flow": {
+          "unit": "L/s",
+          "from": "subject",
+          "feature": "flow"
+        },
+        "end": {
+          "unit": "s",
+          "from": "case",
+          "feature": "horizon"
+        },
+        "interval": {
+          "unit": "s",
+          "from": "case",
+          "feature": "interval"
+        },
+        "deadline": {
+          "unit": "s",
+          "from": "case",
+          "feature": "deadline"
+        }
+      },
+      "operation": {
+        "kind": "simulate",
+        "initial": "initial",
+        "rate": "flow",
+        "threshold": "capacity",
+        "next_rate": {
+          "op": "literal",
+          "quantity": {
+            "value": 0,
+            "unit": "L/s"
+          }
+        },
+        "end": "end",
+        "interval": "interval",
+        "deadline": "deadline"
+      }
+    }
+  }
+}

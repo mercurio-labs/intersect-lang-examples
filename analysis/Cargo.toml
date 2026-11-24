@@ -1,0 +1,23 @@
+[package]
+name = "intersect-analysis"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+publish = false
+
+[dependencies]
+intersect-run = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "2b1ecebbb49a14da5c6244a7796db77d50cc687f" }
+intersect-model = "=0.1.0-alpha.2"
+intersect-text = "=0.1.0-alpha.2"
+intersect-kerml = { git = "https://github.com/mercurio-labs/intersect-lang-kerml.git", rev = "634ec3407431fb21255a29d4e80957242713b912" }
+intersect-kerml-eval = { git = "https://github.com/mercurio-labs/intersect-lang-kerml.git", rev = "634ec3407431fb21255a29d4e80957242713b912" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+
+[workspace]
+
+# Match the pinned KerML compiler's Model and Text runtime identities.
+[patch.crates-io]
+intersect-model = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "11c33990a50cb4074d4f97619687a6b33358e560" }
+intersect-build-support = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "11c33990a50cb4074d4f97619687a6b33358e560" }
+intersect-text = { git = "https://github.com/mercurio-labs/intersect-text.git", rev = "69e2303c7f3ce57c189ea2d8856f54ade1cab0be" }

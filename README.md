@@ -22,6 +22,10 @@ those examples or the whole Pages site requires read access to that repository.
 
 The browser demos run in WebAssembly workers. Petri browser runs accept up to 64 KiB each of model and scenario text, 1,000 scenario inputs, a one-hour horizon, and unsigned 32-bit seeds. They enforce 1,000 steps per instant and 10,000 total steps and events. The UI reports when a budget stops a run and lets you cancel work.
 
+## Pack-driven analysis
+
+The [analysis CLI](analysis/README.md) runs checks, solves, and simulations for the Cistern, Allocation, and SysML examples.
+
 ## Lifecycle examples in code
 
 Run these from the repository root with access to the pinned combined core. The walkthroughs write artifacts under `target/runs/`. Each language guide describes the outputs and how to rerun its example.

@@ -1,0 +1,26 @@
+grammar example.Cistern hidden(WS)
+import "urn:intersect:cistern:1" as cistern
+
+Tank returns cistern::Tank:
+    'cistern' name=ID '{'
+    'starts' 'with' initial=Quantity
+    'holds' capacity=Quantity
+    'inlet' 'flows' 'at' flow=Quantity
+    'when' 'full' ',' 'close' 'inlet'
+    cases+=Case*
+    '}';
+
+Case returns cistern::Case: FitCheck | Sizing | Sweep | FillTrace;
+FitCheck returns cistern::FitCheck:
+    'check' name=ID 'within' deadline=Quantity;
+Sizing returns cistern::Sizing:
+    'size' name=ID 'to' 'fill' 'in' duration=Quantity;
+Sweep returns cistern::Sweep:
+    'sweep' name=ID 'flows' flows+=Quantity (',' flows+=Quantity)*;
+FillTrace returns cistern::FillTrace:
+    'simulate' name=ID 'until' horizon=Quantity 'every' interval=Quantity 'within' deadline=Quantity;
+Quantity returns cistern::Quantity: amount=NUMBER unit=UNIT;
+terminal NUMBER: ('0'..'9')+ ('.' ('0'..'9')+)?;
+terminal UNIT: ('L' | 'mL') ('/' 's')? | 's' | 'ms';
+terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
+terminal WS: (' '| '\t' | '\r' | '\n')+;

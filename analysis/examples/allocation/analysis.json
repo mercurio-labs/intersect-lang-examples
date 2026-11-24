@@ -1,0 +1,134 @@
+{
+  "root": "Budget",
+  "subject_name": "name",
+  "subject_cases": "analyses",
+  "case_name": "label",
+  "quantity": {
+    "class": "Measure",
+    "value": "count",
+    "unit": "dimension"
+  },
+  "cases": {
+    "Feasibility": {
+      "variables": {
+        "available": {
+          "unit": "1",
+          "from": "subject",
+          "feature": "stock"
+        },
+        "reserved": {
+          "unit": "1",
+          "from": "subject",
+          "feature": "reserved"
+        },
+        "demand": {
+          "unit": "1",
+          "from": "case",
+          "feature": "demand"
+        }
+      },
+      "operation": {
+        "kind": "check",
+        "constraint": {
+          "left": {
+            "op": "add",
+            "left": {
+              "op": "variable",
+              "name": "reserved"
+            },
+            "right": {
+              "op": "variable",
+              "name": "demand"
+            }
+          },
+          "comparison": "less_or_equal",
+          "right": {
+            "op": "variable",
+            "name": "available"
+          }
+        },
+        "tolerance": 0
+      }
+    },
+    "Remaining": {
+      "variables": {
+        "available": {
+          "unit": "1",
+          "from": "subject",
+          "feature": "stock"
+        },
+        "reserved": {
+          "unit": "1",
+          "from": "subject",
+          "feature": "reserved"
+        },
+        "remaining": {
+          "unit": "1"
+        }
+      },
+      "operation": {
+        "kind": "solve",
+        "constraint": {
+          "left": {
+            "op": "variable",
+            "name": "available"
+          },
+          "comparison": "equal",
+          "right": {
+            "op": "add",
+            "left": {
+              "op": "variable",
+              "name": "reserved"
+            },
+            "right": {
+              "op": "variable",
+              "name": "remaining"
+            }
+          }
+        },
+        "unknown": "remaining"
+      }
+    },
+    "Compare": {
+      "variables": {
+        "available": {
+          "unit": "1",
+          "from": "subject",
+          "feature": "stock"
+        },
+        "reserved": {
+          "unit": "1",
+          "from": "subject",
+          "feature": "reserved"
+        },
+        "remaining": {
+          "unit": "1"
+        }
+      },
+      "operation": {
+        "kind": "sweep",
+        "constraint": {
+          "left": {
+            "op": "variable",
+            "name": "available"
+          },
+          "comparison": "equal",
+          "right": {
+            "op": "add",
+            "left": {
+              "op": "variable",
+              "name": "reserved"
+            },
+            "right": {
+              "op": "variable",
+              "name": "remaining"
+            }
+          }
+        },
+        "unknown": "remaining",
+        "parameter": "reserved",
+        "samples": "alternatives"
+      }
+    }
+  }
+}

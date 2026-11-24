@@ -1,0 +1,24 @@
+rcore 1;
+package allocation version "1";
+metamodel "urn:intersect:allocation:1" prefix allocation {
+  class Budget {
+    attr name: String [1,1];
+    ref stock: Measure [1,1] containment;
+    ref reserved: Measure [1,1] containment;
+    ref analyses: Request [0,*] containment;
+  }
+  class Measure {
+    attr count: String [1,1];
+    attr dimension: String [1,1];
+  }
+  abstract class Request {
+    attr label: String [1,1];
+  }
+  class Feasibility extends Request {
+    ref demand: Measure [1,1] containment;
+  }
+  class Remaining extends Request {}
+  class Compare extends Request {
+    ref alternatives: Measure [1,*] containment;
+  }
+}

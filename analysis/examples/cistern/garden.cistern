@@ -1,0 +1,10 @@
+cistern Garden {
+  starts with 1 L
+  holds 6 L
+  inlet flows at 2 L/s
+  when full, close inlet
+  check operatingFlow within 3 s
+  size sizeInlet to fill in 4 s
+  sweep flowSweep flows 1 L/s, 2 L/s, 4000 mL/s
+  simulate fillTrace until 5 s every 1 s within 3 s
+}

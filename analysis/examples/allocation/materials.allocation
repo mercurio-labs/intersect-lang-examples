@@ -1,0 +1,7 @@
+budget Materials {
+  available 30 "1"
+  reserve 6 "1"
+  fits order: 20 "1"
+  remaining balance;
+  compare reservations: 6 "1", 10 "1", 15 "1"
+}

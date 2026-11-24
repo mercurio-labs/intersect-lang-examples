@@ -1,0 +1,20 @@
+grammar example.Allocation hidden(WS)
+import "urn:intersect:allocation:1" as allocation
+
+Budget returns allocation::Budget:
+    'budget' name=ID '{'
+    'available' stock=Measure
+    'reserve' reserved=Measure
+    analyses+=Request*
+    '}';
+
+Request returns allocation::Request: Feasibility | Remaining | Compare;
+Feasibility returns allocation::Feasibility: 'fits' label=ID ':' demand=Measure;
+Remaining returns allocation::Remaining: 'remaining' label=ID ';';
+Compare returns allocation::Compare:
+    'compare' label=ID ':' alternatives+=Measure (',' alternatives+=Measure)*;
+Measure returns allocation::Measure: count=COUNT dimension=STRING;
+terminal COUNT: ('0'..'9')+;
+terminal ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
+terminal STRING: '"' (!('"'))* '"';
+terminal WS: (' '| '\t' | '\r' | '\n')+;
