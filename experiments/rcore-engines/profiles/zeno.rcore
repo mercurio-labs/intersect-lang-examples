@@ -1,0 +1,30 @@
+rcore 1;
+package experiment.zeno version "1";
+
+pub fn engine() -> String = "intersect.timed-token-flow@1";
+
+pub fn settings() -> {policy: String, seed: Int, until: Int} =
+  {policy: "first", seed: 0, until: 20000};
+
+pub fn net() -> {
+  name: String,
+  places: Sequence<{id: String, name: String, tokens: Int}>,
+  transitions: Sequence<{id: String, name: String, external: Bool, delay_ms: Int,
+    inputs: Sequence<{place: String, weight: Int}>,
+    outputs: Sequence<{place: String, weight: Int}>}>
+} = {
+  name: "Zeno",
+  places: [
+    {id: "a", name: "a", tokens: 1},
+    {id: "b", name: "b", tokens: 0}
+  ],
+  transitions: [
+    {id: "forward", name: "forward", external: false, delay_ms: 0,
+     inputs: [{place: "a", weight: 1}], outputs: [{place: "b", weight: 1}]},
+    {id: "backward", name: "backward", external: false, delay_ms: 0,
+     inputs: [{place: "b", weight: 1}], outputs: [{place: "a", weight: 1}]}
+  ]
+};
+
+pub fn scenario() -> {inputs: Sequence<{at_ms: Int, transition: String}>} =
+  {inputs: []};

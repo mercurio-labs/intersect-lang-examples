@@ -1,0 +1,13 @@
+{
+  "name": "State machine events",
+  "language_profile": "urn:intersect:example:state-machine:1:event-step",
+  "nanos_per_tick": 1000000,
+  "policy": "first",
+  "seed": 0,
+  "budgets": {
+    "steps_per_instant": 1,
+    "total_steps": 256,
+    "events": 256,
+    "end_time": 257
+  }
+}

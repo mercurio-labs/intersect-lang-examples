@@ -1,0 +1,25 @@
+[package]
+package_id = "intersect.examples.airlock"
+release = "1.0.0"
+display_name = "Airlock"
+description = "A hierarchical state machine with logical event ticks."
+
+[definitions]
+namespace = "urn:intersect:example:state-machine:1"
+metamodel = "language/machine.rcore"
+grammar = "language/machine.xtext"
+behavior = "language/bindings.rcore"
+profile = "intersect.xtext.native.v80"
+
+grammar_dependencies = ["language/Terminals.xtext"]
+
+[execution]
+default = "timeline"
+
+[execution.profiles.timeline]
+engine = "intersect.state-machine@1"
+source = "execution/airlock.rcore"
+
+[execution.profiles.user-events]
+engine = "intersect.state-machine@1"
+source = "execution/airlock.rcore"

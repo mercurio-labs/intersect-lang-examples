@@ -1,0 +1,45 @@
+rcore 1;
+package experiment.stopwatch_model version "1";
+import model "urn:intersect:example:stopwatch:1" as w;
+
+pub fn engine() -> String = "intersect.state-machine@1";
+
+pub fn chart() -> {
+  initial: String,
+  states: Sequence<{id: String, parent: Option<String>, initial: Option<String>}>,
+  transitions: Sequence<{from: String, event: String, to: String}>,
+  immediate: Bool, clock_state: Option<String>, guard: Option<String>
+} = {
+  initial: "idle",
+  states: [
+    {id: "idle", parent: None, initial: None},
+    {id: "running", parent: None, initial: None},
+    {id: "stopped", parent: None, initial: None}
+  ],
+  transitions: [
+    {from: "idle", event: "start", to: "running"},
+    {from: "running", event: "stop", to: "stopped"},
+    {from: "stopped", event: "start", to: "running"},
+    {from: "idle", event: "wait", to: "idle"},
+    {from: "idle", event: "end", to: "idle"},
+    {from: "running", event: "wait", to: "running"},
+    {from: "running", event: "end", to: "running"},
+    {from: "stopped", event: "wait", to: "stopped"},
+    {from: "stopped", event: "end", to: "stopped"}
+  ],
+  immediate: true, clock_state: Some("running"), guard: None
+};
+
+pub fn scenario(script: w.Script) -> Sequence<{at: Int32, event: String}> {
+  let initial: {now: Int32, events: Sequence<{at: Int32, event: String}>} =
+    {now: 0, events: []};
+  let schedule = fold(Sequence(script.commands), initial,
+    |acc: {now: Int32, events: Sequence<{at: Int32, event: String}>}, command: w.Command| {
+      let delay: Int32 = if command.kind == "wait" {
+        let amount = command.amount ?? 0;
+        if (command.unit ?? "ms") == "s" { amount * 1000 } else { amount }
+      } else { 0 };
+      {now: acc.now + delay, events: concat(acc.events, [{at: acc.now, event: command.kind}])}
+    });
+  concat(schedule.events, [{at: schedule.now, event: "end"}])
+}

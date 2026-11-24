@@ -1,0 +1,31 @@
+rcore 1;
+package experiment.service_desk version "1";
+
+pub fn engine() -> String = "intersect.timed-token-flow@1";
+
+pub fn settings() -> {policy: String, seed: Int, until: Int} =
+  {policy: "first", seed: 0, until: 2000};
+
+pub fn net() -> {
+  name: String,
+  places: Sequence<{id: String, name: String, tokens: Int}>,
+  transitions: Sequence<{id: String, name: String, external: Bool, delay_ms: Int,
+    inputs: Sequence<{place: String, weight: Int}>,
+    outputs: Sequence<{place: String, weight: Int}>}>
+} = {
+  name: "ServiceDesk",
+  places: [
+    {id: "waiting", name: "waiting", tokens: 0},
+    {id: "agent", name: "agent", tokens: 1},
+    {id: "served", name: "served", tokens: 0}
+  ],
+  transitions: [
+    {id: "arrival", name: "arrival", external: true, delay_ms: 0,
+     inputs: [], outputs: [{place: "waiting", weight: 1}]},
+    {id: "serve", name: "serve", external: false, delay_ms: 400,
+     inputs: [{place: "waiting", weight: 1}, {place: "agent", weight: 1}], outputs: [{place: "served", weight: 1}, {place: "agent", weight: 1}]}
+  ]
+};
+
+pub fn scenario() -> {inputs: Sequence<{at_ms: Int, transition: String}>} =
+  {inputs: [{at_ms: 0, transition: "arrival"}, {at_ms: 100, transition: "arrival"}, {at_ms: 400, transition: "arrival"}]};

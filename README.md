@@ -10,6 +10,7 @@ The gallery pairs live demos with their language definitions, sample models, and
 - Run a timed Petri net and replay its trace. [Petri simulation](https://mercurio-labs.github.io/intersect-lang-examples/examples/petri/)
 - Follow resolved references between two files. [Catalog explorer](https://mercurio-labs.github.io/intersect-lang-examples/examples/catalog/)
 - Step through timed commands and replay state transitions. [Stopwatch simulator](https://mercurio-labs.github.io/intersect-lang-examples/examples/stopwatch/)
+- Execute an editable hierarchical state machine and watch its active states. [State machine language and local simulator](languages/state-machine/README.md)
 
 The alpha.2 Toolkit builds from exact Model and Text source revisions. The
 downloadable Rust runner pins registry `0.1.0-alpha.2`. Its lock was checked

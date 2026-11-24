@@ -1,0 +1,26 @@
+rcore 1;
+package intersect.machine.bindings version "1";
+import model "urn:intersect:example:state-machine:1" as m;
+
+bind scope m.Machine.initial = rootInitial;
+bind scope m.State.initial = childInitial;
+bind scope m.Transition.source = transitionStates;
+bind scope m.Transition.target = transitionStates;
+bind scope m.Transition.event = transitionEvents;
+
+fn rootInitial(self:m.Machine, name:String)->Sequence<m.State> =
+  Sequence(self.states).filter(|state| state.name == name);
+fn childInitial(self:m.State, name:String)->Sequence<m.State> =
+  Sequence(self.states).filter(|state| state.name == name);
+fn children(states:Sequence<m.State>)->Sequence<m.State> =
+  states.flatMap(|state| state.states);
+fn allStates(self:m.Machine)->Sequence<m.State> {
+  let root:Sequence<m.State> = Sequence(self.states);
+  let second:Sequence<m.State> = children(root);
+  let third:Sequence<m.State> = children(second);
+  root.concat(second).concat(third).concat(children(third))
+}
+fn transitionStates(self:m.Transition, name:String)->Sequence<m.State> =
+  ancestors::<m.Machine>(self).flatMap(|machine| allStates(machine)).filter(|state| state.name == name);
+fn transitionEvents(self:m.Transition, name:String)->Sequence<m.Event> =
+  ancestors::<m.Machine>(self).flatMap(|machine| machine.events).filter(|event| event.name == name);

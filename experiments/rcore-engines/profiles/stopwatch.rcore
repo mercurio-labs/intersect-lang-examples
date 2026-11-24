@@ -1,0 +1,35 @@
+rcore 1;
+package experiment.stopwatch version "1";
+
+pub fn engine() -> String = "intersect.state-machine@1";
+
+// Scenario timestamps are the normalized command schedule from demo.watch.
+pub fn chart() -> {
+  initial: String,
+  states: Sequence<{id: String, parent: Option<String>, initial: Option<String>}>,
+  transitions: Sequence<{from: String, event: String, to: String}>,
+  immediate: Bool, clock_state: Option<String>, guard: Option<String>
+} = {
+  initial: "idle",
+  states: [
+    {id: "idle", parent: None, initial: None},
+    {id: "running", parent: None, initial: None},
+    {id: "stopped", parent: None, initial: None}
+  ],
+  transitions: [
+    {from: "idle", event: "start", to: "running"},
+    {from: "running", event: "stop", to: "stopped"},
+    {from: "stopped", event: "start", to: "running"},
+    {from: "idle", event: "wait", to: "idle"},
+    {from: "idle", event: "end", to: "idle"},
+    {from: "running", event: "wait", to: "running"},
+    {from: "running", event: "end", to: "running"},
+    {from: "stopped", event: "wait", to: "stopped"},
+    {from: "stopped", event: "end", to: "stopped"}
+  ],
+  immediate: true, clock_state: Some("running"), guard: None
+};
+
+pub fn scenario() -> Sequence<{at: Int, event: String}> = [
+  {at: 0, event: "start"}, {at: 0, event: "wait"}, {at: 2000, event: "stop"}, {at: 2000, event: "wait"}, {at: 2500, event: "start"}, {at: 2500, event: "wait"}, {at: 3250, event: "stop"}, {at: 3250, event: "end"}
+];

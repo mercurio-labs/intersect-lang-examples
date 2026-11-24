@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "key": "states",
+  "name": "State transitions",
+  "ruleSet": "machine.states",
+  "scope": {"schemaVersion": 1, "ops": []}
+}

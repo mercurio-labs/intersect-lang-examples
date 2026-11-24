@@ -1,10 +1,13 @@
 //! Handwritten definition registration. Parsing and linking are generic.
+mod engine;
 mod semantics;
 
-pub use semantics::{
-    Arc, DEFAULT_END_TIME, Event, Marking, Net, PROFILE_ID, Place, Scenario, ScenarioInput, Step,
-    TimedPetri, Transition, profile,
+pub use engine::{
+    Arc, Event, Marking, Net, PROFILE_ID, Place, Scenario, ScenarioInput, Step, TimedPetri,
+    Transition, profile,
 };
+
+pub const DEFAULT_END_TIME: intersect_run::Time = 20_000;
 
 use examples_support::{Language, Loaded, Source, Structure, Text};
 

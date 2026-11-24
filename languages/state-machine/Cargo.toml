@@ -1,0 +1,32 @@
+[package]
+name = "intersect-example-state-machine"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "MIT"
+publish = false
+autotests = false
+
+[workspace]
+
+[[test]]
+name = "all"
+path = "tests/all.rs"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+intersect-model = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "11c33990a50cb4074d4f97619687a6b33358e560" }
+intersect-run = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "11c33990a50cb4074d4f97619687a6b33358e560" }
+intersect-view-host = { git = "https://github.com/mercurio-labs/intersect-views.git", rev = "8d25d8a4065258cb3beee9624e7e9402858c4322" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+
+# The SDK's unpublished loader and the registry-based runtime crates must
+# resolve to the same checked Model/Text revisions throughout this consumer.
+[patch.crates-io]
+intersect-model = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "11c33990a50cb4074d4f97619687a6b33358e560" }
+intersect-build-support = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "11c33990a50cb4074d4f97619687a6b33358e560" }
+intersect-text = { git = "https://github.com/mercurio-labs/intersect-text.git", rev = "69e2303c7f3ce57c189ea2d8856f54ade1cab0be" }

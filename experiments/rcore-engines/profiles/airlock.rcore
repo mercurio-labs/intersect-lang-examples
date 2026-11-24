@@ -1,0 +1,33 @@
+rcore 1;
+package experiment.airlock version "1";
+
+pub fn engine() -> String = "intersect.state-machine@1";
+
+pub fn chart() -> {
+  initial: String,
+  states: Sequence<{id: String, parent: Option<String>, initial: Option<String>}>,
+  transitions: Sequence<{id: String, from: String, event: String, to: String}>,
+  immediate: Bool, clock_state: Option<String>, guard: Option<String>
+} = {
+  initial: "Sealed",
+  states: [
+    {id: "Sealed", parent: None, initial: None},
+    {id: "Access", parent: None, initial: Some("Ready")},
+    {id: "Ready", parent: Some("Access"), initial: None},
+    {id: "Open", parent: Some("Access"), initial: None},
+    {id: "Fault", parent: None, initial: None}
+  ],
+  transitions: [
+    {id: "edge0", from: "Sealed", event: "unlock", to: "Access"},
+    {id: "edge1", from: "Ready", event: "open", to: "Open"},
+    {id: "edge2", from: "Open", event: "close", to: "Ready"},
+    {id: "edge3", from: "Ready", event: "lock", to: "Sealed"},
+    {id: "edge4", from: "Access", event: "jam", to: "Fault"},
+    {id: "edge5", from: "Fault", event: "recover", to: "Sealed"}
+  ],
+  immediate: false, clock_state: None, guard: None
+};
+
+pub fn scenario() -> Sequence<{at: Int, event: String}> = [
+  {at: 1, event: "unlock"}, {at: 2, event: "open"}, {at: 3, event: "lock"}, {at: 4, event: "close"}, {at: 5, event: "jam"}, {at: 6, event: "recover"}
+];

@@ -1,0 +1,22 @@
+machine Airlock initial Sealed {
+  event unlock;
+  event open;
+  event close;
+  event lock;
+  event jam;
+  event recover;
+
+  state Sealed;
+  state Access initial Ready {
+    state Ready;
+    state Open;
+  }
+  state Fault;
+
+  transition Sealed on unlock -> Access;
+  transition Ready on open -> Open;
+  transition Open on close -> Ready;
+  transition Ready on lock -> Sealed;
+  transition Access on jam -> Fault;
+  transition Fault on recover -> Sealed;
+}

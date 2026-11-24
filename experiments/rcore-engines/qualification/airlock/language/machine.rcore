@@ -1,0 +1,21 @@
+rcore 1;
+package intersect.machine version "1";
+metamodel "urn:intersect:example:state-machine:1" prefix m {
+  abstract class Named { attr name:String [1,1]; }
+  class Machine extends Named {
+    ref states:State [1,*] containment;
+    ref initial:State [1,1];
+    ref events:Event [0,*] containment;
+    ref transitions:Transition [0,*] containment;
+  }
+  class State extends Named {
+    ref states:State [0,*] containment;
+    ref initial:State [0,1];
+  }
+  class Event extends Named {}
+  class Transition {
+    ref source:State [1,1];
+    ref event:Event [1,1];
+    ref target:State [1,1];
+  }
+}

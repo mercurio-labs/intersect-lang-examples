@@ -1,0 +1,31 @@
+rcore 1;
+package experiment.conflict_seeded version "1";
+
+pub fn engine() -> String = "intersect.timed-token-flow@1";
+
+pub fn settings() -> {policy: String, seed: Int, until: Int} =
+  {policy: "seeded", seed: 0, until: 20000};
+
+pub fn net() -> {
+  name: String,
+  places: Sequence<{id: String, name: String, tokens: Int}>,
+  transitions: Sequence<{id: String, name: String, external: Bool, delay_ms: Int,
+    inputs: Sequence<{place: String, weight: Int}>,
+    outputs: Sequence<{place: String, weight: Int}>}>
+} = {
+  name: "Conflict",
+  places: [
+    {id: "conflict.petri#1", name: "idle", tokens: 1},
+    {id: "conflict.petri#2", name: "left", tokens: 0},
+    {id: "conflict.petri#3", name: "right", tokens: 0}
+  ],
+  transitions: [
+    {id: "conflict.petri#4", name: "chooseLeft", external: false, delay_ms: 0,
+     inputs: [{place: "conflict.petri#1", weight: 1}], outputs: [{place: "conflict.petri#2", weight: 1}]},
+    {id: "conflict.petri#7", name: "chooseRight", external: false, delay_ms: 0,
+     inputs: [{place: "conflict.petri#1", weight: 1}], outputs: [{place: "conflict.petri#3", weight: 1}]}
+  ]
+};
+
+pub fn scenario() -> {inputs: Sequence<{at_ms: Int, transition: String}>} =
+  {inputs: []};

@@ -1,0 +1,21 @@
+{
+  "name": "intersect-state-machine-harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "wasm": "node tools/build-wasm.mjs",
+    "dev": "vite",
+    "build": "npm run wasm && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "@intersect/visualization": "git+https://github.com/mercurio-labs/intersect-views.git#8d25d8a4065258cb3beee9624e7e9402858c4322"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "typescript": "5.7.3",
+    "vite": "6.4.6"
+  }
+}
