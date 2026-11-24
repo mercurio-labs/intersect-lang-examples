@@ -197,6 +197,13 @@ try {
     .filter(({ kind }) => kind === "step_fired")
     .map(({ time, observation }) => [time, observation.active]), [[10, accessReady]]);
 
+  const simultaneous = {
+    ...airlockRequest,
+    profile: "user-events",
+    inputs: { events: [{ at: 10, event: "unlock" }, { at: 10, event: "unlock" }] },
+  };
+  await reject("Simultaneous deferred chart events", airlock, simultaneous, /need distinct ticks/i);
+
   const thermostat = packageFixture("thermostat");
   const thermostatRequest = {
     ...modelRequest("thermostat", "cabin.enclosure"),

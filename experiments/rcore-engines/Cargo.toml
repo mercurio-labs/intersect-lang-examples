@@ -15,7 +15,7 @@ crate-type = ["rlib", "cdylib"]
 # Match Text's Model revision so both adapters share the same model types.
 intersect-model = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "11c33990a50cb4074d4f97619687a6b33358e560" }
 intersect-run = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "2b1ecebbb49a14da5c6244a7796db77d50cc687f" }
-intersect-run-catalog = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "b3356a626774d17e49803085e7fd5998783705fa" }
+intersect-run-catalog = { git = "https://github.com/mercurio-labs/intersect-model.git", rev = "2530ab2f02c800616920fa410fee7921f25ff4f0" }
 intersect-text = { git = "https://github.com/mercurio-labs/intersect-text.git", rev = "84feb230b8b6677f3f53c74eabda81a8e613f173" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

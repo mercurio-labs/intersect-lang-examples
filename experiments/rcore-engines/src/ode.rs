@@ -7,10 +7,19 @@ use intersect_run::{
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, fmt};
+use std::{
+    cell::Cell,
+    collections::{BTreeMap, BTreeSet},
+    fmt,
+};
 
 const MAX_EVENTS: u64 = 8_192;
 const MAX_SUBSTEPS: u32 = 256;
+const RK4_STAGES: u64 = 4;
+// Bound VM entries across the request, independently of emitted Run events.
+// This leaves headroom for both thermostat cases and their crossing probes.
+const MAX_DERIVATIVE_EVALUATIONS: u64 = 65_536;
+const DERIVATIVE_BUDGET_EXHAUSTED: &str = "ODE derivative evaluation budget exhausted";
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -112,6 +121,7 @@ struct Model<'a> {
     program: &'a rcore::Program<'a>,
     system: &'a System,
     case: &'a Case,
+    remaining_derivatives: &'a Cell<u64>,
 }
 
 impl Prepared {
@@ -125,7 +135,7 @@ impl Prepared {
         if specs.is_empty() || specs.len() > 32 {
             return Err(error("ODE profile needs one to 32 cases"));
         }
-        let mut names = std::collections::BTreeSet::new();
+        let mut names = BTreeSet::new();
         let mut cases = Vec::with_capacity(specs.len());
         for mut case in specs {
             if case.name.is_empty() || !names.insert(case.name.clone()) {
@@ -157,10 +167,32 @@ impl Prepared {
         if let Some(name) = overrides.keys().next() {
             return Err(error(format!("Unknown ODE case {name}")));
         }
+        let settings = &system.settings;
+        // Reaching every sample requires at least this many stages. Monitor
+        // searches and extra steps around crossings are charged during the run.
+        let minimum_derivatives = (settings.end_ms / settings.sample_ms)
+            * settings.sample_ms.div_ceil(settings.max_step_ms)
+            * RK4_STAGES
+            * system.derivatives.len() as u64
+            * cases.len() as u64;
+        if minimum_derivatives > MAX_DERIVATIVE_EVALUATIONS {
+            return Err(error(
+                "ODE sampling exceeds the derivative evaluation budget",
+            ));
+        }
         Ok(Self { system, cases })
     }
 
     pub fn run(&self, program: &rcore::Program) -> Result<Vec<CaseTrace>, RunError> {
+        self.run_with_derivative_budget(program, MAX_DERIVATIVE_EVALUATIONS)
+    }
+
+    fn run_with_derivative_budget(
+        &self,
+        program: &rcore::Program,
+        limit: u64,
+    ) -> Result<Vec<CaseTrace>, RunError> {
+        let remaining_derivatives = Cell::new(limit);
         self.cases
             .iter()
             .map(|case| {
@@ -168,6 +200,7 @@ impl Prepared {
                     program,
                     system: &self.system,
                     case,
+                    remaining_derivatives: &remaining_derivatives,
                 }
                 .run()
             })
@@ -208,6 +241,7 @@ impl System {
             if crossings.is_empty() || crossings.len() > 16 {
                 return Err(error("Coupled ODE needs one to 16 crossing monitors"));
             }
+            let mut events = BTreeSet::new();
             let monitors = crossings
                 .into_iter()
                 .map(|crossing| {
@@ -217,6 +251,12 @@ impl System {
                     let event = controller.event_id(&crossing.event).ok_or_else(|| {
                         error(format!("Unbound crossing event {}", crossing.event))
                     })?;
+                    if !events.insert(event) {
+                        return Err(error(format!(
+                            "Duplicate crossing event {}",
+                            crossing.event
+                        )));
+                    }
                     Ok(Monitor {
                         index,
                         level: crossing.level,
@@ -312,8 +352,10 @@ impl Model<'_> {
                     match self.derivative(state, derivative, seconds, values) {
                         Ok(value) => *slope = value / 1_000.0,
                         Err(error) => {
+                            // RK4 stops the current stage on a non-finite slope.
+                            *slope = f64::NAN;
                             callback_error = Some(error);
-                            break;
+                            return;
                         }
                     }
                 }
@@ -332,6 +374,12 @@ impl Model<'_> {
         seconds: f64,
         values: &[f64],
     ) -> Result<f64, RunError> {
+        let remaining = self
+            .remaining_derivatives
+            .get()
+            .checked_sub(1)
+            .ok_or_else(|| error(DERIVATIVE_BUDGET_EXHAUSTED))?;
+        self.remaining_derivatives.set(remaining);
         let arguments = derivative
             .arguments
             .iter()
@@ -529,3 +577,7 @@ impl Semantics for Model<'_> {
         )
     }
 }
+
+#[cfg(test)]
+#[path = "ode_tests.rs"]
+mod tests;

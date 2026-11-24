@@ -96,3 +96,49 @@ fn archive_transport_refuses_duplicate_paths() {
             .contains("Duplicate language archive path")
     );
 }
+
+#[test]
+fn preparation_checks_deferred_ticks_and_preserves_immediate_input_order() -> Result<(), String> {
+    let manifest = format!(
+        "{MANIFEST}\n[execution]\ndefault = 'chart'\n[execution.profiles.chart]\nengine = 'intersect.state-machine@1'\nsource = 'execution/chart.rcore'\n"
+    );
+    let chart = r#"rcore 1;
+        package test.chart version "1";
+        pub fn chart() -> {
+          initial: String, states: Sequence<{id: String}>, immediate: Bool,
+          transitions: Sequence<{from: String, event: String, to: String}>
+        } = {
+          initial: "A", states: [{id: "A"}, {id: "B"}, {id: "C"}], immediate: false,
+          transitions: [{from: "A", event: "next", to: "B"},
+                        {from: "B", event: "finish", to: "C"}]
+        };
+        pub fn scenario() -> Sequence<{at: Int, event: String}> =
+          [{at: 10, event: "next"}, {at: 10, event: "finish"}];"#;
+    let build = |source: &str| {
+        pack::build(&manifest, |path| match path {
+            "execution/chart.rcore" => Ok(source.into()),
+            _ => read(path),
+        })
+    };
+    let issue = build(chart)?
+        .check(RunRequest::default())
+        .err()
+        .ok_or("Expected deferred same-tick events to fail preparation")?;
+    assert!(issue.contains("Deferred chart events need distinct ticks"));
+
+    let immediate = chart.replace("immediate: false", "immediate: true");
+    build(&immediate)?.check(RunRequest::default())?;
+    let result = build(&immediate)?.run(RunRequest::default())?;
+    let states = result.cases[0]
+        .trace
+        .entries
+        .iter()
+        .filter(|entry| entry.kind == intersect_run::TraceKind::EventDelivered)
+        .filter_map(|entry| entry.observation.as_ref().map(|state| &state["active"]))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        states,
+        [&serde_json::json!(["B"]), &serde_json::json!(["C"])]
+    );
+    Ok(())
+}

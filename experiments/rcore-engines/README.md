@@ -13,10 +13,12 @@ source = "execution/thermostat.rcore"
 
 The Run host installs `intersect.state-machine@1`, `intersect.timed-token-flow@1`, `intersect.ode@1`, and `intersect.coupled-ode@1` in native and WASM builds. Format 3 of the existing Text archive binds the execution declarations and their source digests to the archive revision. Packages without execution keep format 2. Adding or editing an execution profile preserves the structural schema revision.
 
-The Rcore and SysML hosts use the same Run engine catalog to identify exact
-versions and check supported inputs. Each host installs the engines for which
-it can project a linked model and supply executable bindings. The standalone
-Rcore root-finding command also resolves its engine through the catalog.
+The Rcore and SysML hosts use the same Run engine catalog for exact engine
+versions. Each host registers the engines it can bind to linked models and the
+request inputs it accepts for each engine. For example, the Rcore host accepts
+numeric case overrides for coupled ODE profiles. Deferred charts require
+distinct event ticks. The standalone Rcore root-finding command also resolves
+its engine through the catalog.
 
 The checked model comes from the pack's retained grammar and Rcore scopes. [Airlock](qualification/airlock/language.toml) retains the original grammar, metamodel, and transition IDs. [The thermostat](qualification/thermostat/language.toml) projects its initial temperature and threshold from a checked enclosure model. An individual run can override a known case input, such as heater power. Each response records the selected profile, engine contract, archive and schema revisions, and digests of the profile source, model input, and run options.
 
@@ -42,7 +44,7 @@ From this directory, use Rust 1.99.1 and Node.js. Pass an installed Playwright m
 
 ```sh
 cargo +1.99.1 fetch --locked
-RUSTUP_TOOLCHAIN=1.99.1 python3 -B ../../tools/test_report.py run -- --locked --test all
+RUSTUP_TOOLCHAIN=1.99.1 python3 -B ../../tools/test_report.py run -- --locked --lib --test all
 cargo +1.99.1 build --locked --release
 RUSTFLAGS='-C link-arg=-zstack-size=4194304' \
   cargo +1.99.1 build --locked --release --lib --target wasm32-unknown-unknown

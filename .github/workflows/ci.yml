@@ -65,7 +65,7 @@ jobs:
           cargo fmt --all --check
           cargo clippy --locked --all-targets -- -D warnings
       - name: Run profile tests
-        run: python -B ../../tools/test_report.py run -- --locked --test all
+        run: python -B ../../tools/test_report.py run -- --locked --lib --test all
       - name: Build native host
         run: cargo build --locked --release
       - name: Build WebAssembly host

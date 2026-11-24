@@ -10,7 +10,7 @@ mod wasm;
 
 pub use chart::TimedEvent;
 use intersect_run::{Budgets, Policy, Profile, RunError, Time, Trace, TraceMetadata};
-use intersect_run_catalog::{Capability, Engine as BuiltinEngine};
+use intersect_run_catalog::{Engine as BuiltinEngine, HostEngine, RequestCapability};
 pub use rcore::ModelBinding;
 pub use root::{Solution, run as solve_root_source};
 use serde::{Deserialize, Serialize};
@@ -33,15 +33,24 @@ pub struct RunInputs {
     pub events: Option<Vec<TimedEvent>>,
 }
 
-const PACKAGED_ENGINES: &[BuiltinEngine] = &[
-    BuiltinEngine::StateMachine,
-    BuiltinEngine::Ode,
-    BuiltinEngine::CoupledOde,
-    BuiltinEngine::TimedTokenFlow,
+const PACKAGED_ENGINES: &[HostEngine] = &[
+    HostEngine::new(
+        BuiltinEngine::StateMachine,
+        &[RequestCapability::ScenarioEvents],
+    ),
+    HostEngine::new(
+        BuiltinEngine::Ode,
+        &[RequestCapability::NumericCaseOverrides],
+    ),
+    HostEngine::new(
+        BuiltinEngine::CoupledOde,
+        &[RequestCapability::NumericCaseOverrides],
+    ),
+    HostEngine::new(BuiltinEngine::TimedTokenFlow, &[]),
 ];
 
-fn packaged_engine(id: &str) -> Result<BuiltinEngine, RunError> {
-    BuiltinEngine::select(id, PACKAGED_ENGINES)
+fn packaged_engine(id: &str) -> Result<HostEngine, RunError> {
+    HostEngine::select(id, PACKAGED_ENGINES)
         .ok_or_else(|| error(format!("Engine {id} is unavailable")))
 }
 
@@ -129,16 +138,19 @@ fn run_profile(
 
 fn prepare(
     program: rcore::Program<'_>,
-    engine: BuiltinEngine,
+    registration: HostEngine,
     inputs: RunInputs,
 ) -> Result<PreparedProfile<'_>, RunError> {
-    if inputs.events.is_some() && !engine.supports(Capability::ScenarioEvents) {
+    let engine = registration.engine();
+    if inputs.events.is_some() && !registration.accepts(RequestCapability::ScenarioEvents) {
         return Err(error(format!(
             "Engine {} does not accept a scenario event override",
             engine.id()
         )));
     }
-    if !inputs.parameters.is_empty() && !engine.supports(Capability::NumericCaseOverrides) {
+    if !inputs.parameters.is_empty()
+        && !registration.accepts(RequestCapability::NumericCaseOverrides)
+    {
         return Err(error(format!(
             "Engine {} does not accept numeric case overrides",
             engine.id()
@@ -159,7 +171,9 @@ fn prepare(
         }
         BuiltinEngine::TimedTokenFlow => {
             let config: TokenRun = program.member("settings")?;
-            let model = token_flow::TimedPetri::from_net(program.member("net")?)?;
+            const MAX_OBSERVATION_BYTES: usize = 4 * 1024 * 1024;
+            let model = token_flow::TimedPetri::from_net(program.member("net")?)?
+                .with_observation_byte_limit(MAX_OBSERVATION_BYTES);
             let profile = token_flow::profile(config.policy, config.seed, config.until);
             Plan::TokenFlow(model, profile, program.member("scenario")?)
         }

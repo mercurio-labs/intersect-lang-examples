@@ -128,6 +128,18 @@ fn petri_preserves_checked_demo_event_traces() {
 }
 
 #[test]
+fn petri_refuses_oversized_retained_observations() {
+    let source = include_str!("../../profiles/zeno.rcore")
+        .replace("\"a\"", &format!("\"{}\"", "a".repeat(8 * 1024)));
+    let result = run_source("memory:petri-oversized-trace.rcore", &source);
+    assert!(matches!(
+        result,
+        Err(intersect_run::RunError::Semantics(message))
+            if message.contains("Petri trace observation byte limit exceeded")
+    ));
+}
+
+#[test]
 fn new_service_domain_reuses_timed_token_flow() {
     let traces = run("service-desk");
     let trace = &traces[0].trace;

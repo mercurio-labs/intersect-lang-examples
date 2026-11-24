@@ -5,6 +5,7 @@ use intersect_run::{
     state_machine::{self, Node, Transition},
 };
 use serde::Deserialize;
+use std::collections::BTreeSet;
 
 pub use state_machine::{EventId, Scenario, State, StateId, TimedEvent};
 
@@ -25,6 +26,7 @@ pub struct ChartSpec {
 pub struct Chart {
     chart: state_machine::Chart,
     guard: Option<rcore::Function>,
+    immediate: bool,
 }
 
 impl Chart {
@@ -44,7 +46,11 @@ impl Chart {
         if let Some(guard) = &guard {
             guard.check_scalars(&[Scalar::String; 3], Scalar::Bool)?;
         }
-        Ok(Self { chart, guard })
+        Ok(Self {
+            chart,
+            guard,
+            immediate: spec.immediate,
+        })
     }
 
     pub fn initial(&self) -> State {
@@ -80,6 +86,12 @@ impl Chart {
     }
 
     pub fn prepare_scenario(&self, events: Vec<TimedEvent>) -> Result<Scenario, RunError> {
+        if !self.immediate {
+            let mut ticks = BTreeSet::new();
+            if events.iter().any(|event| !ticks.insert(event.at)) {
+                return Err(error("Deferred chart events need distinct ticks"));
+            }
+        }
         self.chart.prepare_scenario(events)
     }
 

@@ -4,8 +4,13 @@ use intersect_run::{
     Time, Trace, TraceMetadata, run_traced,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
-use std::{collections::BTreeMap, fmt};
+use serde_json::Value;
+use std::{
+    cell::Cell,
+    collections::BTreeMap,
+    fmt,
+    io::{self, Write},
+};
 
 pub const PROFILE_ID: &str = "petri.timed-firing.v1";
 
@@ -48,6 +53,7 @@ pub struct TimedPetri {
     /// Aggregate weights when a transition has multiple arcs to one place.
     input_totals: Vec<BTreeMap<String, u64>>,
     output_totals: Vec<BTreeMap<String, u64>>,
+    observation_byte_limit: Option<usize>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -82,6 +88,23 @@ struct Pending {
 struct Action {
     transition: String,
     phase: &'static str,
+}
+
+#[derive(Serialize)]
+struct Observation<'a> {
+    marking: &'a BTreeMap<String, u64>,
+    pending: &'a BTreeMap<u64, Pending>,
+    action: &'a Option<Action>,
+}
+
+impl Marking {
+    fn observation(&self) -> Observation<'_> {
+        Observation {
+            marking: &self.tokens,
+            pending: &self.pending,
+            action: &self.last_action,
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
@@ -174,10 +197,17 @@ impl TimedPetri {
             net,
             input_totals,
             output_totals,
+            observation_byte_limit: None,
         })
     }
     pub fn net(&self) -> &Net {
         &self.net
+    }
+
+    /// Bound the total compact JSON size of observations in each execution.
+    pub fn with_observation_byte_limit(mut self, bytes: usize) -> Self {
+        self.observation_byte_limit = Some(bytes);
+        self
     }
 
     pub fn execute(
@@ -196,15 +226,20 @@ impl TimedPetri {
             event: Event::External(input.transition),
         });
         let language_data = serde_json::to_value(self.net()).map_err(|e| error(e.to_string()))?;
-        run_traced(
-            self,
-            profile,
-            inputs,
-            TraceMetadata {
-                model_digest,
-                language_data: Some(language_data),
-            },
-        )
+        let metadata = TraceMetadata {
+            model_digest,
+            language_data: Some(language_data),
+        };
+        match self.observation_byte_limit {
+            Some(bytes) => {
+                let limited = ObservationLimitedPetri {
+                    model: self,
+                    remaining: Cell::new(bytes),
+                };
+                run_traced(&limited, profile, inputs, metadata)
+            }
+            None => run_traced(self, profile, inputs, metadata),
+        }
     }
 
     fn is_enabled(&self, state: &Marking, index: usize) -> bool {
@@ -397,8 +432,68 @@ impl Semantics for TimedPetri {
     }
 
     fn observe(&self, state: &Marking) -> Result<Value, RunError> {
-        Ok(
-            json!({ "marking": state.tokens, "pending": state.pending, "action": state.last_action }),
-        )
+        serde_json::to_value(state.observation()).map_err(|e| error(e.to_string()))
+    }
+}
+
+struct ObservationLimitedPetri<'a> {
+    model: &'a TimedPetri,
+    remaining: Cell<usize>,
+}
+
+impl Semantics for ObservationLimitedPetri<'_> {
+    type State = Marking;
+    type Step = Step;
+    type Event = Event;
+
+    fn initial(&self) -> Result<Marking, RunError> {
+        self.model.initial()
+    }
+
+    fn enabled(&self, state: &Marking, now: Time) -> Result<Vec<Step>, RunError> {
+        self.model.enabled(state, now)
+    }
+
+    fn fire(
+        &self,
+        state: &mut Marking,
+        step: &Step,
+        ctx: &mut StepContext<'_, Event>,
+    ) -> Result<(), RunError> {
+        self.model.fire(state, step, ctx)
+    }
+
+    fn on_event(
+        &self,
+        state: &mut Marking,
+        event: &Event,
+        ctx: &mut StepContext<'_, Event>,
+    ) -> Result<EventEffect, RunError> {
+        self.model.on_event(state, event, ctx)
+    }
+
+    fn observe(&self, state: &Marking) -> Result<Value, RunError> {
+        // Count borrowed data before the owned snapshot is constructed.
+        let mut budget = ObservationBudget(self.remaining.get());
+        serde_json::to_writer(&mut budget, &state.observation())
+            .map_err(|e| error(e.to_string()))?;
+        self.remaining.set(budget.0);
+        self.model.observe(state)
+    }
+}
+
+struct ObservationBudget(usize);
+
+impl Write for ObservationBudget {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        self.0 = self
+            .0
+            .checked_sub(bytes.len())
+            .ok_or_else(|| io::Error::other("Petri trace observation byte limit exceeded"))?;
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
     }
 }
