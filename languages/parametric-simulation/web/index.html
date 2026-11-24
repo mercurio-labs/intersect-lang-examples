@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eff4f2">
+  <title>Heated enclosure · Parametric simulation</title>
+  <script type="module" src="./main.ts"></script>
+</head>
+<body>
+  <header class="page-title">
+    <p>Parametric simulation</p>
+    <h1>Heated enclosure</h1>
+    <p>Change the inputs and compare the predicted temperature with the baseline.</p>
+  </header>
+  <main>
+    <section class="card response" aria-labelledby="response-title">
+      <div class="section-heading">
+        <h2 id="response-title">Temperature over time</h2>
+        <div class="legend"><span class="current">Current run</span><span class="baseline">Baseline</span><span class="target">40 °C target</span></div>
+      </div>
+      <div class="temperature-chart" id="chart"></div>
+      <div class="time-control">
+        <label for="time">Inspect time</label>
+        <input id="time" type="range" min="0" max="30" step="0.5" value="10" disabled>
+        <output id="time-value" for="time">10 min</output>
+      </div>
+    </section>
+    <aside class="card inputs" aria-labelledby="inputs-title">
+      <div class="section-heading"><h2 id="inputs-title">Simulation inputs</h2><button id="reset" type="button" disabled>Reset</button></div>
+      <div class="inputs-body">
+        <div class="solver">
+          <label for="method">Run profile</label>
+          <select id="method" disabled>
+            <option value="ode">ODE · Runge–Kutta</option>
+            <option value="analytic">Analytic reference</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="power">Heater power</label>
+          <output id="power-value" for="power"></output>
+          <input id="power" type="range" disabled>
+        </div>
+        <div class="field">
+          <label for="loss">Heat loss</label>
+          <output id="loss-value" for="loss"></output>
+          <input id="loss" type="range" disabled>
+        </div>
+        <dl class="constants">
+          <div><dt>Ambient / initial temperature</dt><dd id="ambient"></dd></div>
+          <div><dt>Thermal capacity</dt><dd id="capacity"></dd></div>
+          <div><dt>Baseline</dt><dd id="baseline-inputs"></dd></div>
+        </dl>
+      </div>
+      <dl class="results">
+        <div><dt id="reading-title">Temperature at 10 min</dt><dd id="reading"></dd></div>
+        <div><dt>Difference from baseline</dt><dd id="difference"></dd></div>
+        <div><dt>Time to 40 °C</dt><dd id="target"></dd></div>
+        <div><dt>Steady state · algebraic solve</dt><dd id="equilibrium"></dd></div>
+      </dl>
+      <div class="trace-tools">
+        <p id="run-status" role="status">Loading Intersect Run…</p>
+        <button id="trace-download" type="button" disabled>Download traces</button>
+      </div>
+    </aside>
+    <section class="card dependencies" aria-labelledby="dependencies-title">
+      <div class="section-heading"><h2 id="dependencies-title">Parameter dependencies</h2><p>Double-click an input to find its control</p></div>
+      <div id="diagram"></div>
+      <details class="equations"><summary>Rcore equations</summary><pre><code id="equation-source"></code></pre></details>
+    </section>
+  </main>
+</body>
+</html>
