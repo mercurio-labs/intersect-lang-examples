@@ -1,8 +1,7 @@
 use crate::mapping::{Mapping, Objects, Operation, Selection, location};
+use crate::simulation::{Simulation, SimulationResult, simulate};
 use intersect_run::analysis::{
-    AnalysisError, ErrorCode, Expression, Quantity, Source, Unit, Variables, check, evaluate,
-    simulation::{Simulation, SimulationResult, simulate},
-    solve,
+    AnalysisError, ErrorCode, Expression, Quantity, Source, Unit, Variables, check, evaluate, solve,
 };
 use serde::Serialize;
 

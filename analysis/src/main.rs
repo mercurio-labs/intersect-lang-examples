@@ -1,6 +1,7 @@
 mod mapping;
 mod pack;
 mod report;
+mod simulation;
 mod sysml;
 
 use intersect_model::definitions::pack::FileDigest;

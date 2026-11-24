@@ -102,7 +102,7 @@ dependencies = [
 [[package]]
 name = "intersect-kerml"
 version = "0.1.0"
-source = "git+https://github.com/mercurio-labs/intersect-lang-kerml.git?rev=a279bbf0417a5326f5027f0928c3430de6c0dbc0#a279bbf0417a5326f5027f0928c3430de6c0dbc0"
+source = "git+https://github.com/mercurio-labs/intersect-lang-kerml.git?rev=634ec3407431fb21255a29d4e80957242713b912#634ec3407431fb21255a29d4e80957242713b912"
 dependencies = [
  "intersect-build-support",
  "intersect-kpar",
@@ -118,18 +118,21 @@ dependencies = [
 [[package]]
 name = "intersect-kerml-eval"
 version = "0.1.0"
-source = "git+https://github.com/mercurio-labs/intersect-lang-kerml.git?rev=a279bbf0417a5326f5027f0928c3430de6c0dbc0#a279bbf0417a5326f5027f0928c3430de6c0dbc0"
+source = "git+https://github.com/mercurio-labs/intersect-lang-kerml.git?rev=634ec3407431fb21255a29d4e80957242713b912#634ec3407431fb21255a29d4e80957242713b912"
 dependencies = [
  "intersect-kerml",
  "intersect-model",
+ "intersect-run",
+ "intersect-run-catalog",
  "intersect-text",
+ "serde",
  "serde_json",
 ]
 
 [[package]]
 name = "intersect-kpar"
 version = "0.1.0"
-source = "git+https://github.com/mercurio-labs/intersect-lang-kerml.git?rev=a279bbf0417a5326f5027f0928c3430de6c0dbc0#a279bbf0417a5326f5027f0928c3430de6c0dbc0"
+source = "git+https://github.com/mercurio-labs/intersect-lang-kerml.git?rev=634ec3407431fb21255a29d4e80957242713b912#634ec3407431fb21255a29d4e80957242713b912"
 dependencies = [
  "crc32fast",
  "iri-string",
@@ -171,11 +174,16 @@ dependencies = [
 [[package]]
 name = "intersect-run"
 version = "0.1.0-alpha.2"
-source = "git+https://github.com/mercurio-labs/intersect-model.git?rev=3a70deb0574995cedc40965290c51515b61af392#3a70deb0574995cedc40965290c51515b61af392"
+source = "git+https://github.com/mercurio-labs/intersect-model.git?rev=2b1ecebbb49a14da5c6244a7796db77d50cc687f#2b1ecebbb49a14da5c6244a7796db77d50cc687f"
 dependencies = [
  "serde",
  "serde_json",
 ]
+
+[[package]]
+name = "intersect-run-catalog"
+version = "0.1.0-alpha.2"
+source = "git+https://github.com/mercurio-labs/intersect-model.git?rev=d9c6677c1773a9b2ff9577ad2a74b326819c62eb#d9c6677c1773a9b2ff9577ad2a74b326819c62eb"
 
 [[package]]
 name = "intersect-text"
