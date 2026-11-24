@@ -1,0 +1,16 @@
+rcore 1;
+package intersect.thermal version "1";
+
+pub fn heatBalance(power:Float64, loss:Float64, temperature:Float64, ambient:Float64)->Float64 =
+  power - loss * (temperature - ambient);
+
+pub fn temperatureRate(power:Float64, loss:Float64, temperature:Float64, ambient:Float64, capacity:Float64)->Float64 =
+  heatBalance(power, loss, temperature, ambient) / capacity;
+
+pub fn decayExponent(loss:Float64, seconds:Float64, capacity:Float64)->Float64 =
+  -(loss * seconds) / capacity;
+
+pub fn analyticTemperature(power:Float64, loss:Float64, ambient:Float64, initial:Float64,
+                           seconds:Float64, capacity:Float64, decayMinusOne:Float64)->Float64 =
+  if loss == 0.0 { initial + power * seconds / capacity }
+  else { initial + ((initial - ambient) - power / loss) * decayMinusOne };
