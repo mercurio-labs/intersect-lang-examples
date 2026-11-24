@@ -1,0 +1,37 @@
+rcore 1;
+package experiment.coffee_model version "1";
+import model "urn:intersect:example:petri:1" as p;
+
+pub fn engine() -> String = "intersect.timed-token-flow@1";
+pub fn settings() -> {policy: String, seed: Int, until: Int} =
+  {policy: "first", seed: 0, until: 20000};
+
+fn arcs(items: Sequence<p.Arc>) -> Sequence<{place: String, weight: Int32}> =
+  [for item in items yield {place: identity(item.place), weight: item.weight ?? 1}];
+
+fn delayMs(delay: Option<p.Delay>) -> Int32 =
+  match delay {
+    Some(value) => if value.unit == "s" { value.amount * 1000 } else { value.amount },
+    None => 0
+  };
+
+pub fn net(net: p.Net) -> {
+  name: String,
+  places: Sequence<{id: String, name: String, tokens: Int32}>,
+  transitions: Sequence<{id: String, name: String, external: Bool, delay_ms: Int32,
+    inputs: Sequence<{place: String, weight: Int32}>,
+    outputs: Sequence<{place: String, weight: Int32}>}>
+} = {
+  name: net.name,
+  places: [for place in net.places yield {
+    id: identity(place), name: place.name, tokens: place.tokens ?? 0
+  }],
+  transitions: [for transition in net.transitions yield {
+    id: identity(transition), name: transition.name, external: transition.`external` ?? false,
+    delay_ms: delayMs(transition.delay),
+    inputs: arcs(Sequence(transition.inputs)), outputs: arcs(Sequence(transition.outputs))
+  }]
+};
+
+pub fn scenario() -> {inputs: Sequence<{at_ms: Int, transition: String}>} =
+  {inputs: [{at_ms: 0, transition: "insert"}, {at_ms: 1000, transition: "insert"}]};

@@ -1,0 +1,56 @@
+rcore 1;
+package intersect.enclosure.execution version "1";
+import model "urn:intersect:example:heated-enclosure:1" as t;
+
+fn initialTemperature(enclosure: t.Enclosure) -> Float64 =
+  if enclosure.warmStart ?? false { 21.0 } else { 20.0 };
+
+fn upperThreshold(enclosure: t.Enclosure) -> Float64 =
+  if enclosure.warmStart ?? false { 41.0 } else { 40.0 };
+
+pub fn controlledRate(heaterOn: Bool, power: Float64, loss: Float64,
+                      temperature: Float64, ambient: Float64, capacity: Float64) -> Float64 {
+  let heaterPower: Float64 = if heaterOn { power } else { 0.0 };
+  (heaterPower - loss * (temperature - ambient)) / capacity
+}
+
+pub fn settings() -> {end_ms: Int, sample_ms: Int, max_step_ms: Int} =
+  {end_ms: 1800000, sample_ms: 15000, max_step_ms: 2000};
+
+pub fn cases() -> Sequence<{
+  name: String, parameters: {power: Float64, loss: Float64, ambient: Float64, capacity: Float64}
+}> = [
+  {name: "baseline", parameters: {power: 120.0, loss: 5.0,
+   ambient: 20.0, capacity: 1200.0}},
+  {name: "current", parameters: {power: 250.0, loss: 5.0,
+   ambient: 20.0, capacity: 1200.0}}
+];
+
+pub fn variables(enclosure: t.Enclosure) -> Sequence<{
+  name: String, initial: Float64, derivative: String, arguments: Sequence<String>
+}> = [
+  {name: "temperatureC", initial: initialTemperature(enclosure), derivative: "controlledRate",
+   arguments: ["active.Heating", "parameter.power", "parameter.loss", "state.temperatureC",
+               "parameter.ambient", "parameter.capacity"]}
+];
+
+pub fn chart() -> {
+  initial: String,
+  states: Sequence<{id: String}>,
+  transitions: Sequence<{from: String, event: String, to: String}>,
+  immediate: Bool
+} = {
+  initial: "Heating",
+  states: [{id: "Heating"}, {id: "Idle"}],
+  transitions: [
+    {from: "Heating", event: "tooHot", to: "Idle"},
+    {from: "Idle", event: "tooCool", to: "Heating"}
+  ],
+  immediate: true
+};
+
+pub fn crossings(enclosure: t.Enclosure) ->
+  Sequence<{variable: String, level: Float64, rising: Bool, event: String}> = [
+    {variable: "temperatureC", level: upperThreshold(enclosure), rising: true, event: "tooHot"},
+    {variable: "temperatureC", level: 38.0, rising: false, event: "tooCool"}
+  ];

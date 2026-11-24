@@ -1,0 +1,15 @@
+rcore 1;
+package experiment.maintenance version "1";
+metamodel "urn:intersect:experiment:maintenance" prefix m {
+  class Job {
+    ref phases: Phase [1,*] containment;
+    ref start: Phase [1,1];
+    ref advances: Advance [0,*] containment;
+  }
+  class Phase {}
+  class Advance {
+    ref before: Phase [1,1];
+    attr command: String [1,1];
+    ref after: Phase [1,1];
+  }
+}

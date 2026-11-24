@@ -1,0 +1,13 @@
+grammar org.intersect.StateMachine with org.eclipse.xtext.common.Terminals
+import "urn:intersect:example:state-machine:1" as m
+
+Machine returns m::Machine:
+  'machine' name=ID 'initial' initial=[m::State|ID] '{'
+    (events+=Event | states+=State | transitions+=Transition)*
+  '}';
+State returns m::State:
+  'state' name=ID ('initial' initial=[m::State|ID])?
+  (';' | '{' (states+=State)* '}');
+Event returns m::Event: 'event' name=ID ';';
+Transition returns m::Transition:
+  'transition' source=[m::State|ID] 'on' event=[m::Event|ID] '->' target=[m::State|ID] ';';

@@ -1,0 +1,33 @@
+rcore 1;
+package experiment.thermal version "1";
+
+pub fn engine() -> String = "intersect.ode@1";
+
+pub fn heatBalance(power:Float64, loss:Float64, temperature:Float64, ambient:Float64)->Float64 =
+  power - loss * (temperature - ambient);
+
+pub fn temperatureRate(power:Float64, loss:Float64, temperature:Float64, ambient:Float64, capacity:Float64)->Float64 =
+  heatBalance(power, loss, temperature, ambient) / capacity;
+
+pub fn decayExponent(loss:Float64, seconds:Float64, capacity:Float64)->Float64 =
+  -(loss * seconds) / capacity;
+
+pub fn analyticTemperature(power:Float64, loss:Float64, ambient:Float64, initial:Float64,
+                           seconds:Float64, capacity:Float64, decayMinusOne:Float64)->Float64 =
+  if loss == 0.0 { initial + power * seconds / capacity }
+  else { initial + ((initial - ambient) - power / loss) * decayMinusOne };
+
+pub fn settings() -> {end_ms: Int, sample_ms: Int, max_step_ms: Int} =
+  {end_ms: 1800000, sample_ms: 15000, max_step_ms: 2000};
+
+pub fn cases() -> Sequence<{name: String, parameters: {power: Float64, loss: Float64,
+                                                      ambient: Float64, capacity: Float64}}> = [
+  {name: "baseline", parameters: {power: 120.0, loss: 5.0, ambient: 20.0, capacity: 1200.0}},
+  {name: "current", parameters: {power: 250.0, loss: 5.0, ambient: 20.0, capacity: 1200.0}}
+];
+
+pub fn variables() -> Sequence<{name: String, initial: Float64, derivative: String,
+                                arguments: Sequence<String>}> = [
+  {name: "temperatureC", initial: 20.0, derivative: "temperatureRate",
+   arguments: ["parameter.power", "parameter.loss", "state.temperatureC", "parameter.ambient", "parameter.capacity"]}
+];
