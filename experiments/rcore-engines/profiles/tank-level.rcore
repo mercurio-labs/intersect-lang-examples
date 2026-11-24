@@ -1,0 +1,33 @@
+rcore 1;
+package experiment.tank version "1";
+
+pub fn engine() -> String = "intersect.coupled-ode@1";
+pub fn levelRate(pumping: Bool, inflow: Float64, outflow: Float64) -> Float64 =
+  if pumping { inflow - outflow } else { -outflow };
+
+pub fn settings() -> {end_ms: Int, sample_ms: Int, max_step_ms: Int} =
+  {end_ms: 4000, sample_ms: 1000, max_step_ms: 1000};
+
+pub fn variables() -> Sequence<{name: String, initial: Float64, derivative: String,
+                                arguments: Sequence<String>}> =
+  [{name: "level", initial: 0.0, derivative: "levelRate",
+    arguments: ["active.Filling", "parameter.inflow", "parameter.outflow"]}];
+
+pub fn cases() -> Sequence<{name: String, parameters: {inflow: Float64, outflow: Float64}}> =
+  [{name: "tank", parameters: {inflow: 2.0, outflow: 1.0}}];
+
+pub fn chart() -> {
+  initial: String, states: Sequence<{id: String}>,
+  transitions: Sequence<{from: String, event: String, to: String}>
+} = {
+  initial: "Filling", states: [{id: "Filling"}, {id: "Draining"}],
+  transitions: [
+    {from: "Filling", event: "full", to: "Draining"},
+    {from: "Draining", event: "low", to: "Filling"}
+  ]
+};
+
+pub fn crossings() -> Sequence<{variable: String, level: Float64, rising: Bool, event: String}> = [
+  {variable: "level", level: 2.0, rising: true, event: "full"},
+  {variable: "level", level: 1.0, rising: false, event: "low"}
+];

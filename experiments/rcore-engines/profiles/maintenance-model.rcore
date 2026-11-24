@@ -1,0 +1,26 @@
+rcore 1;
+package experiment.maintenance_run version "1";
+import model "urn:intersect:experiment:maintenance" as m;
+
+pub fn engine() -> String = "intersect.state-machine@1";
+
+pub fn chart(job: m.Job) -> {
+  initial: String,
+  states: Sequence<{id: String}>,
+  transitions: Sequence<{from: String, event: String, to: String}>,
+  guard: String, immediate: Bool
+} = {
+  initial: identity(job.start),
+  states: [for phase in job.phases yield {id: identity(phase)}],
+  transitions: [for advance in job.advances yield {
+    from: identity(advance.before), event: advance.command, to: identity(advance.after)
+  }],
+  guard: "mayAdvance", immediate: true
+};
+
+pub fn mayAdvance(from: String, event: String, to: String) -> Bool =
+  event != "release" || (from == "Inspected" && to == "Released");
+
+pub fn scenario() -> Sequence<{at: Int, event: String}> = [
+  {at: 1, event: "release"}, {at: 2, event: "inspect"}, {at: 2, event: "release"}
+];

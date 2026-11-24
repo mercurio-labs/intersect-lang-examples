@@ -1,0 +1,18 @@
+rcore 1;
+package experiment.thermal_equilibrium version "1";
+
+pub fn engine() -> String = "intersect.scalar-root@1";
+pub fn residual() -> String = "heatBalance";
+
+pub fn heatBalance(temperature: Float64, power: Float64, loss: Float64, ambient: Float64) -> Float64 =
+  power - loss * (temperature - ambient);
+
+pub fn problems() -> Sequence<{
+  name: String, lower: Float64, upper: Float64, tolerance: Float64,
+  iterations: Int, arguments: Sequence<Float64>
+}> = [
+  {name: "baseline", lower: 20.0, upper: 620.0, tolerance: 0.000000001,
+   iterations: 64, arguments: [120.0, 5.0, 20.0]},
+  {name: "current", lower: 20.0, upper: 620.0, tolerance: 0.000000001,
+   iterations: 64, arguments: [250.0, 5.0, 20.0]}
+];

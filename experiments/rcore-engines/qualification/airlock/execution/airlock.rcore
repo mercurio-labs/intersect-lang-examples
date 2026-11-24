@@ -1,0 +1,31 @@
+rcore 1;
+package experiment.airlock_model version "1";
+import model "urn:intersect:example:state-machine:1" as m;
+
+
+pub fn chart(machine: m.Machine) -> {
+  initial: String,
+  states: Sequence<{id: String, parent: Option<String>, initial: Option<String>}>,
+  transitions: Sequence<{id: String, from: String, event: String, to: String}>
+} {
+  let states = closure(machine.states, |state: m.State| state.states);
+  {
+    initial: identity(machine.initial),
+    states: [for state in Sequence(states) yield {
+      id: identity(state),
+      parent: match find(Sequence(states), |candidate: m.State|
+        exists(candidate.states, |child: m.State| identity(child) == identity(state))) {
+        Some(parent) => Some(identity(parent)), None => None
+      },
+      initial: match state.initial { Some(child) => Some(identity(child)), None => None }
+    }],
+    transitions: [for edge in machine.transitions yield {
+      id: identity(edge), from: identity(edge.source), event: edge.event.name, to: identity(edge.target)
+    }]
+  }
+}
+
+pub fn scenario() -> Sequence<{at: Int, event: String}> = [
+  {at: 1, event: "unlock"}, {at: 2, event: "open"}, {at: 3, event: "lock"},
+  {at: 4, event: "close"}, {at: 5, event: "jam"}, {at: 6, event: "recover"}
+];

@@ -1,0 +1,21 @@
+[package]
+package_id = "intersect.examples.thermostat"
+release = "1.0.0"
+display_name = "Heated enclosure"
+description = "A thermostat switches an enclosure heater while a numerical engine integrates temperature."
+
+[definitions]
+namespace = "urn:intersect:example:heated-enclosure:1"
+metamodel = "language/enclosure.rcore"
+grammar = "language/enclosure.xtext"
+behavior = "language/bindings.rcore"
+profile = "intersect.xtext.native.v80"
+
+grammar_dependencies = ["language/Terminals.xtext"]
+
+[execution]
+default = "thermostat"
+
+[execution.profiles.thermostat]
+engine = "intersect.coupled-ode@1"
+source = "execution/thermostat.rcore"

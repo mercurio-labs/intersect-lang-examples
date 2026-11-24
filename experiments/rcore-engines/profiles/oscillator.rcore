@@ -1,0 +1,21 @@
+rcore 1;
+package experiment.oscillator version "1";
+
+pub fn engine() -> String = "intersect.ode@1";
+
+pub fn positionRate(velocity: Float64) -> Float64 = velocity;
+pub fn velocityRate(position: Float64, frequency: Float64) -> Float64 =
+  -frequency * frequency * position;
+
+pub fn settings() -> {end_ms: Int, sample_ms: Int, max_step_ms: Int} =
+  {end_ms: 6000, sample_ms: 100, max_step_ms: 10};
+
+pub fn variables() -> Sequence<{name: String, initial: Float64, derivative: String,
+                                arguments: Sequence<String>}> = [
+  {name: "position", initial: 1.0, derivative: "positionRate", arguments: ["state.velocity"]},
+  {name: "velocity", initial: 0.0, derivative: "velocityRate",
+   arguments: ["state.position", "parameter.frequency"]}
+];
+
+pub fn cases() -> Sequence<{name: String, parameters: {frequency: Float64}}> =
+  [{name: "spring", parameters: {frequency: 1.0}}];

@@ -1,0 +1,9 @@
+rcore 1;
+package intersect.enclosure version "1";
+
+metamodel "urn:intersect:example:heated-enclosure:1" prefix t {
+  class Enclosure {
+    attr name: String [1,1];
+    attr warmStart: Bool [0,1];
+  }
+}

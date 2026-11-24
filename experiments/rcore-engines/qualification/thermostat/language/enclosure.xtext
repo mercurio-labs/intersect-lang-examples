@@ -1,0 +1,5 @@
+grammar org.intersect.Enclosure with org.eclipse.xtext.common.Terminals
+import "urn:intersect:example:heated-enclosure:1" as t
+
+Enclosure returns t::Enclosure:
+  'enclosure' name=ID (warmStart?='warm')?;
